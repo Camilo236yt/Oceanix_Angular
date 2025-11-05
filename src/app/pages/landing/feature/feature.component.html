@@ -1,15 +1,24 @@
 <section id="caracteristicas" class="bg-gradient-to-br from-purple-50 via-white to-purple-50 py-12 md:py-20 px-4 md:px-6 mb-8 md:mb-12">
   <div class="max-w-6xl mx-auto">
     <!-- Title -->
-    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10 md:mb-16 px-2">
+    <h2
+      class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10 md:mb-16 px-2"
+      data-aos="fade-up"
+      data-aos-duration="500"
+    >
       Olvídate del caos en la gestión de reclamos
     </h2>
 
     <!-- Features Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
       <!-- Feature Card -->
-      @for (feature of features; track feature.title) {
-      <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow">
+      @for (feature of features; track feature.title; let i = $index) {
+      <div
+        class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow"
+        data-aos="fade-up"
+        data-aos-duration="500"
+        [attr.data-aos-delay]="i * 100"
+      >
         <!-- Icon -->
         <div class="w-14 h-14 md:w-16 md:h-16 mb-4 md:mb-6 bg-purple-100 rounded-xl md:rounded-2xl flex items-center justify-center">
           @if (feature.icon === 'clock') {

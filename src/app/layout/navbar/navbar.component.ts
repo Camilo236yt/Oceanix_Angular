@@ -94,7 +94,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private performScroll(anchor: string): void {
     if (!anchor) {
-      this.smoothScrollTo(0, 1200);
+      this.smoothScrollTo(0, 800);
       return;
     }
 
@@ -102,7 +102,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const element = document.getElementById(anchor);
       if (element) {
         const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - 100;
-        this.smoothScrollTo(targetPosition, 1200);
+        this.smoothScrollTo(targetPosition, 800);
       }
     }, 100);
   }

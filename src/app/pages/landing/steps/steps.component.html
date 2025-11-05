@@ -1,7 +1,11 @@
 <section class="py-12 md:py-20 px-4 md:px-6 mb-8 md:mb-12" style="background-color: #ECF1FA;">
   <div class="max-w-6xl mx-auto">
     <!-- Title -->
-    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10 md:mb-16 px-2">
+    <h2
+      class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10 md:mb-16 px-2"
+      data-aos="fade-up"
+      data-aos-duration="500"
+    >
       En tres pasos, todo bajo control
     </h2>
 
@@ -13,8 +17,13 @@
       <!-- Steps Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative z-10">
         <!-- Step Card -->
-        @for (step of steps; track step.number) {
-        <div class="flex flex-col items-center text-center">
+        @for (step of steps; track step.number; let i = $index) {
+        <div
+          class="flex flex-col items-center text-center"
+          data-aos="fade-up"
+          data-aos-duration="500"
+          [attr.data-aos-delay]="i * 100"
+        >
         <!-- Icon Circle with Number Badge -->
         <div class="relative mb-4 md:mb-6">
           <!-- Main Circle -->
@@ -62,7 +71,12 @@
     </div>
 
     <!-- CTA Button -->
-    <div class="flex justify-center px-4">
+    <div
+      class="flex justify-center px-4"
+      data-aos="fade-up"
+      data-aos-duration="500"
+      data-aos-delay="300"
+    >
       <button class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-base font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
         Probar ahora
       </button>

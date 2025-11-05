@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FeatureComponent } from './feature/feature.component';
 import { StepsComponent } from './steps/steps.component';
 import { CompaniesComponent } from './companies/companies.component';
+import * as AOS from 'aos';
 
 @Component({
   selector: 'app-landing',
@@ -11,6 +12,18 @@ import { CompaniesComponent } from './companies/companies.component';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
 
+  ngOnInit(): void {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 150,
+      delay: 0,
+      anchorPlacement: 'top-bottom',
+      disable: false,
+      mirror: false,
+    });
+  }
 }
