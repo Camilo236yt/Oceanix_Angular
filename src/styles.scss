@@ -1,8 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
-/* Custom Oceanix Theme */
-@theme {
+/* Custom Oceanix Theme - Tailwind v4 uses CSS variables directly */
+:root {
   --color-oceanix-purple-50: #faf5ff;
   --color-oceanix-purple-100: #f3e8ff;
   --color-oceanix-purple-400: #a78bfa;
@@ -17,6 +17,7 @@ html {
 }
 
 body {
-  @apply antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
