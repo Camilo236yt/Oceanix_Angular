@@ -23,7 +23,7 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copia los archivos construidos desde la etapa de build
-COPY --from=builder /app/dist/oceanix-f/browser /usr/share/nginx/html
+COPY --from=builder /app/dist/Oceanix_F/browser /usr/share/nginx/html
 
 # Expone el puerto 80
 EXPOSE 80
