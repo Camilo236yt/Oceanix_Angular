@@ -1,0 +1,71 @@
+<section class="py-12 md:py-20 px-4 md:px-6 mb-8 md:mb-12" style="background-color: #ECF1FA;">
+  <div class="max-w-6xl mx-auto">
+    <!-- Title -->
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10 md:mb-16 px-2">
+      En tres pasos, todo bajo control
+    </h2>
+
+    <!-- Steps Container with Line -->
+    <div class="relative mb-10 md:mb-16">
+      <!-- Connecting Line Behind All Circles -->
+      <div class="hidden md:block absolute top-10 left-0 right-0 h-0.5 bg-purple-300 z-0" style="max-width: 66%; margin: 0 auto; left: 16.67%; right: 16.67%;"></div>
+
+      <!-- Steps Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative z-10">
+        <!-- Step Card -->
+        @for (step of steps; track step.number) {
+        <div class="flex flex-col items-center text-center">
+        <!-- Icon Circle with Number Badge -->
+        <div class="relative mb-4 md:mb-6">
+          <!-- Main Circle -->
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-purple-600 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+            @if (step.icon === 'document') {
+            <!-- Document Icon -->
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            }
+
+            @if (step.icon === 'lightning') {
+            <!-- Lightning Icon -->
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            }
+
+            @if (step.icon === 'check') {
+            <!-- Check Icon -->
+            <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            }
+          </div>
+
+          <!-- Number Badge -->
+          <div class="absolute -top-1 -right-1 w-7 h-7 md:w-8 md:h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-xs md:text-sm font-bold shadow-md">
+            {{ step.number }}
+          </div>
+        </div>
+
+        <!-- Title -->
+        <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-2 md:mb-3">
+          {{ step.title }}
+        </h3>
+
+        <!-- Description -->
+        <p class="text-sm md:text-base text-gray-500 leading-relaxed">
+          {{ step.description }}
+        </p>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- CTA Button -->
+    <div class="flex justify-center px-4">
+      <button class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-8 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-base font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+        Probar ahora
+      </button>
+    </div>
+  </div>
+</section>

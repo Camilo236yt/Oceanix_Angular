@@ -1,0 +1,71 @@
+<nav class="fixed top-4 md:top-4 left-0 right-0 z-50 px-4 md:px-6">
+  <!-- Main Navbar Container -->
+  <div class="max-w-6xl mx-auto backdrop-blur-md rounded-full shadow-lg px-4 md:px-6 py-3" style="background-color: rgba(232, 227, 248, 0.7);">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-purple-600 to-purple-400 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+        </div>
+        <span class="text-base md:text-lg font-bold text-gray-900">Oceanix</span>
+      </div>
+
+      <!-- Desktop Menu Items -->
+      <div class="hidden md:flex items-center gap-8">
+        @for (item of menuItems; track item.label) {
+        <a
+          (click)="scrollToSection(item.anchor)"
+          [class.text-purple-600]="item.active"
+          [class.text-gray-600]="!item.active"
+          class="text-sm font-medium hover:text-purple-600 transition-colors cursor-pointer"
+        >
+          {{ item.label }}
+        </a>
+        }
+      </div>
+
+      <!-- Desktop Login Button -->
+      <button class="hidden md:block bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+        Iniciar sesión
+      </button>
+
+      <!-- Mobile Hamburger Button -->
+      <button
+        (click)="toggleMobileMenu()"
+        class="md:hidden p-2 text-gray-900 hover:text-purple-600 transition-colors"
+        [attr.aria-label]="isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          @if (!isMobileMenuOpen) {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          } @else {
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          }
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Dropdown (Separate from rounded navbar) -->
+  @if (isMobileMenuOpen) {
+    <div class="md:hidden max-w-6xl mx-auto mt-2 backdrop-blur-md rounded-2xl shadow-lg px-6 py-4 animate-fadeIn" style="background-color: rgba(232, 227, 248, 0.95);">
+      <div class="flex flex-col gap-4">
+        @for (item of menuItems; track item.label) {
+          <a
+            (click)="scrollToSection(item.anchor)"
+            [class.text-purple-600]="item.active"
+            [class.text-gray-600]="!item.active"
+            class="text-sm font-medium hover:text-purple-600 transition-colors cursor-pointer py-2"
+          >
+            {{ item.label }}
+          </a>
+        }
+        <button class="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors mt-2">
+          Iniciar sesión
+        </button>
+      </div>
+    </div>
+  }
+</nav>
