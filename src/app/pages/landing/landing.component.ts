@@ -16,10 +16,10 @@ export class LandingComponent implements OnInit {
 
   ngOnInit(): void {
     AOS.init({
-      duration: 800,
+      duration: 700,
       easing: 'ease-out-cubic',
       once: true,
-      offset: 150,
+      offset: 200,
       delay: 0,
       anchorPlacement: 'top-bottom',
       disable: false,
