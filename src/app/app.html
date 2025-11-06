@@ -1,3 +1,7 @@
-<app-navbar></app-navbar>
+@if (showLayout) {
+  <app-navbar></app-navbar>
+}
 <router-outlet></router-outlet>
-<app-footer></app-footer>
+@if (showLayout) {
+  <app-footer></app-footer>
+}

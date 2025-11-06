@@ -1,14 +1,28 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './layout/navbar/navbar.component';
 import { FooterComponent } from './layout/footer/footer.component';
+import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
   protected readonly title = signal('Oceanix_F');
+  showLayout = true;
+
+  constructor(private router: Router) {
+    // Escuchar cambios de ruta para mostrar/ocultar navbar y footer
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Rutas donde NO se debe mostrar el navbar y footer
+        const hiddenLayoutRoutes = ['/login'];
+        this.showLayout = !hiddenLayoutRoutes.includes(event.urlAfterRedirects);
+      });
+  }
 }

@@ -1,0 +1,136 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  templateUrl: './login.html',
+  styleUrl: './login.scss',
+})
+export class Login implements OnInit {
+  loginForm!: FormGroup;
+  isLoading = false;
+  showPassword = false;
+  errorMessage = '';
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.initializeForm();
+  }
+
+  /**
+   * Inicializa el formulario con validaciones
+   */
+  private initializeForm(): void {
+    this.loginForm = this.formBuilder.group({
+      email: ['', [
+        Validators.required,
+        Validators.email,
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      ]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[.,#%!@$&*]).*$/) // Al menos 1 mayúscula y 1 carácter especial
+      ]],
+      rememberMe: [false]
+    });
+  }
+
+  /**
+   * Maneja el envío del formulario
+   */
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.markFormGroupTouched(this.loginForm);
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Por ahora solo simula el proceso (sin backend)
+    setTimeout(() => {
+      this.isLoading = false;
+      console.log('Login data:', this.loginForm.value);
+      // Aquí irá la lógica de autenticación cuando se implemente el backend
+    }, 1500);
+  }
+
+  /**
+   * Maneja el login con Google (sin funcionalidad por ahora)
+   */
+  onGoogleLogin(): void {
+    console.log('Google login clicked - Functionality to be implemented');
+  }
+
+  /**
+   * Navega a la página anterior
+   */
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
+
+  /**
+   * Alterna la visibilidad de la contraseña
+   */
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  /**
+   * Marca todos los campos del formulario como touched para mostrar errores
+   */
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+    });
+  }
+
+  /**
+   * Obtiene el mensaje de error para el campo email
+   */
+  getEmailError(): string {
+    const emailControl = this.loginForm.get('email');
+    if (emailControl?.hasError('required')) {
+      return 'El email es requerido';
+    }
+    if (emailControl?.hasError('email') || emailControl?.hasError('pattern')) {
+      return 'Ingresa un email válido';
+    }
+    return '';
+  }
+
+  /**
+   * Obtiene el mensaje de error para el campo password
+   */
+  getPasswordError(): string {
+    const passwordControl = this.loginForm.get('password');
+    if (passwordControl?.hasError('required')) {
+      return 'La contraseña es requerida';
+    }
+    if (passwordControl?.hasError('minLength')) {
+      return 'La contraseña debe tener al menos 8 caracteres';
+    }
+    if (passwordControl?.hasError('pattern')) {
+      return 'Debe contener al menos 1 mayúscula y 1 carácter especial (.,#%!@$&*)';
+    }
+    return '';
+  }
+
+  /**
+   * Verifica si un campo es inválido y ha sido tocado
+   */
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.loginForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+}

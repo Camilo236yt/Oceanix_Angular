@@ -72,6 +72,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  navigateToLogin(): void {
+    this.isMobileMenuOpen = false;
+    this.router.navigate(['/login']);
+  }
+
   scrollToSection(anchor: string): void {
     // Cerrar el menú móvil si está abierto
     this.isMobileMenuOpen = false;

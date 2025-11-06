@@ -6,7 +6,8 @@
       "Bash(dir /s /b tailwind.config.*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(ng generate:*)"
     ],
     "deny": [],
     "ask": []
