@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm run build:*)",
       "Bash(npm start)",
-      "Bash(dir /s /b tailwind.config.*)"
+      "Bash(dir /s /b tailwind.config.*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
