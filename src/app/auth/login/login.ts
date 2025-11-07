@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { emailValidator } from '../../utils/validators';
 
 @Component({
   selector: 'app-login',
@@ -32,13 +33,10 @@ export class Login implements OnInit {
     this.loginForm = this.formBuilder.group({
       email: ['', [
         Validators.required,
-        Validators.email,
-        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+        emailValidator()
       ]],
       password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[.,#%!@$&*]).*$/) // Al menos 1 mayúscula y 1 carácter especial
+        Validators.required
       ]],
       rememberMe: [false]
     });
@@ -116,12 +114,6 @@ export class Login implements OnInit {
     const passwordControl = this.loginForm.get('password');
     if (passwordControl?.hasError('required')) {
       return 'La contraseña es requerida';
-    }
-    if (passwordControl?.hasError('minLength')) {
-      return 'La contraseña debe tener al menos 8 caracteres';
-    }
-    if (passwordControl?.hasError('pattern')) {
-      return 'Debe contener al menos 1 mayúscula y 1 carácter especial (.,#%!@$&*)';
     }
     return '';
   }

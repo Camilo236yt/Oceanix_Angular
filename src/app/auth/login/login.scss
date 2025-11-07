@@ -114,11 +114,28 @@
 }
 
 /* Estilos adicionales para inputs */
+input {
+  color: #1F2937 !important;
+  background-color: white !important;
+  caret-color: #1F2937;
+}
+
+input:hover {
+  color: #1F2937 !important;
+  background-color: white !important;
+}
+
 input:focus {
   outline: none;
+  color: #1F2937 !important;
+  background-color: white !important;
 }
 
 input::placeholder {
+  color: #9CA3AF;
+}
+
+input:hover::placeholder {
   color: #9CA3AF;
 }
 
@@ -156,6 +173,13 @@ button:hover:not(:disabled) {
     min-height: 100vh;
     min-height: -webkit-fill-available;
   }
+}
+
+/* Asegurar que el body y html tengan altura completa */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f9fafb;
 }
 
 /* Mejorar espaciado en tablets */

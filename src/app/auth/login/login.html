@@ -1,4 +1,4 @@
-<div class="min-h-screen flex">
+<div class="min-h-screen flex bg-gray-50">
   <!-- Panel Izquierdo con Logo y Diseño (oculto en mobile) -->
   <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-purple-600 via-purple-500 to-purple-600 relative overflow-hidden">
     <!-- Burbujas decorativas animadas -->
@@ -52,7 +52,7 @@
   </div>
 
   <!-- Panel Derecho - Formulario de Login -->
-  <div class="w-full lg:w-1/2 flex flex-col bg-gray-50 px-6 sm:px-8 lg:px-20 py-8 lg:py-12">
+  <div class="w-full lg:w-1/2 flex flex-col bg-gray-50 px-6 sm:px-8 lg:px-20 py-8 lg:py-12 min-h-screen">
     <!-- Botón Volver (parte superior) -->
     <button
       (click)="goBack()"
@@ -168,7 +168,7 @@
         <button
           type="submit"
           [disabled]="isLoading"
-          class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base">
+          class=" cursor-pointer w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base">
           @if (!isLoading) {
             <span>Iniciar sesión</span>
           }
