@@ -1,0 +1,29 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+svg {
+  display: block;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Asegurar que el ícono respete las clases de Tailwind */
+:host-context(.hover\:text-white:hover) svg {
+  transition: color 0.2s ease-in-out;
+}
+
+/* Permitir que el ícono sea animable */
+:host-context(.animate-spin) svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

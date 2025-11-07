@@ -1,1 +1,14 @@
 // Footer Component Styles
+
+// Estilos para el logo de Oceanix en el footer
+app-icon[name="oceanix-logo"] {
+  display: block;
+
+  ::ng-deep svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // Asegurar que no haya fondo blanco
+    background: transparent;
+  }
+}

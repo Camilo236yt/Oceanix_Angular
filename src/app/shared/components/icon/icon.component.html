@@ -1,0 +1,36 @@
+<!-- Renderizado condicional basado en si el ícono existe -->
+@if (iconExists) {
+  <!-- Ícono especial (con múltiples paths, como Google) -->
+  @if (isSpecialIcon) {
+    <svg
+      [attr.width]="sizeInPx"
+      [attr.height]="sizeInPx"
+      [attr.viewBox]="viewBox"
+      [class]="class"
+      xmlns="http://www.w3.org/2000/svg"
+      [innerHTML]="specialIconHtml">
+    </svg>
+  }
+  <!-- Ícono normal (con un solo path) -->
+  @else {
+    <svg
+      [attr.width]="sizeInPx"
+      [attr.height]="sizeInPx"
+      [attr.viewBox]="viewBox"
+      [attr.fill]="fill"
+      [attr.stroke]="stroke"
+      [attr.stroke-width]="strokeWidth"
+      [attr.stroke-linecap]="strokeLinecap"
+      [attr.stroke-linejoin]="strokeLinejoin"
+      [class]="class"
+      xmlns="http://www.w3.org/2000/svg">
+      <path [attr.d]="iconConfig.path"></path>
+    </svg>
+  }
+}
+<!-- Mensaje de advertencia si el ícono no existe -->
+@else {
+  <span class="text-red-500 text-xs">
+    Ícono "{{ name }}" no encontrado
+  </span>
+}
