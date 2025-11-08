@@ -18,6 +18,8 @@ import {
   markFormGroupTouched
 } from '../../utils/form-helpers';
 import { NumericOnlyDirective } from '../../utils/numeric-only.directive';
+import { AuthService } from '../../services/auth.service';
+import { RegisterEnterpriseRequest } from '../../interface/auth.interface';
 
 @Component({
   selector: 'app-register',
@@ -44,7 +46,8 @@ export class Register implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -221,16 +224,85 @@ export class Register implements OnInit {
 
     this.isLoading = true;
 
-    // Simular el proceso de registro
-    setTimeout(() => {
-      this.isLoading = false;
-      const registerData = {
-        ...this.step1Form.value,
-        ...this.step2Form.value
-      };
-      console.log('Register data:', registerData);
-      // Aquí irá la lógica de registro cuando se implemente el backend
-    }, 1500);
+    // Preparar datos para el registro según el formato esperado por el backend
+    const registerData: RegisterEnterpriseRequest = {
+      enterpriseName: this.step1Form.value.companyName,
+      subdomain: this.step1Form.value.subdomain,
+      enterpriseEmail: this.step1Form.value.companyEmail,
+      enterprisePhone: `+57${this.step1Form.value.companyPhone}`, // Formato internacional
+      enterpriseTaxIdType: this.step1Form.value.taxIdType,
+      enterpriseTaxIdNumber: this.step1Form.value.taxIdNumber,
+      adminName: this.step2Form.value.firstName,
+      adminLastName: this.step2Form.value.lastName,
+      adminEmail: this.step2Form.value.email,
+      adminPhoneNumber: `+57${this.step2Form.value.phone}`, // Formato internacional
+      adminPassword: this.step2Form.value.password,
+      adminConfirmPassword: this.step2Form.value.confirmPassword,
+      adminIdentificationType: this.step2Form.value.documentType === 'Cedula' ? 'CC' : 'PA',
+      adminIdentificationNumber: this.step2Form.value.documentNumber,
+      acceptTerms: this.step2Form.value.acceptTerms
+    };
+
+    // Realizar el registro
+    this.authService.registerEnterprise(registerData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          console.log('Registro exitoso:', response.data);
+
+          const subdomain = response.data.enterprise.subdomain;
+          const adminEmail = response.data.admin.email;
+          const password = this.step2Form.value.password;
+
+          // Login automático después del registro
+          this.authService.login({
+            email: adminEmail,
+            password: password
+          }).subscribe({
+            next: (loginResponse) => {
+              if (loginResponse.success) {
+                console.log('Login automático exitoso');
+                this.isLoading = false;
+
+                // Mostrar mensaje de éxito
+                alert(`¡Registro exitoso! Empresa: ${response.data.enterprise.name}\nSubdominio: ${subdomain}.oceanix.space\n\nEn producción serías redirigido automáticamente.`);
+
+                // Redirigir al subdominio de la empresa (en producción redirige, en desarrollo solo lo registra)
+                this.authService.redirectToSubdomain(subdomain);
+
+                // En desarrollo, redirigir al dashboard o página principal después del registro
+                // Puedes cambiar '/login' por la ruta que prefieras
+                if (window.location.hostname === 'localhost') {
+                  // Aquí puedes redirigir a donde quieras en desarrollo
+                  // Por ahora lo dejamos en la misma página para que veas el resultado
+                  console.log('Usuario autenticado localmente. Token guardado.');
+                }
+              }
+            },
+            error: (loginError) => {
+              console.error('Error en login automático:', loginError);
+              this.isLoading = false;
+
+              // Si falla el login, redirigir a la página de login
+              alert('Registro exitoso. Por favor inicia sesión.');
+              this.router.navigate(['/login']);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error en el registro:', error);
+        this.isLoading = false;
+
+        // Manejar errores específicos
+        if (error.status === 409) {
+          alert('El subdominio o email ya está en uso. Por favor, intenta con otros datos.');
+        } else if (error.status === 400) {
+          alert('Datos inválidos. Por favor verifica la información ingresada.');
+        } else {
+          alert('Error al registrar la empresa. Por favor intenta nuevamente.');
+        }
+      }
+    });
   }
 
   /**

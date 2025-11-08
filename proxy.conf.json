@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://backend-dev.oceanix.space",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

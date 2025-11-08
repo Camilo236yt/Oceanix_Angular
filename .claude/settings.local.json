@@ -10,7 +10,13 @@
       "Bash(ng generate:*)",
       "Bash(dir:*)",
       "Bash(npm run build:dev:*)",
-      "Bash(if exist register rmdir /s /q register)"
+      "Bash(if exist register rmdir /s /q register)",
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill //F //PID 29268)",
+      "Bash(taskkill //F //PID 19280)",
+      "Bash(del nul 2)"
     ],
     "deny": [],
     "ask": []
