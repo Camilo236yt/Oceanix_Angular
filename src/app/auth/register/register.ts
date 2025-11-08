@@ -33,6 +33,7 @@ export class Register implements OnInit {
   isLoading = false;
   showPassword = false;
   showConfirmPassword = false;
+  showSubdomainTooltip = false;
 
   // Límites de caracteres dinámicos
   taxIdMaxLength = 13;
