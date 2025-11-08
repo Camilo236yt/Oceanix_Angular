@@ -177,6 +177,8 @@ export class Register implements OnInit {
       return;
     }
     this.currentStep = 2;
+    // Reiniciar scroll al inicio cuando cambia al paso 2
+    window.scrollTo(0, 0);
   }
 
   /**
@@ -184,6 +186,8 @@ export class Register implements OnInit {
    */
   previousStep(): void {
     this.currentStep = 1;
+    // Reiniciar scroll al inicio cuando regresa al paso 1
+    window.scrollTo(0, 0);
   }
 
   /**
