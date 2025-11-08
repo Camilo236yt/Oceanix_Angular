@@ -1,0 +1,477 @@
+<div class="min-h-screen flex flex-col bg-gray-50 px-4 sm:px-8 lg:px-20 py-3 sm:py-4">
+  <!-- Botón Volver -->
+  <button
+    (click)="goBack()"
+    class="cursor-pointer flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-2 sm:mb-3 transition-colors group self-start"
+    type="button">
+    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+    </svg>
+    <span class="text-sm font-medium">Volver</span>
+  </button>
+
+  <!-- Step Indicator -->
+  <div class="flex items-center justify-center mb-3 sm:mb-4">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Step 1 -->
+      <div class="flex flex-col items-center">
+        <div
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all bg-purple-600 text-white">
+          1
+        </div>
+        <span class="text-xs mt-1 font-medium text-gray-900">Paso 1</span>
+      </div>
+
+      <!-- Line connector -->
+      <div class="w-16 sm:w-20 h-0.5 mb-5" [class.bg-purple-600]="currentStep === 2" [class.bg-gray-300]="currentStep === 1"></div>
+
+      <!-- Step 2 -->
+      <div class="flex flex-col items-center">
+        <div
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all"
+          [class.bg-purple-600]="currentStep === 2"
+          [class.text-white]="currentStep === 2"
+          [class.bg-gray-300]="currentStep === 1"
+          [class.text-gray-700]="currentStep === 1">
+          2
+        </div>
+        <span class="text-xs mt-1 font-medium" [class.text-gray-900]="currentStep === 2" [class.text-gray-400]="currentStep === 1">Paso 2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="flex-1 flex items-center justify-center">
+    <div class="w-full max-w-4xl bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+
+      <!-- PASO 1: Datos de la Empresa -->
+      @if (currentStep === 1) {
+        <div class="animate-fadeIn">
+          <!-- Icon and Title -->
+          <div class="flex flex-col items-center mb-4 sm:mb-6">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-purple-100 flex items-center justify-center mb-2 sm:mb-3">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Datos de la Empresa</h2>
+            <p class="text-xs sm:text-sm text-gray-500 text-center px-4">Datos generales de la empresa</p>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="step1Form" class="space-y-3 sm:space-y-4">
+            <!-- Row 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Nombre de la Empresa -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Nombre de la Empresa <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="companyName"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'companyName')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyName')">
+                @if (isFieldInvalid(step1Form, 'companyName')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'companyName') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Subdominio -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Subdominio <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="subdomain"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'subdomain')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'subdomain')">
+                @if (isFieldInvalid(step1Form, 'subdomain')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'subdomain') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Correo de Contacto Empresarial -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Correo de Contacto Empresarial <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  formControlName="companyEmail"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'companyEmail')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyEmail')">
+                @if (isFieldInvalid(step1Form, 'companyEmail')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'companyEmail') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Teléfono de la Empresa -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Teléfono de la Empresa <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="companyPhone"
+                  numericOnly
+                  placeholder="9876543210"
+                  maxlength="10"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'companyPhone')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyPhone')">
+                @if (isFieldInvalid(step1Form, 'companyPhone')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'companyPhone') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Tipo de Identificación Tributaria -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Tipo de Identificación Tributaria <span class="text-red-500">*</span>
+                </label>
+                <select
+                  formControlName="taxIdType"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'taxIdType')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'taxIdType')"
+                  [class.text-gray-400]="!step1Form.get('taxIdType')?.value">
+                  <option value="" disabled selected>Seleccione un tipo</option>
+                  <option value="RUC">RUC (Perú - 11 dígitos)</option>
+                  <option value="NIT">NIT (Colombia - 9-10 dígitos)</option>
+                  <option value="RFC">RFC (México - 12-13 caracteres)</option>
+                </select>
+                @if (isFieldInvalid(step1Form, 'taxIdType')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'taxIdType') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Número de Identificación Tributaria -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Número de Identificación Tributaria <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="taxIdNumber"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step1Form, 'taxIdNumber')"
+                  [class.border-gray-300]="!isFieldInvalid(step1Form, 'taxIdNumber')">
+                @if (isFieldInvalid(step1Form, 'taxIdNumber')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step1Form, 'taxIdNumber') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Button -->
+            <div class="flex justify-end pt-2 sm:pt-3">
+              <button
+                type="button"
+                (click)="nextStep()"
+                class="w-full sm:w-auto px-6 py-2.5 sm:py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+                Siguiente
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- PASO 2: Datos del Administrador -->
+      @if (currentStep === 2) {
+        <div class="animate-fadeIn">
+          <!-- Icon and Title -->
+          <div class="flex flex-col items-center mb-4 sm:mb-6">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-purple-100 flex items-center justify-center mb-2 sm:mb-3">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Datos del Administrador</h2>
+            <p class="text-xs sm:text-sm text-gray-500 text-center px-4">Información del administrador principal</p>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="step2Form" (ngSubmit)="onSubmit()" class="space-y-3 sm:space-y-4">
+            <!-- Row 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Nombre del Administrador -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Nombre del Administrador <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="firstName"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'firstName')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'firstName')">
+                @if (isFieldInvalid(step2Form, 'firstName')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'firstName') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Apellido del Administrador -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Apellido del Administrador <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="lastName"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'lastName')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'lastName')">
+                @if (isFieldInvalid(step2Form, 'lastName')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'lastName') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Correo del Administrador -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Correo del Administrador <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  formControlName="email"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'email')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'email')">
+                @if (isFieldInvalid(step2Form, 'email')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'email') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Teléfono del Administrador -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Teléfono del Administrador <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="phone"
+                  numericOnly
+                  placeholder="9876543210"
+                  maxlength="10"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'phone')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'phone')">
+                @if (isFieldInvalid(step2Form, 'phone')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'phone') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Tipo de Documento -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Tipo de Documento <span class="text-red-500">*</span>
+                </label>
+                <select
+                  formControlName="documentType"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'documentType')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'documentType')"
+                  [class.text-gray-400]="!step2Form.get('documentType')?.value">
+                  <option value="" disabled selected>Seleccione un tipo</option>
+                  <option value="DNI">DNI (8 dígitos)</option>
+                  <option value="Pasaporte">Pasaporte (6-12 caracteres)</option>
+                  <option value="Cedula">Cédula (6-10 dígitos)</option>
+                </select>
+                @if (isFieldInvalid(step2Form, 'documentType')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'documentType') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Número de Documento -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Número de Documento <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  formControlName="documentNumber"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'documentNumber')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'documentNumber')">
+                @if (isFieldInvalid(step2Form, 'documentNumber')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'documentNumber') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Row 4 - Passwords -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Contraseña -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Contraseña <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    [class.border-red-500]="isFieldInvalid(step2Form, 'password')"
+                    [class.border-gray-300]="!isFieldInvalid(step2Form, 'password')">
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility('password')"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                    @if (!showPassword) {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    }
+                    @if (showPassword) {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                      </svg>
+                    }
+                  </button>
+                </div>
+                @if (isFieldInvalid(step2Form, 'password')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'password') }}
+                  </p>
+                }
+              </div>
+
+              <!-- Confirmar Contraseña -->
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">
+                  Confirmar Contraseña <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    [class.border-red-500]="isFieldInvalid(step2Form, 'confirmPassword')"
+                    [class.border-gray-300]="!isFieldInvalid(step2Form, 'confirmPassword')">
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility('confirmPassword')"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                    @if (!showConfirmPassword) {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    }
+                    @if (showConfirmPassword) {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                      </svg>
+                    }
+                  </button>
+                </div>
+                @if (isFieldInvalid(step2Form, 'confirmPassword')) {
+                  <p class="mt-1 text-xs text-red-600">
+                    {{ getFieldError(step2Form, 'confirmPassword') }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="pt-0 sm:pt-1">
+              <div class="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  formControlName="acceptTerms"
+                  class="w-4 h-4 mt-0.5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer flex-shrink-0"
+                  [class.border-red-500]="isFieldInvalid(step2Form, 'acceptTerms')"
+                  [class.border-gray-300]="!isFieldInvalid(step2Form, 'acceptTerms')">
+                <label for="acceptTerms" class="text-xs text-gray-600 cursor-pointer leading-relaxed">
+                  Acepto los <a href="javascript:void(0)" class="text-purple-600 hover:text-purple-700 font-medium">Términos y Condiciones</a>
+                </label>
+              </div>
+              @if (isFieldInvalid(step2Form, 'acceptTerms')) {
+                <p class="mt-1 ml-6 text-xs text-red-600">
+                  {{ getFieldError(step2Form, 'acceptTerms') }}
+                </p>
+              }
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col-reverse sm:flex-row justify-between gap-2 sm:gap-0 pt-2">
+              <button
+                type="button"
+                (click)="previousStep()"
+                class="w-full sm:w-auto px-6 py-2.5 sm:py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all duration-200">
+                Atrás
+              </button>
+              <button
+                type="submit"
+                [disabled]="isLoading"
+                class="w-full sm:w-auto px-6 py-2.5 sm:py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
+                @if (!isLoading) {
+                  <span>Crear cuenta</span>
+                }
+                @if (isLoading) {
+                  <span class="flex items-center justify-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creando cuenta...
+                  </span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Link to Login -->
+  <p class="text-center text-xs text-gray-600 mt-2 sm:mt-3 px-4">
+    ¿Ya tienes cuenta?
+    <a (click)="goToLogin()" class="text-purple-600 hover:text-purple-700 font-semibold ml-1 cursor-pointer">
+      Inicia sesión
+    </a>
+  </p>
+</div>

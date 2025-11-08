@@ -21,7 +21,7 @@ export class App {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         // Rutas donde NO se debe mostrar el navbar y footer
-        const hiddenLayoutRoutes = ['/login'];
+        const hiddenLayoutRoutes = ['/login', '/register'];
         this.showLayout = !hiddenLayoutRoutes.includes(event.urlAfterRedirects);
       });
   }
