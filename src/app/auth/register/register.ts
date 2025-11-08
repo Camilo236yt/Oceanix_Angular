@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -38,6 +38,9 @@ export class Register implements OnInit {
   // Límites de caracteres dinámicos
   taxIdMaxLength = 13;
   documentMaxLength = 12;
+
+  // Referencia al contenedor del tooltip
+  @ViewChild('tooltipContainer') tooltipContainer!: ElementRef;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -215,6 +218,27 @@ export class Register implements OnInit {
       console.log('Register data:', registerData);
       // Aquí irá la lógica de registro cuando se implemente el backend
     }, 1500);
+  }
+
+  /**
+   * Alterna la visibilidad del tooltip de subdominio
+   */
+  toggleSubdomainTooltip(event: Event): void {
+    event.stopPropagation();
+    this.showSubdomainTooltip = !this.showSubdomainTooltip;
+  }
+
+  /**
+   * Cierra el tooltip cuando se hace click fuera de él
+   */
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    if (this.showSubdomainTooltip && this.tooltipContainer) {
+      const clickedInside = this.tooltipContainer.nativeElement.contains(event.target);
+      if (!clickedInside) {
+        this.showSubdomainTooltip = false;
+      }
+    }
   }
 
   /**

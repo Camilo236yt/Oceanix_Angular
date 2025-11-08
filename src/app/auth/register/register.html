@@ -86,10 +86,10 @@
                   <label class="text-xs font-medium text-gray-700">
                     Subdominio <span class="text-red-500">*</span>
                   </label>
-                  <div class="relative inline-block">
+                  <div class="relative inline-block" #tooltipContainer>
                     <button
                       type="button"
-                      (click)="showSubdomainTooltip = !showSubdomainTooltip"
+                      (click)="toggleSubdomainTooltip($event)"
                       class="w-4 h-4 rounded-full bg-purple-500 hover:bg-purple-600 flex items-center justify-center transition-colors cursor-pointer">
                       <span class="text-white text-xs font-bold">?</span>
                     </button>
