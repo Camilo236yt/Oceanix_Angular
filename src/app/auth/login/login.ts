@@ -23,6 +23,9 @@ export class Login implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Reiniciar scroll al inicio de la página
+    window.scrollTo(0, 0);
+
     this.initializeForm();
   }
 

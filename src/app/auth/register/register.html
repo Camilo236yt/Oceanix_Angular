@@ -145,7 +145,8 @@
                   Teléfono de la Empresa <span class="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputmode="numeric"
                   formControlName="companyPhone"
                   numericOnly
                   placeholder="Ej: 3001234567"
@@ -192,7 +193,8 @@
                   Número de Identificación Tributaria <span class="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputmode="numeric"
                   formControlName="taxIdNumber"
                   numericOnly
                   [maxlength]="taxIdMaxLength"
@@ -301,7 +303,8 @@
                   Teléfono del Administrador <span class="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputmode="numeric"
                   formControlName="phone"
                   numericOnly
                   placeholder="Ej: 3001234567"
@@ -347,7 +350,8 @@
                   Número de Documento <span class="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
+                  inputmode="numeric"
                   formControlName="documentNumber"
                   numericOnly
                   [maxlength]="documentMaxLength"

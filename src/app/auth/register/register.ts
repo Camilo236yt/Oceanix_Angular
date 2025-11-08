@@ -48,6 +48,9 @@ export class Register implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Reiniciar scroll al inicio de la página
+    window.scrollTo(0, 0);
+
     this.initializeForms();
     this.setupDynamicValidators();
     this.setupSubdomainFormatter();
