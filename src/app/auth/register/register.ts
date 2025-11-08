@@ -49,7 +49,9 @@ export class Register implements OnInit {
 
   ngOnInit(): void {
     // Reiniciar scroll al inicio de la página
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 0);
 
     this.initializeForms();
     this.setupDynamicValidators();
@@ -178,7 +180,9 @@ export class Register implements OnInit {
     }
     this.currentStep = 2;
     // Reiniciar scroll al inicio cuando cambia al paso 2
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 0);
   }
 
   /**
@@ -187,7 +191,9 @@ export class Register implements OnInit {
   previousStep(): void {
     this.currentStep = 1;
     // Reiniciar scroll al inicio cuando regresa al paso 1
-    window.scrollTo(0, 0);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 0);
   }
 
   /**
