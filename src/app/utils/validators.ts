@@ -136,7 +136,7 @@ export function taxIdValidator(taxIdType: string): ValidatorFn {
         break;
       case 'RFC':
         // RFC México: 12-13 caracteres alfanuméricos
-        isValid = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{2,3}$/.test(value.toUpperCase());
+        isValid = /^[A-Z0-9Ñ&]{12,13}$/.test(value.toUpperCase());
         break;
       default:
         isValid = true;
