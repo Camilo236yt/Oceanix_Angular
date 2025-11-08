@@ -34,6 +34,10 @@ export class Register implements OnInit {
   showPassword = false;
   showConfirmPassword = false;
 
+  // Límites de caracteres dinámicos
+  taxIdMaxLength = 13;
+  documentMaxLength = 12;
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router
@@ -42,6 +46,7 @@ export class Register implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.setupDynamicValidators();
+    this.setupSubdomainFormatter();
     // Asegurar que los formularios estén limpios al iniciar
     this.step1Form.markAsUntouched();
     this.step1Form.markAsPristine();
@@ -78,6 +83,21 @@ export class Register implements OnInit {
   }
 
   /**
+   * Configura el formateador del campo subdomain para convertir a minúsculas y eliminar espacios
+   */
+  private setupSubdomainFormatter(): void {
+    this.step1Form.get('subdomain')?.valueChanges.subscribe(value => {
+      if (value) {
+        // Convertir a minúsculas y eliminar espacios
+        const formatted = value.toLowerCase().replace(/\s/g, '');
+        if (value !== formatted) {
+          this.step1Form.get('subdomain')?.setValue(formatted, { emitEvent: false });
+        }
+      }
+    });
+  }
+
+  /**
    * Configura validadores dinámicos que dependen de otros campos
    */
   private setupDynamicValidators(): void {
@@ -85,6 +105,21 @@ export class Register implements OnInit {
     this.step1Form.get('taxIdType')?.valueChanges.subscribe(taxIdType => {
       const taxIdNumberControl = this.step1Form.get('taxIdNumber');
       if (taxIdNumberControl) {
+        // Actualizar maxlength según el tipo
+        switch(taxIdType) {
+          case 'RUC':
+            this.taxIdMaxLength = 11;
+            break;
+          case 'NIT':
+            this.taxIdMaxLength = 10;
+            break;
+          case 'RFC':
+            this.taxIdMaxLength = 13;
+            break;
+          default:
+            this.taxIdMaxLength = 13;
+        }
+
         taxIdNumberControl.setValidators([
           Validators.required,
           taxIdValidator(taxIdType)
@@ -97,6 +132,21 @@ export class Register implements OnInit {
     this.step2Form.get('documentType')?.valueChanges.subscribe(documentType => {
       const documentNumberControl = this.step2Form.get('documentNumber');
       if (documentNumberControl) {
+        // Actualizar maxlength según el tipo de documento
+        switch(documentType) {
+          case 'DNI':
+            this.documentMaxLength = 8;
+            break;
+          case 'Pasaporte':
+            this.documentMaxLength = 12;
+            break;
+          case 'Cedula':
+            this.documentMaxLength = 10;
+            break;
+          default:
+            this.documentMaxLength = 12;
+        }
+
         documentNumberControl.setValidators([
           Validators.required,
           documentNumberValidator(documentType)

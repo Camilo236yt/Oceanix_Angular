@@ -70,7 +70,7 @@
                 <input
                   type="text"
                   formControlName="companyName"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'companyName')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyName')">
                 @if (isFieldInvalid(step1Form, 'companyName')) {
@@ -88,7 +88,7 @@
                 <input
                   type="text"
                   formControlName="subdomain"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'subdomain')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'subdomain')">
                 @if (isFieldInvalid(step1Form, 'subdomain')) {
@@ -109,7 +109,7 @@
                 <input
                   type="email"
                   formControlName="companyEmail"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'companyEmail')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyEmail')">
                 @if (isFieldInvalid(step1Form, 'companyEmail')) {
@@ -128,9 +128,9 @@
                   type="text"
                   formControlName="companyPhone"
                   numericOnly
-                  placeholder="9876543210"
+                  placeholder="Ej: 3001234567"
                   maxlength="10"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none placeholder:text-gray-400"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'companyPhone')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'companyPhone')">
                 @if (isFieldInvalid(step1Form, 'companyPhone')) {
@@ -150,7 +150,7 @@
                 </label>
                 <select
                   formControlName="taxIdType"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'taxIdType')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'taxIdType')"
                   [class.text-gray-400]="!step1Form.get('taxIdType')?.value">
@@ -174,7 +174,8 @@
                 <input
                   type="text"
                   formControlName="taxIdNumber"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [maxlength]="taxIdMaxLength"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step1Form, 'taxIdNumber')"
                   [class.border-gray-300]="!isFieldInvalid(step1Form, 'taxIdNumber')">
                 @if (isFieldInvalid(step1Form, 'taxIdNumber')) {
@@ -224,7 +225,7 @@
                 <input
                   type="text"
                   formControlName="firstName"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'firstName')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'firstName')">
                 @if (isFieldInvalid(step2Form, 'firstName')) {
@@ -242,7 +243,7 @@
                 <input
                   type="text"
                   formControlName="lastName"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'lastName')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'lastName')">
                 @if (isFieldInvalid(step2Form, 'lastName')) {
@@ -263,7 +264,7 @@
                 <input
                   type="email"
                   formControlName="email"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'email')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'email')">
                 @if (isFieldInvalid(step2Form, 'email')) {
@@ -282,9 +283,9 @@
                   type="text"
                   formControlName="phone"
                   numericOnly
-                  placeholder="9876543210"
+                  placeholder="Ej: 3001234567"
                   maxlength="10"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none placeholder:text-gray-400"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'phone')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'phone')">
                 @if (isFieldInvalid(step2Form, 'phone')) {
@@ -304,7 +305,7 @@
                 </label>
                 <select
                   formControlName="documentType"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none appearance-none bg-white"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'documentType')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'documentType')"
                   [class.text-gray-400]="!step2Form.get('documentType')?.value">
@@ -328,7 +329,8 @@
                 <input
                   type="text"
                   formControlName="documentNumber"
-                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                  [maxlength]="documentMaxLength"
+                  class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                   [class.border-red-500]="isFieldInvalid(step2Form, 'documentNumber')"
                   [class.border-gray-300]="!isFieldInvalid(step2Form, 'documentNumber')">
                 @if (isFieldInvalid(step2Form, 'documentNumber')) {
@@ -350,7 +352,7 @@
                   <input
                     [type]="showPassword ? 'text' : 'password'"
                     formControlName="password"
-                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                     [class.border-red-500]="isFieldInvalid(step2Form, 'password')"
                     [class.border-gray-300]="!isFieldInvalid(step2Form, 'password')">
                   <button
@@ -386,7 +388,7 @@
                   <input
                     [type]="showConfirmPassword ? 'text' : 'password'"
                     formControlName="confirmPassword"
-                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
+                    class="w-full px-3 py-2 pr-10 text-sm border rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-transparent transition-all outline-none"
                     [class.border-red-500]="isFieldInvalid(step2Form, 'confirmPassword')"
                     [class.border-gray-300]="!isFieldInvalid(step2Form, 'confirmPassword')">
                   <button
