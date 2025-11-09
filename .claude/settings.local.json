@@ -16,7 +16,9 @@
       "Bash(netstat:*)",
       "Bash(taskkill //F //PID 29268)",
       "Bash(taskkill //F //PID 19280)",
-      "Bash(del nul 2)"
+      "Bash(del nul 2)",
+      "Bash(npm install:*)",
+      "Bash(timeout 120 npm run build)"
     ],
     "deny": [],
     "ask": []

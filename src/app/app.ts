@@ -22,7 +22,10 @@ export class App {
       .subscribe((event: any) => {
         // Rutas donde NO se debe mostrar el navbar y footer
         const hiddenLayoutRoutes = ['/login', '/register'];
-        this.showLayout = !hiddenLayoutRoutes.includes(event.urlAfterRedirects);
+        const url = event.urlAfterRedirects;
+
+        // Ocultar layout si la ruta está en hiddenLayoutRoutes o empieza con /crm
+        this.showLayout = !hiddenLayoutRoutes.includes(url) && !url.startsWith('/crm');
       });
   }
 }

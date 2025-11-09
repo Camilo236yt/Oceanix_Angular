@@ -17,6 +17,10 @@ export const routes: Routes = [
     component: Register
   },
   {
+    path: 'crm',
+    loadChildren: () => import('./features/crm/crm.routes').then(m => m.CRM_ROUTES)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
