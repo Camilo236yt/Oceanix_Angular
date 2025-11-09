@@ -18,7 +18,9 @@
       "Bash(taskkill //F //PID 19280)",
       "Bash(del nul 2)",
       "Bash(npm install:*)",
-      "Bash(timeout 120 npm run build)"
+      "Bash(timeout 120 npm run build)",
+      "Bash(taskkill:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

@@ -247,8 +247,6 @@ export class Register implements OnInit {
     this.authService.registerEnterprise(registerData).subscribe({
       next: (response) => {
         if (response.success) {
-          console.log('Registro exitoso:', response.data);
-
           const subdomain = response.data.enterprise.subdomain;
           const adminEmail = response.data.admin.email;
           const password = this.step2Form.value.password;
@@ -260,26 +258,12 @@ export class Register implements OnInit {
           }).subscribe({
             next: (loginResponse) => {
               if (loginResponse.success) {
-                console.log('Login automático exitoso');
                 this.isLoading = false;
-
-                // Mostrar mensaje de éxito
-                alert(`¡Registro exitoso! Empresa: ${response.data.enterprise.name}\nSubdominio: ${subdomain}.oceanix.space\n\nEn producción serías redirigido automáticamente.`);
-
-                // Redirigir al subdominio de la empresa (en producción redirige, en desarrollo solo lo registra)
-                this.authService.redirectToSubdomain(subdomain);
-
-                // En desarrollo, redirigir al dashboard o página principal después del registro
-                // Puedes cambiar '/login' por la ruta que prefieras
-                if (window.location.hostname === 'localhost') {
-                  // Aquí puedes redirigir a donde quieras en desarrollo
-                  // Por ahora lo dejamos en la misma página para que veas el resultado
-                  console.log('Usuario autenticado localmente. Token guardado.');
-                }
+                // Redirigir directamente al dashboard del CRM
+                this.router.navigate(['/crm/dashboard']);
               }
             },
             error: (loginError) => {
-              console.error('Error en login automático:', loginError);
               this.isLoading = false;
 
               // Si falla el login, redirigir a la página de login
@@ -290,14 +274,42 @@ export class Register implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error en el registro:', error);
         this.isLoading = false;
 
         // Manejar errores específicos
         if (error.status === 409) {
           alert('El subdominio o email ya está en uso. Por favor, intenta con otros datos.');
         } else if (error.status === 400) {
-          alert('Datos inválidos. Por favor verifica la información ingresada.');
+          // Verificar si es error de subdominio duplicado
+          const errorDetails = error.error?.error?.details;
+
+          if (Array.isArray(errorDetails) && errorDetails.some(detail =>
+            detail.toLowerCase().includes('subdomain') && detail.toLowerCase().includes('exist')
+          )) {
+            alert('⚠️ El subdominio ingresado ya está en uso.\n\nPor favor, elige un subdominio diferente para tu empresa.');
+            // Volver al paso 1 para que pueda cambiar el subdominio
+            this.currentStep = 1;
+            setTimeout(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 0);
+          } else if (Array.isArray(errorDetails) && errorDetails.some(detail =>
+            detail.toLowerCase().includes('email') && detail.toLowerCase().includes('exist')
+          )) {
+            alert('⚠️ El email ingresado ya está registrado.\n\nPor favor, usa un email diferente.');
+          } else {
+            // Extraer el mensaje de error detallado
+            let errorMsg = 'Datos inválidos';
+
+            if (error.error?.error?.message) {
+              errorMsg = error.error.error.message;
+            } else if (Array.isArray(errorDetails)) {
+              errorMsg = errorDetails.join('\n');
+            } else if (error.error?.message) {
+              errorMsg = error.error.message;
+            }
+
+            alert(`Error de validación:\n\n${errorMsg}\n\nPor favor verifica la información ingresada.`);
+          }
         } else {
           alert('Error al registrar la empresa. Por favor intenta nuevamente.');
         }
