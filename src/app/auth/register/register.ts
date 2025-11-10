@@ -276,6 +276,36 @@ export class Register implements OnInit {
       error: (error) => {
         this.isLoading = false;
 
+        console.error('Error en registro:', error);
+
+        // Manejar errores de conexión y servidor
+        if (error.status === 0) {
+          alert('❌ Error de conexión\n\nNo se pudo conectar con el servidor. Por favor verifica:\n\n1. Tu conexión a internet\n2. Que el servidor esté disponible\n3. Que no haya problemas de CORS\n\nIntenta nuevamente en unos momentos.');
+          return;
+        }
+
+        if (error.status === 500) {
+          // Error interno del servidor
+          let errorMessage = 'Error interno del servidor';
+
+          // Intentar extraer el mensaje de error del backend
+          if (error.error?.error?.message) {
+            errorMessage = error.error.error.message;
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          }
+
+          console.error('Detalles del error 500:', error.error);
+
+          alert(`❌ Error del Servidor (500)\n\n${errorMessage}\n\nEl backend tiene un problema procesando tu solicitud. Por favor contacta al administrador del sistema.`);
+          return;
+        }
+
+        if (error.status === 502 || error.status === 503 || error.status === 504) {
+          alert('❌ El servidor no está disponible temporalmente\n\nError 502 Bad Gateway - El servidor backend no responde.\n\nPor favor contacta al administrador del sistema o intenta nuevamente más tarde.');
+          return;
+        }
+
         // Manejar errores específicos
         if (error.status === 409) {
           alert('El subdominio o email ya está en uso. Por favor, intenta con otros datos.');
@@ -311,7 +341,7 @@ export class Register implements OnInit {
             alert(`Error de validación:\n\n${errorMsg}\n\nPor favor verifica la información ingresada.`);
           }
         } else {
-          alert('Error al registrar la empresa. Por favor intenta nuevamente.');
+          alert(`Error al registrar la empresa (Código: ${error.status || 'desconocido'}).\n\nPor favor intenta nuevamente o contacta al soporte técnico.`);
         }
       }
     });

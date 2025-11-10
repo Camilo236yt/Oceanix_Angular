@@ -4,5 +4,6 @@
 export const environment = {
   production: false,
   apiUrl: '/api/v1', // Usando proxy para evitar CORS en desarrollo
-  appDomain: 'oceanix.space'
+  appDomain: 'oceanix.space',
+  enableSubdomainRedirect: false // Desactivar redirección a subdominios en desarrollo
 };

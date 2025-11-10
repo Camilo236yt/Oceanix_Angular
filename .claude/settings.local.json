@@ -22,7 +22,8 @@
       "Bash(taskkill:*)",
       "Bash(timeout:*)",
       "Bash(ng version:*)",
-      "Bash(if exist \"C:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\pages\\incidents\" rmdir /s /q \"C:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\pages\\incidents\")"
+      "Bash(if exist \"C:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\pages\\incidents\" rmdir /s /q \"C:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\pages\\incidents\")",
+      "Bash(ng build:*)"
     ],
     "deny": [],
     "ask": []

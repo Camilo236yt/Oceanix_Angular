@@ -153,17 +153,25 @@ export class AuthService {
     const domain = environment.appDomain; // oceanix.space
     const newUrl = `${protocol}//${subdomain}.${domain}/crm/dashboard`;
 
-    // En desarrollo (localhost), solo mostrar mensaje sin redirigir
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log(`[DEV MODE] En producción se redirigiría a: ${newUrl}`);
-      localStorage.setItem('subdomain', subdomain);
+    // Guardar el subdominio
+    localStorage.setItem('subdomain', subdomain);
+
+    // Si la redirección de subdominio está deshabilitada (desarrollo)
+    if (!environment.enableSubdomainRedirect) {
+      console.log(`[DEV MODE] Redirección de subdominio deshabilitada. En producción se redirigiría a: ${newUrl}`);
       // En desarrollo, navegar al dashboard sin cambiar de dominio
       window.location.href = '/crm/dashboard';
       return;
     }
 
+    // En localhost, no redirigir a subdominio
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log(`[DEV MODE - localhost] En producción se redirigiría a: ${newUrl}`);
+      window.location.href = '/crm/dashboard';
+      return;
+    }
+
     // En producción, redirigir al subdominio real
-    localStorage.setItem('subdomain', subdomain);
     console.log(`Redirigiendo a: ${newUrl}`);
     window.location.href = newUrl;
   }

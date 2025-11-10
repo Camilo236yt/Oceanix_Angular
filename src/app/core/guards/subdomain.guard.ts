@@ -10,6 +10,12 @@ export const subdomainGuard: CanActivateFn = () => {
   const subdomainService = inject(SubdomainService);
   const router = inject(Router);
 
+  // En desarrollo (localhost), permitir acceso sin subdominio
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname.startsWith('127.0.0.1')) {
+    return true; // Permitir acceso en desarrollo
+  }
+
   // Si NO estamos en un subdominio, redirigir al dominio principal
   if (subdomainService.isMainDomain()) {
     // Redirigir al dominio principal
