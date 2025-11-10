@@ -1,10 +1,23 @@
 <div class="space-y-6">
-  <div>
-    <h1 class="text-3xl font-bold text-gray-800">Usuarios</h1>
-    <p class="text-gray-500 mt-1">Gestión de usuarios del sistema</p>
+  <!-- Título y botón Nuevo Usuario -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Usuarios</h1>
+      <p class="text-gray-600 text-sm mt-1">Administra los usuarios y sus roles</p>
+    </div>
+    <button
+      (click)="createNewUser()"
+      class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm">
+      <app-icon name="plus" class="w-5 h-5"></app-icon>
+      Nuevo Usuario
+    </button>
   </div>
 
-  <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-    <p class="text-gray-600">Módulo de Usuarios - Próximamente</p>
-  </div>
+  <!-- Tabla de usuarios -->
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="users"
+    [actions]="tableActions"
+    (onActionClick)="handleTableAction($event)">
+  </app-data-table>
 </div>

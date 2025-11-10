@@ -13,18 +13,15 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: Login,
-    canActivate: [subdomainGuard] // Solo accesible desde subdominios
+    component: Login
   },
   {
     path: 'register',
-    component: Register,
-    canActivate: [subdomainGuard] // Solo accesible desde subdominios
+    component: Register
   },
   {
     path: 'crm',
-    loadChildren: () => import('./features/crm/crm.routes').then(m => m.CRM_ROUTES),
-    canActivate: [subdomainGuard] // Solo accesible desde subdominios
+    loadChildren: () => import('./features/crm/crm.routes').then(m => m.CRM_ROUTES)
   },
   {
     path: '**',
