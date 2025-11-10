@@ -1,10 +1,23 @@
 <div class="space-y-6">
-  <div>
-    <h1 class="text-3xl font-bold text-gray-800">Empresas</h1>
-    <p class="text-gray-500 mt-1">Gestión de empresas clientes</p>
+  <!-- Título y botón Nueva Empresa -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Empresas</h1>
+      <p class="text-gray-600 text-sm mt-1">Gestiona las empresas del sistema</p>
+    </div>
+    <button
+      (click)="createNewCompany()"
+      class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm">
+      <app-icon name="plus" class="w-5 h-5"></app-icon>
+      Nueva Empresa
+    </button>
   </div>
 
-  <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-    <p class="text-gray-600">Módulo de Empresas - Próximamente</p>
-  </div>
+  <!-- Tabla de empresas -->
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="companies"
+    [actions]="tableActions"
+    (onActionClick)="handleTableAction($event)">
+  </app-data-table>
 </div>
