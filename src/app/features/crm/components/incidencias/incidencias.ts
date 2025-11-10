@@ -1,16 +1,41 @@
 import { Component } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Incident } from '../../models/incident.model';
+import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [DataTable, IconComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent],
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
 export class Incidencias {
+  // Configuración de filtros
+  filterConfigs: FilterConfig[] = [
+    {
+      key: 'estado',
+      label: 'Todos los estados',
+      options: [
+        { label: 'En plazo', value: 'en-plazo' },
+        { label: 'En riesgo', value: 'en-riesgo' },
+        { label: 'Fuera de plazo', value: 'fuera-plazo' }
+      ]
+    },
+    {
+      key: 'tipo',
+      label: 'Todos los tipos',
+      options: [
+        { label: 'Pérdida', value: 'perdida' },
+        { label: 'Retraso', value: 'retraso' },
+        { label: 'Daño', value: 'dano' },
+        { label: 'Otro', value: 'otro' }
+      ]
+    }
+  ];
+
   tableColumns: TableColumn[] = [
     { key: 'id', label: 'ID', sortable: true },
     { key: 'empresa', label: 'Empresa', sortable: true },
@@ -106,5 +131,11 @@ export class Incidencias {
 
   createNewIncident() {
     console.log('Crear nueva incidencia');
+  }
+
+  onFilterChange(filterData: SearchFilterData) {
+    console.log('Filtros aplicados:', filterData);
+    // Aquí puedes implementar la lógica de filtrado
+    // Por ejemplo, filtrar el array de incidents basado en searchTerm y filters
   }
 }

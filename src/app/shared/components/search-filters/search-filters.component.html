@@ -1,0 +1,38 @@
+<div class="bg-white rounded-lg md:rounded-xl shadow-sm p-3 md:p-4 border border-gray-100">
+  <div class="flex flex-col sm:flex-row gap-3">
+    <!-- Buscador -->
+    @if (showSearch) {
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <app-icon name="search" class="w-4 h-4 md:w-5 md:h-5 text-gray-400"></app-icon>
+          </div>
+          <input
+            type="text"
+            [placeholder]="searchPlaceholder"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput($event)"
+            class="w-full pl-9 md:pl-10 pr-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- Filtros -->
+    @if (filters.length > 0) {
+      <div class="flex gap-2 sm:gap-3">
+        @for (filter of filters; track filter.key) {
+          <select
+            [(ngModel)]="selectedFilters[filter.key]"
+            (change)="onFilterSelect(filter.key, $event)"
+            class="flex-1 sm:flex-initial px-3 py-2 md:py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all bg-white">
+            <option value="">{{ filter.label }}</option>
+            @for (option of filter.options; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        }
+      </div>
+    }
+  </div>
+</div>
