@@ -8,6 +8,8 @@ interface MenuItem {
   icon: string;
 }
 
+type MobileViewMode = 'icons-only' | 'icons-with-names';
+
 @Component({
   selector: 'app-crm-layout',
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
@@ -16,6 +18,9 @@ interface MenuItem {
 })
 export class CrmLayout implements OnInit {
   isCollapsed: boolean = false;
+  isMobileMenuOpen: boolean = false;
+  isViewOptionsModalOpen: boolean = false;
+  mobileViewMode: MobileViewMode = 'icons-with-names';
 
   menuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -32,11 +37,39 @@ export class CrmLayout implements OnInit {
     if (savedState !== null) {
       this.isCollapsed = JSON.parse(savedState);
     }
+
+    // Cargar la vista móvil desde localStorage
+    const savedViewMode = localStorage.getItem('mobileViewMode') as MobileViewMode;
+    if (savedViewMode) {
+      this.mobileViewMode = savedViewMode;
+    }
   }
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;
     // Guardar el estado en localStorage
     localStorage.setItem('sidebarCollapsed', JSON.stringify(this.isCollapsed));
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+  }
+
+  openViewOptionsModal() {
+    this.isViewOptionsModalOpen = true;
+  }
+
+  closeViewOptionsModal() {
+    this.isViewOptionsModalOpen = false;
+  }
+
+  selectMobileViewMode(mode: MobileViewMode) {
+    this.mobileViewMode = mode;
+    localStorage.setItem('mobileViewMode', mode);
+    this.closeViewOptionsModal();
   }
 }
