@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -16,11 +16,13 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
-export class CrmLayout implements OnInit {
+export class CrmLayout implements OnInit, OnDestroy {
   isCollapsed: boolean = false;
   isMobileMenuOpen: boolean = false;
   isViewOptionsModalOpen: boolean = false;
   mobileViewMode: MobileViewMode = 'icons-with-names';
+  currentDate: string = '';
+  private midnightTimer: any;
 
   menuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -43,6 +45,48 @@ export class CrmLayout implements OnInit {
     if (savedViewMode) {
       this.mobileViewMode = savedViewMode;
     }
+
+    // Inicializar la fecha actual
+    this.updateCurrentDate();
+    this.scheduleMidnightUpdate();
+  }
+
+  ngOnDestroy() {
+    // Limpiar el timer cuando el componente se destruya
+    if (this.midnightTimer) {
+      clearTimeout(this.midnightTimer);
+    }
+  }
+
+  private updateCurrentDate() {
+    const now = new Date();
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const dayName = days[now.getDay()];
+    const day = now.getDate();
+    const monthName = months[now.getMonth()];
+    const year = now.getFullYear();
+
+    this.currentDate = `${dayName}, ${day} De ${monthName} ${year}`;
+  }
+
+  private scheduleMidnightUpdate() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+    // Programar actualización a medianoche
+    this.midnightTimer = setTimeout(() => {
+      this.updateCurrentDate();
+      this.scheduleMidnightUpdate(); // Reprogramar para la siguiente medianoche
+    }, msUntilMidnight);
   }
 
   toggleSidebar() {
