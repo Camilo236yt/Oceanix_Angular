@@ -23,6 +23,7 @@ export type BarChartOptions = {
   xaxis: ApexXAxis;
   fill: ApexFill;
   colors: string[];
+  responsive: ApexResponsive[];
 };
 
 export type PieChartOptions = {
@@ -33,6 +34,7 @@ export type PieChartOptions = {
   responsive: ApexResponsive[];
   legend: ApexLegend;
   dataLabels: ApexDataLabels;
+  plotOptions: ApexPlotOptions;
 };
 
 @Component({
@@ -76,7 +78,8 @@ export class Dashboard implements OnInit {
       }],
       chart: {
         type: 'bar',
-        height: 350,
+        height: 320,
+        width: '100%',
         toolbar: {
           show: false
         }
@@ -92,11 +95,37 @@ export class Dashboard implements OnInit {
       },
       xaxis: {
         categories: categories,
+        labels: {
+          style: {
+            fontSize: '12px'
+          },
+          rotate: -45,
+          rotateAlways: false
+        }
       },
       fill: {
         opacity: 1
       },
-      colors: ['#7c3aed']
+      colors: ['#7c3aed'],
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 256
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                },
+                rotate: -45,
+                rotateAlways: true
+              }
+            }
+          }
+        }
+      ]
     };
   }
 
@@ -111,7 +140,7 @@ export class Dashboard implements OnInit {
       series: series,
       chart: {
         type: 'donut',
-        height: 350
+        height: 320
       },
       labels: labels,
       colors: colors,
@@ -124,17 +153,38 @@ export class Dashboard implements OnInit {
           return val.toFixed(0) + '%';
         }
       },
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200
-          },
-          legend: {
-            position: 'bottom'
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '65%'
           }
         }
-      }]
+      },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 280
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 240
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '60%'
+                }
+              }
+            }
+          }
+        }
+      ]
     };
   }
 }
