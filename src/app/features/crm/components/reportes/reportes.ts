@@ -12,11 +12,18 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
   styleUrl: './reportes.scss',
 })
 export class Reportes {
+  // Estado del collapse
+  isFiltersCollapsed: boolean = false;
+
   // Filtros
   fechaInicio: string = '';
   fechaFin: string = '';
   tipoIncidencia: string = 'Todos';
   empresa: string = 'Todas';
+
+  toggleFilters() {
+    this.isFiltersCollapsed = !this.isFiltersCollapsed;
+  }
 
   // Configuración de la gráfica de línea (Tiempo Promedio de Respuesta)
   lineChartData: ChartConfiguration['data'] = {
@@ -55,6 +62,13 @@ export class Reportes {
         ticks: {
           stepSize: 0.7
         }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
       }
     }
   };
@@ -91,6 +105,13 @@ export class Reportes {
         max: 100,
         ticks: {
           stepSize: 25
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12
+          }
         }
       }
     }

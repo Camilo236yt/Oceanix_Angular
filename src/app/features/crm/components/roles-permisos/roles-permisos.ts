@@ -2,16 +2,40 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
+import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
 export class RolesPermisos {
+  // Configuración de filtros
+  filterConfigs: FilterConfig[] = [
+    {
+      key: 'rol',
+      label: 'Todos los roles',
+      options: [
+        { label: 'SuperAdmin', value: 'superadmin' },
+        { label: 'Admin', value: 'admin' },
+        { label: 'Supervisor', value: 'supervisor' },
+        { label: 'Empleado', value: 'empleado' }
+      ]
+    },
+    {
+      key: 'estado',
+      label: 'Todos los estados',
+      options: [
+        { label: 'Activo', value: 'activo' },
+        { label: 'Inactivo', value: 'inactivo' }
+      ]
+    }
+  ];
+
   stats: RoleStats = {
     totalRoles: 4,
     rolesActivos: 4,
@@ -130,5 +154,11 @@ export class RolesPermisos {
 
   createNewRole() {
     console.log('Crear nuevo rol');
+  }
+
+  onFilterChange(filterData: SearchFilterData) {
+    console.log('Filtros aplicados:', filterData);
+    // Aquí puedes implementar la lógica de filtrado
+    // Por ejemplo, filtrar el array de roles basado en searchTerm y filters
   }
 }

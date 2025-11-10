@@ -1,71 +1,80 @@
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
   <!-- Título y botón Crear Rol -->
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">Roles y Permisos</h1>
-      <p class="text-gray-600 text-sm mt-1">Gestiona los roles y permisos de los usuarios del sistema</p>
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 truncate">Roles y Permisos</h1>
+      <p class="text-gray-600 text-xs md:text-sm mt-1">Gestiona los roles y permisos de los usuarios del sistema</p>
     </div>
     <button
       (click)="createNewRole()"
-      class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm">
+      class="bg-purple-600 hover:bg-purple-700 text-white px-3 md:px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm flex-shrink-0">
       <app-icon name="plus" class="w-5 h-5"></app-icon>
-      Crear Rol
+      <span class="hidden md:inline">Crear Rol</span>
     </button>
   </div>
 
   <!-- Tarjetas de estadísticas -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
     <!-- Total Roles -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600">Total Roles</p>
-          <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.totalRoles }}</p>
+          <p class="text-xs md:text-sm font-medium text-gray-600">Total Roles</p>
+          <p class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{{ stats.totalRoles }}</p>
         </div>
-        <div class="p-3 bg-purple-100 rounded-lg">
-          <app-icon name="shield" class="w-8 h-8 text-purple-600"></app-icon>
+        <div class="p-2 md:p-3 bg-purple-100 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Roles Activos -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600">Roles Activos</p>
-          <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.rolesActivos }}</p>
+          <p class="text-xs md:text-sm font-medium text-gray-600">Roles Activos</p>
+          <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">{{ stats.rolesActivos }}</p>
         </div>
-        <div class="p-3 bg-green-100 rounded-lg">
-          <app-icon name="shield" class="w-8 h-8 text-green-600"></app-icon>
+        <div class="p-2 md:p-3 bg-green-100 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-green-600"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Permisos Totales -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600">Permisos Totales</p>
-          <p class="text-3xl font-bold text-blue-600 mt-2">{{ stats.permisosTotales }}</p>
+          <p class="text-xs md:text-sm font-medium text-gray-600">Permisos Totales</p>
+          <p class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">{{ stats.permisosTotales }}</p>
         </div>
-        <div class="p-3 bg-blue-100 rounded-lg">
-          <app-icon name="shield" class="w-8 h-8 text-blue-600"></app-icon>
+        <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-blue-600"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Usuarios con Roles -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-medium text-gray-600">Usuarios con Roles</p>
-          <p class="text-3xl font-bold text-purple-600 mt-2">{{ stats.usuariosConRoles }}</p>
+          <p class="text-xs md:text-sm font-medium text-gray-600">Usuarios con Roles</p>
+          <p class="text-2xl md:text-3xl font-bold text-purple-600 mt-2">{{ stats.usuariosConRoles }}</p>
         </div>
-        <div class="p-3 bg-purple-100 rounded-lg">
-          <app-icon name="shield" class="w-8 h-8 text-purple-600"></app-icon>
+        <div class="p-2 md:p-3 bg-purple-100 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600"></app-icon>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Barra de búsqueda y filtros -->
+  <div class="mb-4 md:mb-6">
+    <app-search-filters
+      searchPlaceholder="Buscar roles..."
+      [filters]="filterConfigs"
+      (onFilterChange)="onFilterChange($event)">
+    </app-search-filters>
   </div>
 
   <!-- Tabla de roles -->

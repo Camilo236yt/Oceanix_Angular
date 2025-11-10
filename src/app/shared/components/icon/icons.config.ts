@@ -206,6 +206,18 @@ export const ICONS: Record<string, IconConfig> = {
     strokeWidth: '2',
     strokeLinecap: 'round',
     strokeLinejoin: 'round'
+  },
+
+  'chevron-down': {
+    viewBox: '0 0 1024 1024',
+    path: 'M104.704 338.752a64 64 0 0 1 90.496 0l316.8 316.8l316.8-316.8a64 64 0 0 1 90.496 90.496L557.248 791.296a64 64 0 0 1-90.496 0L104.704 429.248a64 64 0 0 1 0-90.496',
+    fill: 'currentColor'
+  },
+
+  'chevron-up': {
+    viewBox: '0 0 1024 1024',
+    path: 'M104.704 685.248a64 64 0 0 0 90.496 0l316.8-316.8l316.8 316.8a64 64 0 0 0 90.496-90.496L557.248 232.704a64 64 0 0 0-90.496 0L104.704 594.752a64 64 0 0 0 0 90.496',
+    fill: 'currentColor'
   }
 };
 

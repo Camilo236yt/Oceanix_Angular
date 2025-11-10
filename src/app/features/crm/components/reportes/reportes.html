@@ -1,41 +1,52 @@
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
   <!-- Título -->
-  <div>
-    <h1 class="text-3xl font-bold text-gray-900">Reportes</h1>
-    <p class="text-gray-600 text-sm mt-1">Analiza tendencias y genera reportes del sistema</p>
+  <div class="flex-1 min-w-0">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 truncate">Reportes</h1>
+    <p class="text-gray-600 text-xs md:text-sm mt-1">Analiza tendencias y genera reportes del sistema</p>
   </div>
 
   <!-- Filtros de Búsqueda -->
-  <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-    <h2 class="text-lg font-bold text-gray-900 mb-4">Filtros de Búsqueda</h2>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+    <!-- Header del card con botón de toggle -->
+    <div
+      (click)="toggleFilters()"
+      class="flex items-center justify-between p-4 md:p-6 cursor-pointer hover:bg-gray-50 transition-colors rounded-t-xl">
+      <h2 class="text-base md:text-lg font-bold text-gray-900">Filtros de Búsqueda</h2>
+      <app-icon
+        [name]="isFiltersCollapsed ? 'chevron-down' : 'chevron-up'"
+        class="w-5 h-5 text-gray-500 transition-transform">
+      </app-icon>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+    <!-- Contenido colapsable -->
+    <div [class.hidden]="isFiltersCollapsed" class="px-4 md:px-6 pb-4 md:pb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4">
       <!-- Fecha Inicio -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+        <label class="block text-xs md:text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
         <input
           type="date"
           [(ngModel)]="fechaInicio"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="dd/mm/aaaa">
       </div>
 
       <!-- Fecha Fin -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
+        <label class="block text-xs md:text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
         <input
           type="date"
           [(ngModel)]="fechaFin"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="dd/mm/aaaa">
       </div>
 
       <!-- Tipo de Incidencia -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Incidencia</label>
+        <label class="block text-xs md:text-sm font-medium text-gray-700 mb-2">Tipo de Incidencia</label>
         <select
           [(ngModel)]="tipoIncidencia"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
+          class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
           <option>Todos</option>
           <option>Pérdida</option>
           <option>Retraso</option>
@@ -46,10 +57,10 @@
 
       <!-- Empresa -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
+        <label class="block text-xs md:text-sm font-medium text-gray-700 mb-2">Empresa</label>
         <select
           [(ngModel)]="empresa"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
+          class="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white">
           <option>Todas</option>
           <option>Empresa A</option>
           <option>Empresa B</option>
@@ -59,43 +70,44 @@
       </div>
     </div>
 
-    <!-- Botones de Filtros -->
-    <div class="flex gap-3">
-      <button
-        (click)="aplicarFiltros()"
-        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-        Aplicar Filtros
-      </button>
-      <button
-        (click)="limpiarFiltros()"
-        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors">
-        Limpiar
-      </button>
+      <!-- Botones de Filtros -->
+      <div class="flex flex-col md:flex-row gap-3">
+        <button
+          (click)="aplicarFiltros(); $event.stopPropagation()"
+          class="bg-purple-600 hover:bg-purple-700 text-white px-4 md:px-6 py-2 rounded-lg font-medium transition-colors text-sm md:text-base">
+          Aplicar Filtros
+        </button>
+        <button
+          (click)="limpiarFiltros(); $event.stopPropagation()"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 md:px-6 py-2 rounded-lg font-medium transition-colors text-sm md:text-base">
+          Limpiar
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Botones de Exportación -->
-  <div class="flex gap-3">
+  <div class="flex flex-col md:flex-row gap-3">
     <button
       (click)="exportarPDF()"
-      class="bg-white hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm border border-gray-200">
+      class="bg-white hover:bg-gray-50 text-gray-700 px-4 md:px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center md:justify-start gap-2 shadow-sm border border-gray-200 text-sm md:text-base">
       <app-icon name="download" class="w-5 h-5"></app-icon>
       Exportar PDF
     </button>
     <button
       (click)="exportarExcel()"
-      class="bg-white hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm border border-gray-200">
+      class="bg-white hover:bg-gray-50 text-gray-700 px-4 md:px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center md:justify-start gap-2 shadow-sm border border-gray-200 text-sm md:text-base">
       <app-icon name="file-text" class="w-5 h-5"></app-icon>
       Exportar Excel
     </button>
   </div>
 
   <!-- Gráficas -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
     <!-- Gráfica de Línea: Tiempo Promedio de Respuesta -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 class="text-lg font-bold text-gray-900 mb-4">Tiempo Promedio de Respuesta</h3>
-      <div style="height: 300px;">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+      <h3 class="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">Tiempo Promedio de Respuesta</h3>
+      <div class="h-64 md:h-[300px]">
         <canvas baseChart
                 [data]="lineChartData"
                 [options]="lineChartOptions"
@@ -105,9 +117,9 @@
     </div>
 
     <!-- Gráfica de Barras: Porcentaje de Cumplimiento por Empresa -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 class="text-lg font-bold text-gray-900 mb-4">Porcentaje de Cumplimiento por Empresa</h3>
-      <div style="height: 300px;">
+    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+      <h3 class="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">Porcentaje de Cumplimiento por Empresa</h3>
+      <div class="h-64 md:h-[300px]">
         <canvas baseChart
                 [data]="barChartData"
                 [options]="barChartOptions"
