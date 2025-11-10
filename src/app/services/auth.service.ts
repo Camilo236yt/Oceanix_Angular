@@ -149,20 +149,22 @@ export class AuthService {
    * @param subdomain The subdomain to redirect to
    */
   redirectToSubdomain(subdomain: string): void {
-    // En desarrollo (localhost), solo guardar el subdominio sin redirigir
-    if (!environment.production && window.location.hostname === 'localhost') {
-      console.log(`[DEV MODE] En producción se redirigiría a: https://${subdomain}.${environment.appDomain}`);
-      // Solo guardamos el subdominio en localStorage para referencia
+    const protocol = window.location.protocol; // http: or https:
+    const domain = environment.appDomain; // oceanix.space
+    const newUrl = `${protocol}//${subdomain}.${domain}/crm/dashboard`;
+
+    // En desarrollo (localhost), solo mostrar mensaje sin redirigir
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log(`[DEV MODE] En producción se redirigiría a: ${newUrl}`);
       localStorage.setItem('subdomain', subdomain);
+      // En desarrollo, navegar al dashboard sin cambiar de dominio
+      window.location.href = '/crm/dashboard';
       return;
     }
 
     // En producción, redirigir al subdominio real
-    const protocol = window.location.protocol; // http: or https:
-    const domain = environment.appDomain; // oceanix.space
-    const newUrl = `${protocol}//${subdomain}.${domain}`;
-
-    // Redirección completa al nuevo subdominio
+    localStorage.setItem('subdomain', subdomain);
+    console.log(`Redirigiendo a: ${newUrl}`);
     window.location.href = newUrl;
   }
 }
