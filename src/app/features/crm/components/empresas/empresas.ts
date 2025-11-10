@@ -1,16 +1,30 @@
 import { Component } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Company } from '../../models/company.model';
+import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 
 @Component({
   selector: 'app-empresas',
-  imports: [DataTable, IconComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent],
   templateUrl: './empresas.html',
   styleUrl: './empresas.scss',
 })
 export class Empresas {
+  // Configuración de filtros
+  filterConfigs: FilterConfig[] = [
+    {
+      key: 'estado',
+      label: 'Todos los estados',
+      options: [
+        { label: 'Activo', value: 'activo' },
+        { label: 'Inactivo', value: 'inactivo' }
+      ]
+    }
+  ];
+
   tableColumns: TableColumn[] = [
     { key: 'nombreEmpresa', label: 'Nombre Empresa', sortable: true },
     { key: 'nit', label: 'NIT', sortable: true },
@@ -92,5 +106,11 @@ export class Empresas {
 
   createNewCompany() {
     console.log('Crear nueva empresa');
+  }
+
+  onFilterChange(filterData: SearchFilterData) {
+    console.log('Filtros aplicados:', filterData);
+    // Aquí puedes implementar la lógica de filtrado
+    // Por ejemplo, filtrar el array de companies basado en searchTerm y filters
   }
 }
