@@ -1,0 +1,75 @@
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-gray-200 bg-gray-50">
+          @for (column of columns; track column.key) {
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                [ngClass]="{
+                  'text-center': column.align === 'center',
+                  'text-right': column.align === 'right'
+                }">
+              {{ column.label }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        @for (row of data; track row) {
+          <tr class="hover:bg-gray-50 transition-colors">
+            @for (column of columns; track column.key) {
+              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900"
+                  [ngClass]="{
+                    'text-center': column.align === 'center',
+                    'text-right': column.align === 'right'
+                  }">
+
+                <!-- Text type -->
+                @if (!column.type || column.type === 'text') {
+                  <span>{{ getNestedValue(row, column.key) }}</span>
+                }
+
+                <!-- Badge type -->
+                @if (column.type === 'badge') {
+                  <span [ngClass]="getBadgeClasses(column, getNestedValue(row, column.key))">
+                    <span class="w-1.5 h-1.5 rounded-full mr-1 inline-block align-middle"
+                          [ngClass]="column.badgeConfig?.[getNestedValue(row, column.key)]?.dotColor || column.badgeConfig?.[getNestedValue(row, column.key)]?.bgColor"></span>
+                    <span class="align-middle">{{ getNestedValue(row, column.key) }}</span>
+                  </span>
+                }
+
+                <!-- Date type -->
+                @if (column.type === 'date') {
+                  <span>{{ getNestedValue(row, column.key) }}</span>
+                }
+
+                <!-- Actions type -->
+                @if (column.type === 'actions') {
+                  <div class="flex items-center justify-center gap-2">
+                    @for (action of actions; track action.label) {
+                      <button (click)="handleAction(action, row)"
+                              [title]="action.label"
+                              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                              [ngClass]="action.color || 'text-gray-600'">
+                        <app-icon [name]="action.icon" class="w-5 h-5"></app-icon>
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+        }
+
+        <!-- Empty state -->
+        @if (data.length === 0) {
+          <tr>
+            <td [attr.colspan]="columns.length" class="px-4 py-12 text-center text-gray-500">
+              No hay datos disponibles
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
