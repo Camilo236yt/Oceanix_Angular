@@ -1,16 +1,39 @@
 import { Component } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { User } from '../../models/user.model';
+import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [DataTable, IconComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
 export class Usuarios {
+  // Configuración de filtros
+  filterConfigs: FilterConfig[] = [
+    {
+      key: 'rol',
+      label: 'Todos los roles',
+      options: [
+        { label: 'Admin', value: 'admin' },
+        { label: 'Empleado', value: 'empleado' },
+        { label: 'Supervisor', value: 'supervisor' }
+      ]
+    },
+    {
+      key: 'estado',
+      label: 'Todos los estados',
+      options: [
+        { label: 'Activo', value: 'activo' },
+        { label: 'Inactivo', value: 'inactivo' }
+      ]
+    }
+  ];
+
   tableColumns: TableColumn[] = [
     { key: 'nombre', label: 'Nombre', sortable: true },
     { key: 'correo', label: 'Correo', sortable: true },
@@ -122,5 +145,11 @@ export class Usuarios {
 
   createNewUser() {
     console.log('Crear nuevo usuario');
+  }
+
+  onFilterChange(filterData: SearchFilterData) {
+    console.log('Filtros aplicados:', filterData);
+    // Aquí puedes implementar la lógica de filtrado
+    // Por ejemplo, filtrar el array de users basado en searchTerm y filters
   }
 }
