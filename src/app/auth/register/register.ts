@@ -259,8 +259,8 @@ export class Register implements OnInit {
             next: (loginResponse) => {
               if (loginResponse.success) {
                 this.isLoading = false;
-                // Redirigir directamente al dashboard del CRM
-                this.router.navigate(['/crm/dashboard']);
+                // Redirigir al subdominio de la empresa
+                this.authService.redirectToSubdomain(subdomain);
               }
             },
             error: (loginError) => {
