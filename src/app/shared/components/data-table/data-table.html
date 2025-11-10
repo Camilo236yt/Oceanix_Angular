@@ -18,10 +18,11 @@
         @for (row of data; track row) {
           <tr class="hover:bg-gray-50 transition-colors">
             @for (column of columns; track column.key) {
-              <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900"
+              <td class="px-4 py-4 text-sm text-gray-900"
                   [ngClass]="{
                     'text-center': column.align === 'center',
-                    'text-right': column.align === 'right'
+                    'text-right': column.align === 'right',
+                    'whitespace-nowrap': column.type !== 'badges'
                   }">
 
                 <!-- Text type -->
@@ -41,6 +42,17 @@
                 <!-- Date type -->
                 @if (column.type === 'date') {
                   <span>{{ getNestedValue(row, column.key) }}</span>
+                }
+
+                <!-- Badges type (múltiples badges) -->
+                @if (column.type === 'badges') {
+                  <div class="flex flex-wrap gap-2">
+                    @for (item of getNestedValue(row, column.key); track item) {
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                        {{ item }}
+                      </span>
+                    }
+                  </div>
                 }
 
                 <!-- Actions type -->

@@ -2,7 +2,7 @@ export interface TableColumn {
   key: string;
   label: string;
   sortable?: boolean;
-  type?: 'text' | 'badge' | 'date' | 'actions';
+  type?: 'text' | 'badge' | 'date' | 'actions' | 'badges';
   width?: string;
   align?: 'left' | 'center' | 'right';
   badgeConfig?: {
