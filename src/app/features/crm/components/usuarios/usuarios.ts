@@ -44,19 +44,19 @@ export class Usuarios {
       sortable: true,
       badgeConfig: {
         'Admin': {
-          color: 'text-purple-700',
-          bgColor: 'bg-purple-100',
-          dotColor: 'bg-purple-700'
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
         'Empleado': {
-          color: 'text-gray-700',
-          bgColor: 'bg-gray-100',
-          dotColor: 'bg-gray-700'
+          color: 'text-gray-600 dark:text-gray-300',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-gray-600 dark:bg-gray-300'
         },
         'Supervisor': {
-          color: 'text-orange-700',
-          bgColor: 'bg-orange-100',
-          dotColor: 'bg-orange-700'
+          color: 'text-orange-600 dark:text-orange-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-orange-600 dark:bg-orange-400'
         }
       }
     },
@@ -67,14 +67,14 @@ export class Usuarios {
       sortable: true,
       badgeConfig: {
         'Activo': {
-          color: 'text-green-700',
-          bgColor: 'bg-green-100',
-          dotColor: 'bg-green-700'
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-green-600 dark:bg-green-400'
         },
         'Inactivo': {
-          color: 'text-red-700',
-          bgColor: 'bg-red-100',
-          dotColor: 'bg-red-700'
+          color: 'text-red-600 dark:text-red-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-red-600 dark:bg-red-400'
         }
       }
     },

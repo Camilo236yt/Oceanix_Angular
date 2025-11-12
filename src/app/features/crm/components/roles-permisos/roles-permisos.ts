@@ -51,24 +51,24 @@ export class RolesPermisos {
       sortable: true,
       badgeConfig: {
         'SuperAdmin': {
-          color: 'text-purple-700',
-          bgColor: 'bg-purple-100',
-          dotColor: 'bg-purple-700'
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
         'Admin': {
-          color: 'text-blue-700',
-          bgColor: 'bg-blue-100',
-          dotColor: 'bg-blue-700'
+          color: 'text-blue-600 dark:text-blue-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-blue-600 dark:bg-blue-400'
         },
         'Supervisor': {
-          color: 'text-green-700',
-          bgColor: 'bg-green-100',
-          dotColor: 'bg-green-700'
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-green-600 dark:bg-green-400'
         },
         'Empleado': {
-          color: 'text-gray-700',
-          bgColor: 'bg-gray-100',
-          dotColor: 'bg-gray-700'
+          color: 'text-gray-600 dark:text-gray-300',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-gray-600 dark:bg-gray-300'
         }
       }
     },
@@ -81,14 +81,14 @@ export class RolesPermisos {
       sortable: true,
       badgeConfig: {
         'Activo': {
-          color: 'text-green-700',
-          bgColor: 'bg-green-100',
-          dotColor: 'bg-green-700'
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-green-600 dark:bg-green-400'
         },
         'Inactivo': {
-          color: 'text-red-700',
-          bgColor: 'bg-red-100',
-          dotColor: 'bg-red-700'
+          color: 'text-red-600 dark:text-red-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-red-600 dark:bg-red-400'
         }
       }
     },

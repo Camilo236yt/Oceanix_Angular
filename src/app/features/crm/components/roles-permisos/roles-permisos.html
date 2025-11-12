@@ -2,8 +2,8 @@
   <!-- Título y botón Crear Rol -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
     <div class="flex-1 min-w-0">
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 truncate">Roles y Permisos</h1>
-      <p class="text-gray-600 text-xs md:text-sm mt-1">Gestiona los roles y permisos de los usuarios del sistema</p>
+      <h1 class="text-2xl md:text-3xl font-bold text-[var(--text-primary)] truncate">Roles y Permisos</h1>
+      <p class="text-[var(--text-tertiary)] text-xs md:text-sm mt-1">Gestiona los roles y permisos de los usuarios del sistema</p>
     </div>
     <button
       (click)="createNewRole()"
@@ -16,53 +16,53 @@
   <!-- Tarjetas de estadísticas -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
     <!-- Total Roles -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-sm p-4 md:p-6 border border-[var(--card-border)]">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs md:text-sm font-medium text-gray-600">Total Roles</p>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">{{ stats.totalRoles }}</p>
+          <p class="text-xs md:text-sm font-medium text-[var(--text-tertiary)]">Total Roles</p>
+          <p class="text-2xl md:text-3xl font-bold text-[var(--text-primary)] mt-2">{{ stats.totalRoles }}</p>
         </div>
-        <div class="p-2 md:p-3 bg-purple-100 rounded-lg">
-          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600"></app-icon>
+        <div class="p-2 md:p-3 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600 dark:text-purple-400"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Roles Activos -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-sm p-4 md:p-6 border border-[var(--card-border)]">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs md:text-sm font-medium text-gray-600">Roles Activos</p>
-          <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">{{ stats.rolesActivos }}</p>
+          <p class="text-xs md:text-sm font-medium text-[var(--text-tertiary)]">Roles Activos</p>
+          <p class="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{{ stats.rolesActivos }}</p>
         </div>
-        <div class="p-2 md:p-3 bg-green-100 rounded-lg">
-          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-green-600"></app-icon>
+        <div class="p-2 md:p-3 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-green-600 dark:text-green-400"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Permisos Totales -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-sm p-4 md:p-6 border border-[var(--card-border)]">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs md:text-sm font-medium text-gray-600">Permisos Totales</p>
-          <p class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">{{ stats.permisosTotales }}</p>
+          <p class="text-xs md:text-sm font-medium text-[var(--text-tertiary)]">Permisos Totales</p>
+          <p class="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{{ stats.permisosTotales }}</p>
         </div>
-        <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
-          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-blue-600"></app-icon>
+        <div class="p-2 md:p-3 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-blue-600 dark:text-blue-400"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Usuarios con Roles -->
-    <div class="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+    <div class="bg-[var(--card-bg)] rounded-xl shadow-sm p-4 md:p-6 border border-[var(--card-border)]">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs md:text-sm font-medium text-gray-600">Usuarios con Roles</p>
-          <p class="text-2xl md:text-3xl font-bold text-purple-600 mt-2">{{ stats.usuariosConRoles }}</p>
+          <p class="text-xs md:text-sm font-medium text-[var(--text-tertiary)]">Usuarios con Roles</p>
+          <p class="text-2xl md:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">{{ stats.usuariosConRoles }}</p>
         </div>
-        <div class="p-2 md:p-3 bg-purple-100 rounded-lg">
-          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600"></app-icon>
+        <div class="p-2 md:p-3 rounded-lg">
+          <app-icon name="shield" class="w-6 h-6 md:w-8 md:h-8 text-purple-600 dark:text-purple-400"></app-icon>
         </div>
       </div>
     </div>

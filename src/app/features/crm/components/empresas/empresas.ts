@@ -37,14 +37,14 @@ export class Empresas {
       sortable: true,
       badgeConfig: {
         'Activo': {
-          color: 'text-green-700',
-          bgColor: 'bg-green-100',
-          dotColor: 'bg-green-700'
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-green-600 dark:bg-green-400'
         },
         'Inactivo': {
-          color: 'text-red-700',
-          bgColor: 'bg-red-100',
-          dotColor: 'bg-red-700'
+          color: 'text-red-600 dark:text-red-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-red-600 dark:bg-red-400'
         }
       }
     },

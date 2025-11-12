@@ -24,7 +24,7 @@ export class DataTable {
       const config = column.badgeConfig[value];
       return `inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${config.color} ${config.bgColor}`;
     }
-    return 'inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap text-gray-700 bg-gray-100';
+    return 'inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700';
   }
 
   getNestedValue(obj: any, key: string): any {

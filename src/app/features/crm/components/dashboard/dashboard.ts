@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { IncidenciasService } from '../../services/incidencias';
 import { DashboardData } from '../../models/incidencia.interface';
+import { ThemeService } from '../../../../core/services/theme.service';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -51,7 +52,18 @@ export class Dashboard implements OnInit {
   barChartOptions!: Partial<BarChartOptions>;
   pieChartOptions!: Partial<PieChartOptions>;
 
-  constructor(private incidenciasService: IncidenciasService) {}
+  private incidenciasService = inject(IncidenciasService);
+  private themeService = inject(ThemeService);
+
+  constructor() {
+    // Efecto para actualizar gráficos cuando cambie el tema
+    effect(() => {
+      const isDark = this.themeService.isDark();
+      if (this.dashboardData) {
+        this.updateChartsTheme(isDark);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -70,6 +82,7 @@ export class Dashboard implements OnInit {
 
     const categories = this.dashboardData.incidenciasPorTipo.map(item => item.tipo);
     const seriesData = this.dashboardData.incidenciasPorTipo.map(item => item.cantidad);
+    const isDark = this.themeService.isDark();
 
     this.barChartOptions = {
       series: [{
@@ -82,7 +95,9 @@ export class Dashboard implements OnInit {
         width: '100%',
         toolbar: {
           show: false
-        }
+        },
+        background: 'transparent',
+        foreColor: isDark ? '#CBD5E1' : '#6B7280'
       },
       plotOptions: {
         bar: {
@@ -97,10 +112,17 @@ export class Dashboard implements OnInit {
         categories: categories,
         labels: {
           style: {
-            fontSize: '12px'
+            fontSize: '12px',
+            colors: isDark ? '#CBD5E1' : '#6B7280'
           },
           rotate: -45,
           rotateAlways: false
+        },
+        axisBorder: {
+          color: isDark ? '#334155' : '#E5E7EB'
+        },
+        axisTicks: {
+          color: isDark ? '#334155' : '#E5E7EB'
         }
       },
       fill: {
@@ -135,28 +157,40 @@ export class Dashboard implements OnInit {
     const labels = this.dashboardData.estadoIncidencias.map(item => item.estado);
     const series = this.dashboardData.estadoIncidencias.map(item => item.porcentaje);
     const colors = this.dashboardData.estadoIncidencias.map(item => item.color);
+    const isDark = this.themeService.isDark();
 
     this.pieChartOptions = {
       series: series,
       chart: {
         type: 'donut',
-        height: 320
+        height: 320,
+        background: 'transparent',
+        foreColor: isDark ? '#CBD5E1' : '#6B7280'
       },
       labels: labels,
       colors: colors,
       legend: {
-        position: 'bottom'
+        position: 'bottom',
+        labels: {
+          colors: isDark ? '#CBD5E1' : '#6B7280'
+        }
       },
       dataLabels: {
         enabled: true,
         formatter: (val: number) => {
           return val.toFixed(0) + '%';
+        },
+        style: {
+          colors: ['#FFFFFF']
         }
       },
       plotOptions: {
         pie: {
           donut: {
-            size: '65%'
+            size: '65%',
+            labels: {
+              show: false
+            }
           }
         }
       },
@@ -186,5 +220,43 @@ export class Dashboard implements OnInit {
         }
       ]
     };
+  }
+
+  updateChartsTheme(isDark: boolean): void {
+    // Actualizar gráfico de barras
+    if (this.barChart) {
+      this.barChart.updateOptions({
+        chart: {
+          foreColor: isDark ? '#CBD5E1' : '#6B7280'
+        },
+        xaxis: {
+          labels: {
+            style: {
+              colors: isDark ? '#CBD5E1' : '#6B7280'
+            }
+          },
+          axisBorder: {
+            color: isDark ? '#334155' : '#E5E7EB'
+          },
+          axisTicks: {
+            color: isDark ? '#334155' : '#E5E7EB'
+          }
+        }
+      });
+    }
+
+    // Actualizar gráfico circular
+    if (this.pieChart) {
+      this.pieChart.updateOptions({
+        chart: {
+          foreColor: isDark ? '#CBD5E1' : '#6B7280'
+        },
+        legend: {
+          labels: {
+            colors: isDark ? '#CBD5E1' : '#6B7280'
+          }
+        }
+      });
+    }
   }
 }

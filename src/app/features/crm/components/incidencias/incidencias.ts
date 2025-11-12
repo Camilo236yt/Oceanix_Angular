@@ -47,19 +47,19 @@ export class Incidencias {
       sortable: true,
       badgeConfig: {
         'En plazo': {
-          color: 'text-green-600',
-          bgColor: 'bg-green-50',
-          dotColor: 'bg-green-600'
+          color: 'text-green-600 dark:text-green-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-green-600 dark:bg-green-400'
         },
         'En riesgo': {
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-50',
-          dotColor: 'bg-orange-600'
+          color: 'text-orange-600 dark:text-orange-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-orange-600 dark:bg-orange-400'
         },
         'Fuera de plazo': {
-          color: 'text-red-600',
-          bgColor: 'bg-red-50',
-          dotColor: 'bg-red-600'
+          color: 'text-red-600 dark:text-red-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-red-600 dark:bg-red-400'
         }
       }
     },

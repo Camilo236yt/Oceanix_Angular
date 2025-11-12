@@ -4,11 +4,105 @@
 
 /* Custom Oceanix Theme - Tailwind v4 uses CSS variables directly */
 :root {
+  /* Brand Colors - Purple (Oceanix) */
   --color-oceanix-purple-50: #faf5ff;
   --color-oceanix-purple-100: #f3e8ff;
   --color-oceanix-purple-400: #a78bfa;
   --color-oceanix-purple-600: #7c3aed;
   --color-oceanix-purple-700: #6d28d9;
+
+  /* Semantic Colors - Light Theme (Default) */
+  /* Backgrounds */
+  --bg-primary: #F2F2F2;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F9FAFB;
+  --bg-hover: #F3F4F6;
+  --bg-active: #f3e8ff;
+
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-primary: #E5E7EB;
+  --border-secondary: #D1D5DB;
+  --border-focus: #7c3aed;
+
+  /* Sidebar */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #6B7280;
+  --sidebar-text-hover: #374151;
+  --sidebar-active-bg: #f3e8ff;
+  --sidebar-active-text: #7c3aed;
+  --sidebar-border: #E5E7EB;
+
+  /* Card & Modal */
+  --card-bg: #FFFFFF;
+  --card-border: #E5E7EB;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Input */
+  --input-bg: #FFFFFF;
+  --input-border: #D1D5DB;
+  --input-text: #111827;
+  --input-placeholder: #9CA3AF;
+
+  /* Status Colors - Same for both themes */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+}
+
+/* Dark Theme */
+.dark {
+  /* Backgrounds - Slate/Blue-gray palette for modern look */
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-tertiary: #334155;
+  --bg-hover: #475569;
+  --bg-active: rgba(124, 58, 237, 0.2);
+
+  /* Text Colors - High contrast for readability */
+  --text-primary: #F1F5F9;
+  --text-secondary: #E2E8F0;
+  --text-tertiary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #0F172A;
+
+  /* Border Colors - Subtle but visible */
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --border-focus: #a78bfa;
+
+  /* Sidebar - Slightly lighter than main background */
+  --sidebar-bg: #1E293B;
+  --sidebar-text: #CBD5E1;
+  --sidebar-text-hover: #F1F5F9;
+  --sidebar-active-bg: rgba(124, 58, 237, 0.2);
+  --sidebar-active-text: #a78bfa;
+  --sidebar-border: #334155;
+
+  /* Card & Modal - Elevated surfaces */
+  --card-bg: #1E293B;
+  --card-border: #334155;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Input - Clear distinction from background */
+  --input-bg: #0F172A;
+  --input-border: #475569;
+  --input-text: #F1F5F9;
+  --input-placeholder: #64748B;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease-in-out,
+              border-color 0.2s ease-in-out,
+              color 0.2s ease-in-out;
 }
 
 /* Global Styles */

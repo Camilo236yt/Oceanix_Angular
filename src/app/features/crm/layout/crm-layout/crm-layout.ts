@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ThemeService, Theme } from '../../../../core/services/theme.service';
 
 interface MenuItem {
   path: string;
@@ -23,6 +24,9 @@ export class CrmLayout implements OnInit, OnDestroy {
   mobileViewMode: MobileViewMode = 'icons-with-names';
   currentDate: string = '';
   private midnightTimer: any;
+
+  // Servicio de temas
+  themeService = inject(ThemeService);
 
   menuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -115,5 +119,22 @@ export class CrmLayout implements OnInit, OnDestroy {
     this.mobileViewMode = mode;
     localStorage.setItem('mobileViewMode', mode);
     this.closeViewOptionsModal();
+  }
+
+  // Métodos para el tema
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+
+  setTheme(theme: Theme) {
+    this.themeService.setTheme(theme);
+  }
+
+  getCurrentTheme(): Theme {
+    return this.themeService.theme();
+  }
+
+  isDarkMode(): boolean {
+    return this.themeService.isDark();
   }
 }

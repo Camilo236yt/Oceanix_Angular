@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: white;
+  background-color: var(--sidebar-bg);
   z-index: 40;
   display: none;
   flex-direction: column;
@@ -30,20 +30,21 @@
   border: 2px solid transparent;
   border-radius: 0.75rem;
   transition: all 0.2s ease-in-out;
-  background-color: #F9FAFB;
+  background-color: var(--bg-tertiary);
 
   &:hover {
-    background-color: #F3F4F6;
-    border-color: #E5E7EB;
+    background-color: var(--bg-hover);
+    border-color: var(--border-primary);
   }
 }
 
 .view-option-selected {
   border-color: #9333EA;
-  background-color: #FAF5FF;
+  background-color: var(--bg-active);
 
   &:hover {
-    background-color: #F3E8FF;
+    background-color: var(--bg-active);
+    opacity: 0.9;
   }
 }
 
