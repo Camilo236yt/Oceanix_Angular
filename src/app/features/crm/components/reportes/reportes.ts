@@ -17,7 +17,7 @@ export class Reportes implements OnInit {
   private themeService = inject(ThemeService);
 
   // Estado del collapse
-  isFiltersCollapsed: boolean = false;
+  isFiltersCollapsed: boolean = true;
 
   // Filtros
   fechaInicio: string = '';

@@ -10,7 +10,7 @@
     <!-- Header del card con botón de toggle -->
     <div
       (click)="toggleFilters()"
-      class="flex items-center justify-between p-4 md:p-6 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors rounded-t-xl">
+      class="flex items-center justify-between p-4 md:p-6 cursor-pointer rounded-t-xl">
       <h2 class="text-base md:text-lg font-bold text-[var(--text-primary)]">Filtros de Búsqueda</h2>
       <app-icon
         [name]="isFiltersCollapsed ? 'chevron-down' : 'chevron-up'"
@@ -19,7 +19,9 @@
     </div>
 
     <!-- Contenido colapsable -->
-    <div [class.hidden]="isFiltersCollapsed" class="px-4 md:px-6 pb-4 md:pb-6">
+    <div
+      [class.collapsed]="isFiltersCollapsed"
+      class="filter-content px-4 md:px-6 pb-4 md:pb-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4">
       <!-- Fecha Inicio -->
       <div>

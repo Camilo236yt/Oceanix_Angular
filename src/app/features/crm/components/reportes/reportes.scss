@@ -2,10 +2,8 @@
 
 .date-input {
   position: relative;
-  background-color: white;
-  color: #374151; // gray-700
 
-  // Safari específico - forzar el uso del picker nativo
+  // Safari especï¿½fico - forzar el uso del picker nativo
   &::-webkit-date-and-time-value {
     text-align: left;
   }
@@ -27,15 +25,6 @@
     opacity: 0;
   }
 
-  // Estilos para el input cuando está vacío
-  &:invalid {
-    color: #9ca3af; // gray-400
-  }
-
-  &:valid {
-    color: #374151; // gray-700
-  }
-
   // Firefox
   &::-moz-calendar-picker-indicator {
     opacity: 0;
@@ -53,10 +42,10 @@
   z-index: 0;
 }
 
-// Estilos específicos solo para Safari
+// Estilos especï¿½ficos solo para Safari
 @supports (-webkit-hyphens:none) {
   .date-input {
-    // Safari necesita altura mínima explícita
+    // Safari necesita altura mï¿½nima explï¿½cita
     min-height: 42px;
 
     &::-webkit-calendar-picker-indicator {
@@ -71,5 +60,20 @@
 @media (min-width: 768px) {
   .date-input {
     min-height: 44px;
+  }
+}
+
+// AnimaciÃ³n suave para el contenido colapsable
+.filter-content {
+  max-height: 1000px;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
+
+  &.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
