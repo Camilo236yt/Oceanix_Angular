@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { emailValidator } from '../../utils/validators';
+import { AuthService } from '../../services/auth.service';
+import { LoginResponse } from '../../interface/auth.interface';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +22,8 @@ export class Login implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -59,12 +63,33 @@ export class Login implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // Por ahora solo simula el proceso (sin backend)
-    setTimeout(() => {
-      this.isLoading = false;
-      console.log('Login data:', this.loginForm.value);
-      // Aquí irá la lógica de autenticación cuando se implemente el backend
-    }, 1500);
+    const credentials = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+
+    this.authService.login(credentials).subscribe({
+      next: (response: LoginResponse) => {
+        this.isLoading = false;
+        if (response.success) {
+          // Redirigir al dashboard del CRM
+          this.authService.redirectToSubdomain(response.data.enterprise.subdomain);
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoading = false;
+        console.error('Error en login:', error);
+
+        // Manejar diferentes tipos de errores
+        if (error.status === 401) {
+          this.errorMessage = 'Credenciales inválidas. Por favor, verifica tu email y contraseña.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+        } else {
+          this.errorMessage = error.error?.message || 'Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente.';
+        }
+      }
+    });
   }
 
   /**

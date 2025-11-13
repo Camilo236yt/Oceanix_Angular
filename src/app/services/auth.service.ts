@@ -67,7 +67,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(
       `${this.API_URL}/auth/login`,
       credentials,
-      { headers }
+      {
+        headers,
+        withCredentials: true // Permite enviar y recibir cookies cross-origin
+      }
     ).pipe(
       tap(response => {
         if (response.success && response.data.token) {
