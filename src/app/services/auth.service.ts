@@ -192,6 +192,75 @@ export class AuthService {
   }
 
   /**
+   * Extrae el subdomain actual de la URL
+   * @returns subdomain string o null si no está en un subdomain
+   */
+  private getCurrentSubdomain(): string | null {
+    const hostname = window.location.hostname;
+
+    // Si es localhost, retornar null
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return null;
+    }
+
+    // Ejemplo: techsol-abc.oceanix.space -> techsol-abc
+    const parts = hostname.split('.');
+    if (parts.length >= 3) {
+      return parts[0];
+    }
+
+    return null;
+  }
+
+  /**
+   * Valida que el usuario esté en el subdomain correcto
+   * Si no coincide, limpia la sesión y retorna false
+   * @returns true si está en el subdomain correcto
+   */
+  validateSubdomain(): boolean {
+    const enterprise = this.getEnterprise();
+    const currentSubdomain = this.getCurrentSubdomain();
+
+    // Si no hay empresa guardada o no estamos en un subdomain, no validar
+    if (!enterprise || !currentSubdomain) {
+      return true;
+    }
+
+    // Si el subdomain no coincide con la empresa del usuario
+    if (enterprise.subdomain !== currentSubdomain) {
+      console.warn('⚠️ Subdomain mismatch detectado');
+      console.warn(`  Subdomain actual: ${currentSubdomain}`);
+      console.warn(`  Subdomain esperado: ${enterprise.subdomain}`);
+      console.warn('  Limpiando sesión...');
+
+      // Limpiar la sesión local
+      this.logout();
+
+      // Limpiar la cookie del backend
+      this.clearAuthCookie();
+
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Limpia la cookie de autenticación haciendo una petición al backend
+   */
+  private clearAuthCookie(): void {
+    // Hacer petición al endpoint de logout para limpiar la cookie
+    this.http.post(
+      `${this.API_URL}/auth/logout`,
+      {},
+      { withCredentials: true }
+    ).subscribe({
+      next: () => console.log('✅ Cookie limpiada del backend'),
+      error: (err) => console.error('❌ Error limpiando cookie:', err)
+    });
+  }
+
+  /**
    * Logout user and clear stored data
    */
   logout(): void {
