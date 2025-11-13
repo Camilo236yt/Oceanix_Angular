@@ -95,4 +95,11 @@ export class ActivateAccount implements OnInit {
   goToLogin(): void {
     this.router.navigate(['/login']);
   }
+
+  /**
+   * Redirige al usuario al CRM
+   */
+  goToCRM(): void {
+    this.router.navigate(['/crm/dashboard']);
+  }
 }
