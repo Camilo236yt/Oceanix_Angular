@@ -98,7 +98,10 @@ export class AuthService {
     return this.http.post<ActivateAccountResponse>(
       `${this.API_URL}/auth/activate-account`,
       body,
-      { headers }
+      {
+        headers,
+        withCredentials: true // Permite enviar y recibir cookies cross-origin
+      }
     );
   }
 
