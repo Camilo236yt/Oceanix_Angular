@@ -87,12 +87,6 @@ export class AuthService {
    * @returns Observable with activation response
    */
   activateAccount(activationToken: string): Observable<ActivateAccountResponse> {
-    console.group('🔐 AuthService.activateAccount()');
-    console.log('📍 Paso 0: Preparando petición de activación');
-    console.log('  URL:', `${this.API_URL}/auth/activate-account`);
-    console.log('  Token length:', activationToken?.length || 0);
-    console.log('  withCredentials configurado:', true);
-
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -101,10 +95,6 @@ export class AuthService {
       activationToken
     };
 
-    console.log('  Headers:', headers.keys());
-    console.log('  Body:', { activationToken: activationToken.substring(0, 20) + '...' });
-    console.groupEnd();
-
     return this.http.post<ActivateAccountResponse>(
       `${this.API_URL}/auth/activate-account`,
       body,
@@ -112,27 +102,6 @@ export class AuthService {
         headers,
         withCredentials: true // Permite enviar y recibir cookies cross-origin
       }
-    ).pipe(
-      tap({
-        next: (response) => {
-          console.group('✅ AuthService - Respuesta de activación');
-          console.log('  Success:', response.success);
-          console.log('  Status Code:', response.statusCode);
-
-          // Verificar si hay cookies después de la respuesta
-          console.log('📍 Paso 4: Verificando cookies en navegador');
-          const allCookies = document.cookie;
-          console.log('  document.cookie:', allCookies || '(vacío - esperado si HttpOnly)');
-          console.warn('  ⚠️  Si authToken es HttpOnly, NO aparecerá aquí (correcto)');
-          console.log('  💡 Verifica DevTools > Application > Cookies manualmente');
-          console.groupEnd();
-        },
-        error: (error) => {
-          console.group('❌ AuthService - Error en activación');
-          console.error('  Error:', error);
-          console.groupEnd();
-        }
-      })
     );
   }
 
@@ -228,11 +197,6 @@ export class AuthService {
 
     // Si el subdomain no coincide con la empresa del usuario
     if (enterprise.subdomain !== currentSubdomain) {
-      console.warn('⚠️ Subdomain mismatch detectado');
-      console.warn(`  Subdomain actual: ${currentSubdomain}`);
-      console.warn(`  Subdomain esperado: ${enterprise.subdomain}`);
-      console.warn('  Limpiando sesión...');
-
       // Limpiar la sesión local
       this.logout();
 
@@ -249,15 +213,11 @@ export class AuthService {
    * Limpia la cookie de autenticación haciendo una petición al backend
    */
   private clearAuthCookie(): void {
-    // Hacer petición al endpoint de logout para limpiar la cookie
     this.http.post(
       `${this.API_URL}/auth/logout`,
       {},
       { withCredentials: true }
-    ).subscribe({
-      next: () => console.log('✅ Cookie limpiada del backend'),
-      error: (err) => console.error('❌ Error limpiando cookie:', err)
-    });
+    ).subscribe();
   }
 
   /**
