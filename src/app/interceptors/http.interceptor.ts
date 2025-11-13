@@ -20,17 +20,21 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   console.log('  Headers originales:', req.headers.keys());
 
   // Clonar la petición y agregar headers necesarios
+  // IMPORTANTE: No forzar withCredentials aquí para respetar la configuración de cada request
   const clonedRequest = req.clone({
     setHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-    },
-    withCredentials: false // ⚠️ PROBLEMA POTENCIAL: Esto sobrescribe cualquier withCredentials: true
+    }
+    // withCredentials se respeta del request original (no se sobrescribe)
   });
 
   console.log('📍 Paso 2: Request clonado');
   console.log('  withCredentials (después de clone):', clonedRequest.withCredentials);
-  console.warn('⚠️  ADVERTENCIA: withCredentials forzado a FALSE');
+
+  if (clonedRequest.withCredentials) {
+    console.log('✅ withCredentials preservado correctamente');
+  }
 
   if (isAuthEndpoint && !clonedRequest.withCredentials) {
     console.error('❌ PROBLEMA DETECTADO: Endpoint de auth SIN withCredentials!');
