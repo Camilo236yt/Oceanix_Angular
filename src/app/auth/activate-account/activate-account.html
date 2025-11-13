@@ -20,9 +20,9 @@
         </div>
         <h2>¡Cuenta activada!</h2>
         <p class="success-message">{{ successMessage }}</p>
-        <p class="redirect-message">Serás redirigido al inicio de sesión en unos segundos...</p>
-        <button type="button" class="btn-primary" (click)="goToLogin()">
-          Ir al inicio de sesión
+        <p class="redirect-message">Serás redirigido al CRM en unos segundos...</p>
+        <button type="button" class="btn-primary" (click)="router.navigate(['/crm/dashboard'])">
+          Ir al CRM
         </button>
       </div>
     }

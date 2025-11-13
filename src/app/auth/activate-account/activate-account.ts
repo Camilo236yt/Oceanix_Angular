@@ -54,9 +54,9 @@ export class ActivateAccount implements OnInit {
           this.successMessage = response.data.message || 'Cuenta activada exitosamente';
           this.isLoading = false;
 
-          // Esperar 2 segundos antes de redirigir al login
+          // Redirigir automáticamente al CRM después de 2 segundos
           setTimeout(() => {
-            this.router.navigate(['/login']);
+            this.router.navigate(['/crm/dashboard']);
           }, 2000);
         } else {
           this.activationStatus = 'error';
@@ -76,6 +76,10 @@ export class ActivateAccount implements OnInit {
           this.errorMessage = 'Cuenta no encontrada.';
         } else if (error.status === 409) {
           this.errorMessage = 'Esta cuenta ya ha sido activada.';
+          // Si ya está activada, redirigir al CRM después de 2 segundos
+          setTimeout(() => {
+            this.router.navigate(['/crm/dashboard']);
+          }, 2000);
         } else if (error.status === 0) {
           this.errorMessage = 'Error de conexión. Por favor verifica tu conexión a internet.';
         } else {

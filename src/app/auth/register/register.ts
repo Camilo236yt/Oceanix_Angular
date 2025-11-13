@@ -290,98 +290,26 @@ export class Register implements OnInit {
             return;
           }
 
+          const redirectUrl = response.data.redirectUrl;
           const subdomain = response.data.subdomain;
-          const adminEmail = this.step2Form.value.email;
-          const password = this.step2Form.value.password;
-          const activationToken = response.data.activationToken;
 
-          console.log('Token de activación recibido:', activationToken);
+          this.isLoading = false;
 
-          // En local, omitir activación y hacer login directo
-          // En producción, el backend redirige al subdominio donde se activa
+          // En local, simular el flujo redirigiendo a /auth/activate con el token
           if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('Modo local: omitiendo activación, login directo');
-            // Login directo sin activación
-            this.authService.login({
-              email: adminEmail,
-              password: password
-            }).subscribe({
-              next: (loginResponse) => {
-                console.log('Login exitoso');
+            // Extraer el token del redirectUrl
+            const url = new URL(redirectUrl);
+            const token = url.searchParams.get('token');
 
-                if (loginResponse.success) {
-                  this.isLoading = false;
-                  this.authService.redirectToSubdomain(subdomain);
-                }
-              },
-              error: (loginError) => {
-                this.isLoading = false;
-                console.error('Error al hacer login:', loginError);
-                alert('Registro exitoso. Por favor inicia sesión.');
-                this.router.navigate(['/login']);
-              }
+            // Redirigir a la página de activación local con el token
+            this.router.navigate(['/auth/activate'], {
+              queryParams: { token: token }
             });
             return;
           }
 
-          // Activar la cuenta inmediatamente después del registro
-          this.authService.activateAccount(activationToken).subscribe({
-            next: (activationResponse) => {
-              console.log('Cuenta activada exitosamente');
-
-              if (activationResponse.success) {
-                // Después de activar, hacer login automático
-                this.authService.login({
-                  email: adminEmail,
-                  password: password
-                }).subscribe({
-                  next: (loginResponse) => {
-                    console.log('Login exitoso');
-
-                    if (loginResponse.success) {
-                      this.isLoading = false;
-                      // Redirigir al CRM
-                      this.authService.redirectToSubdomain(subdomain);
-                    }
-                  },
-                  error: (loginError) => {
-                    this.isLoading = false;
-                    console.error('Error al hacer login:', loginError);
-                    alert('Registro y activación exitosos. Por favor inicia sesión.');
-                    this.router.navigate(['/login']);
-                  }
-                });
-              }
-            },
-            error: (activationError) => {
-              this.isLoading = false;
-              console.error('Error al activar cuenta:', activationError);
-
-              // Manejar diferentes tipos de errores
-              if (activationError.status === 401) {
-                alert('Token de activación inválido o expirado.');
-              } else if (activationError.status === 409) {
-                alert('Esta cuenta ya ha sido activada. Iniciando sesión...');
-                // Si ya está activada, intentar hacer login directamente
-                this.authService.login({
-                  email: adminEmail,
-                  password: password
-                }).subscribe({
-                  next: (loginResponse) => {
-                    if (loginResponse.success) {
-                      this.authService.redirectToSubdomain(subdomain);
-                    }
-                  },
-                  error: () => {
-                    this.router.navigate(['/login']);
-                  }
-                });
-              } else {
-                alert('Registro exitoso, pero hubo un problema al activar la cuenta. Por favor contacta al soporte.');
-                this.router.navigate(['/login']);
-              }
-            }
-          });
+          // En producción, redirigir al redirectUrl del backend (subdominio)
+          window.location.href = redirectUrl;
         }
       },
       error: (error) => {
