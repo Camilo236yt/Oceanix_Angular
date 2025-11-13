@@ -15,6 +15,8 @@ import { IncidenciasService } from '../../services/incidencias.service';
 export class RegistroClienteIncidenciaComponent implements OnInit {
   // Estado del panel de historial
   historialVisible = signal(true);
+  panelHistorialMobileVisible = signal(false);
+  panelClosing = signal(false);
 
   // Datos del formulario
   empresaSeleccionada = '';
@@ -48,6 +50,20 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
 
   toggleHistorial(): void {
     this.historialVisible.set(!this.historialVisible());
+  }
+
+  abrirHistorialMobile(): void {
+    this.panelHistorialMobileVisible.set(true);
+    this.panelClosing.set(false);
+  }
+
+  cerrarHistorialMobile(): void {
+    this.panelClosing.set(true);
+    // Esperar a que termine la animación antes de ocultar
+    setTimeout(() => {
+      this.panelHistorialMobileVisible.set(false);
+      this.panelClosing.set(false);
+    }, 300); // 300ms = duración de la animación
   }
 
   onFileSelected(event: Event): void {
