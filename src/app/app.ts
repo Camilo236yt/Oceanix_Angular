@@ -24,8 +24,8 @@ export class App {
         const hiddenLayoutRoutes = ['/login', '/register'];
         const url = event.urlAfterRedirects;
 
-        // Ocultar layout si la ruta está en hiddenLayoutRoutes o empieza con /crm
-        this.showLayout = !hiddenLayoutRoutes.includes(url) && !url.startsWith('/crm');
+        // Ocultar layout si la ruta está en hiddenLayoutRoutes o empieza con /crm o /portal
+        this.showLayout = !hiddenLayoutRoutes.includes(url) && !url.startsWith('/crm') && !url.startsWith('/portal');
       });
   }
 }

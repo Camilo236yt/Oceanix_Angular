@@ -24,6 +24,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/crm/crm.routes').then(m => m.CRM_ROUTES)
   },
   {
+    path: 'portal',
+    loadChildren: () => import('./pages/portal/portal.routes').then(m => m.PORTAL_ROUTES)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

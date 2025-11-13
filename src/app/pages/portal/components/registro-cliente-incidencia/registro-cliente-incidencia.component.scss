@@ -1,0 +1,80 @@
+// Estilos personalizados para el registro de incidencias
+// Usando variables CSS del tema Oceanix
+
+.bg-header-purple {
+  background-color: #EFEEFB;
+}
+
+.bg-oceanix-purple-100 {
+  background-color: var(--color-oceanix-purple-100, #f3e8ff);
+}
+
+.bg-oceanix-purple-600 {
+  background-color: var(--color-oceanix-purple-600, #7c3aed);
+}
+
+.bg-oceanix-purple-700 {
+  background-color: var(--color-oceanix-purple-700, #6d28d9);
+}
+
+.text-oceanix-purple-600 {
+  color: var(--color-oceanix-purple-600, #7c3aed);
+}
+
+.text-oceanix-purple-500 {
+  color: var(--color-oceanix-purple-500, #8b5cf6);
+}
+
+.text-oceanix-purple-700 {
+  color: var(--color-oceanix-purple-700, #6d28d9);
+}
+
+.hover\:bg-oceanix-purple-700:hover {
+  background-color: var(--color-oceanix-purple-700, #6d28d9);
+}
+
+.hover\:text-oceanix-purple-700:hover {
+  color: var(--color-oceanix-purple-700, #6d28d9);
+}
+
+.focus\:ring-oceanix-purple-500:focus {
+  --tw-ring-color: var(--color-oceanix-purple-500, #8b5cf6);
+}
+
+// Animaciones suaves
+button {
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Scrollbar personalizado
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-oceanix-purple-400, #a78bfa);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--color-oceanix-purple-600, #7c3aed);
+  }
+}
+
+// Transiciones suaves para el grid
+.grid {
+  transition: grid-template-columns 0.3s ease-in-out;
+}
+
+// Estilos para el input de archivo
+input[type="file"] {
+  &::-webkit-file-upload-button {
+    display: none;
+  }
+}
