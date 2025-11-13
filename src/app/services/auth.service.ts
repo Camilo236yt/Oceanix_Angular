@@ -245,17 +245,22 @@ export class AuthService {
     // Guardar el subdominio
     localStorage.setItem('subdomain', subdomain);
 
-    // Si la redirección de subdominio está deshabilitada (desarrollo)
-    if (!environment.enableSubdomainRedirect) {
-      console.log(`[DEV MODE] Redirección de subdominio deshabilitada. En producción se redirigiría a: ${newUrl}`);
-      // En desarrollo, navegar al dashboard sin cambiar de dominio
+    // En localhost, guardar subdomain para desarrollo y navegar al dashboard
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log(`[DEV MODE - localhost] Simulando subdominio: ${subdomain}`);
+
+      // Guardar subdomain para modo desarrollo (usado por HTTP Interceptor)
+      localStorage.setItem('dev_subdomain', subdomain);
+
+      // Navegar al dashboard sin cambiar de dominio
       window.location.href = '/crm/dashboard';
       return;
     }
 
-    // En localhost, no redirigir a subdominio
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log(`[DEV MODE - localhost] En producción se redirigiría a: ${newUrl}`);
+    // Si la redirección de subdominio está deshabilitada (desarrollo)
+    if (!environment.enableSubdomainRedirect) {
+      console.log(`[DEV MODE] Redirección de subdominio deshabilitada. En producción se redirigiría a: ${newUrl}`);
+      // En desarrollo, navegar al dashboard sin cambiar de dominio
       window.location.href = '/crm/dashboard';
       return;
     }
