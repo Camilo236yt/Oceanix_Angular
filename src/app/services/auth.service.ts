@@ -8,7 +8,9 @@ import {
   LoginRequest,
   LoginResponse,
   AdminUser,
-  Enterprise
+  Enterprise,
+  ActivateAccountRequest,
+  ActivateAccountResponse
 } from '../interface/auth.interface';
 
 /**
@@ -76,6 +78,27 @@ export class AuthService {
           );
         }
       })
+    );
+  }
+
+  /**
+   * Activate account with token
+   * @param activationToken Token received after registration
+   * @returns Observable with activation response
+   */
+  activateAccount(activationToken: string): Observable<ActivateAccountResponse> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    const body: ActivateAccountRequest = {
+      activationToken
+    };
+
+    return this.http.post<ActivateAccountResponse>(
+      `${this.API_URL}/auth/activate-account`,
+      body,
+      { headers }
     );
   }
 

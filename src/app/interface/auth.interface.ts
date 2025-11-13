@@ -62,9 +62,12 @@ export interface AdminUser {
  * Interface for enterprise registration response data
  */
 export interface RegisterEnterpriseData {
-  enterprise: Enterprise;
-  admin: AdminUser;
+  subdomain: string;
+  activationToken: string;
   message: string;
+  redirectUrl: string;
+  enterprise?: Enterprise;
+  admin?: AdminUser;
 }
 
 /**
@@ -93,6 +96,24 @@ export interface LoginResponse {
     token: string;
     user: AdminUser;
     enterprise: Enterprise;
+  };
+  statusCode: number;
+}
+
+/**
+ * Interface for activate account request
+ */
+export interface ActivateAccountRequest {
+  activationToken: string;
+}
+
+/**
+ * Interface for activate account response
+ */
+export interface ActivateAccountResponse {
+  success: boolean;
+  data: {
+    message: string;
   };
   statusCode: number;
 }

@@ -59,11 +59,46 @@ export class Register implements OnInit {
     this.initializeForms();
     this.setupDynamicValidators();
     this.setupSubdomainFormatter();
+
+    // Llenar con datos de prueba en desarrollo
+    this.fillTestData();
+
     // Asegurar que los formularios estén limpios al iniciar
     this.step1Form.markAsUntouched();
     this.step1Form.markAsPristine();
     this.step2Form.markAsUntouched();
     this.step2Form.markAsPristine();
+  }
+
+  /**
+   * Llena el formulario con datos de prueba aleatorios
+   */
+  private fillTestData(): void {
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 7);
+
+    // Paso 1: Datos de la Empresa
+    this.step1Form.patchValue({
+      companyName: `TechSolutions ${randomId.toUpperCase()} SAS`,
+      subdomain: `techsol-${randomId}`,
+      companyEmail: `contact-${timestamp}@techsolutions.co`,
+      companyPhone: `320${Math.floor(1000000 + Math.random() * 9000000)}`,
+      taxIdType: 'NIT',
+      taxIdNumber: `90${Math.floor(10000000 + Math.random() * 90000000)}`
+    });
+
+    // Paso 2: Datos del Administrador
+    this.step2Form.patchValue({
+      firstName: 'Carlos',
+      lastName: 'Mendoza',
+      email: `carlos.${randomId}.${timestamp}@techsolutions.co`,
+      phone: `315${Math.floor(1000000 + Math.random() * 9000000)}`,
+      documentType: 'Cedula',
+      documentNumber: `10${Math.floor(10000000 + Math.random() * 90000000)}`,
+      password: 'SecurePass123!',
+      confirmPassword: 'SecurePass123!',
+      acceptTerms: true
+    });
   }
 
   /**
@@ -247,28 +282,104 @@ export class Register implements OnInit {
     this.authService.registerEnterprise(registerData).subscribe({
       next: (response) => {
         if (response.success) {
-          const subdomain = response.data.enterprise.subdomain;
-          const adminEmail = response.data.admin.email;
-          const password = this.step2Form.value.password;
+          // Verificar que los datos necesarios existen
+          if (!response.data || !response.data.activationToken || !response.data.subdomain) {
+            console.error('Estructura de respuesta inesperada:', response);
+            this.isLoading = false;
+            alert('Error: La respuesta del servidor no tiene el formato esperado.');
+            return;
+          }
 
-          // Login automático después del registro
-          this.authService.login({
-            email: adminEmail,
-            password: password
-          }).subscribe({
-            next: (loginResponse) => {
-              if (loginResponse.success) {
+          const subdomain = response.data.subdomain;
+          const adminEmail = this.step2Form.value.email;
+          const password = this.step2Form.value.password;
+          const activationToken = response.data.activationToken;
+
+          console.log('Token de activación recibido:', activationToken);
+
+          // En local, omitir activación y hacer login directo
+          // En producción, el backend redirige al subdominio donde se activa
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('Modo local: omitiendo activación, login directo');
+            // Login directo sin activación
+            this.authService.login({
+              email: adminEmail,
+              password: password
+            }).subscribe({
+              next: (loginResponse) => {
+                console.log('Login exitoso');
+
+                if (loginResponse.success) {
+                  this.isLoading = false;
+                  this.authService.redirectToSubdomain(subdomain);
+                }
+              },
+              error: (loginError) => {
                 this.isLoading = false;
-                // Redirigir al subdominio de la empresa
-                this.authService.redirectToSubdomain(subdomain);
+                console.error('Error al hacer login:', loginError);
+                alert('Registro exitoso. Por favor inicia sesión.');
+                this.router.navigate(['/login']);
+              }
+            });
+            return;
+          }
+
+          // Activar la cuenta inmediatamente después del registro
+          this.authService.activateAccount(activationToken).subscribe({
+            next: (activationResponse) => {
+              console.log('Cuenta activada exitosamente');
+
+              if (activationResponse.success) {
+                // Después de activar, hacer login automático
+                this.authService.login({
+                  email: adminEmail,
+                  password: password
+                }).subscribe({
+                  next: (loginResponse) => {
+                    console.log('Login exitoso');
+
+                    if (loginResponse.success) {
+                      this.isLoading = false;
+                      // Redirigir al CRM
+                      this.authService.redirectToSubdomain(subdomain);
+                    }
+                  },
+                  error: (loginError) => {
+                    this.isLoading = false;
+                    console.error('Error al hacer login:', loginError);
+                    alert('Registro y activación exitosos. Por favor inicia sesión.');
+                    this.router.navigate(['/login']);
+                  }
+                });
               }
             },
-            error: (loginError) => {
+            error: (activationError) => {
               this.isLoading = false;
+              console.error('Error al activar cuenta:', activationError);
 
-              // Si falla el login, redirigir a la página de login
-              alert('Registro exitoso. Por favor inicia sesión.');
-              this.router.navigate(['/login']);
+              // Manejar diferentes tipos de errores
+              if (activationError.status === 401) {
+                alert('Token de activación inválido o expirado.');
+              } else if (activationError.status === 409) {
+                alert('Esta cuenta ya ha sido activada. Iniciando sesión...');
+                // Si ya está activada, intentar hacer login directamente
+                this.authService.login({
+                  email: adminEmail,
+                  password: password
+                }).subscribe({
+                  next: (loginResponse) => {
+                    if (loginResponse.success) {
+                      this.authService.redirectToSubdomain(subdomain);
+                    }
+                  },
+                  error: () => {
+                    this.router.navigate(['/login']);
+                  }
+                });
+              } else {
+                alert('Registro exitoso, pero hubo un problema al activar la cuenta. Por favor contacta al soporte.');
+                this.router.navigate(['/login']);
+              }
             }
           });
         }
