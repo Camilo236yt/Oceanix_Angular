@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableColumn, TableAction } from '../../models/table.model';
 import { IconComponent } from '../icon/icon.component';
@@ -9,11 +9,18 @@ import { IconComponent } from '../icon/icon.component';
   templateUrl: './data-table.html',
   styleUrl: './data-table.scss'
 })
-export class DataTable {
+export class DataTable implements OnChanges {
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
   @Input() actions: TableAction[] = [];
   @Output() onActionClick = new EventEmitter<{ action: TableAction; row: any }>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      console.log('DataTable recibió datos:', this.data);
+      console.log('Cantidad de registros:', this.data?.length);
+    }
+  }
 
   handleAction(action: TableAction, row: any) {
     this.onActionClick.emit({ action, row });

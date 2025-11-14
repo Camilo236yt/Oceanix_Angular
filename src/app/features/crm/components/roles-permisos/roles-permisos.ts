@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
@@ -15,7 +15,10 @@ import { RolesService } from '../../services/roles.service';
   styleUrl: './roles-permisos.scss',
 })
 export class RolesPermisos implements OnInit {
-  constructor(private rolesService: RolesService) {}
+  constructor(
+    private rolesService: RolesService,
+    private cdr: ChangeDetectorRef
+  ) {}
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -120,8 +123,9 @@ export class RolesPermisos implements OnInit {
   loadRoles() {
     this.rolesService.getRoles().subscribe({
       next: (roles) => {
-        this.roles = roles;
         console.log('Roles cargados:', roles);
+        this.roles = [...roles]; // Crear una nueva referencia del array
+        this.cdr.detectChanges(); // Forzar la detección de cambios
       },
       error: (error) => {
         console.error('Error al cargar roles:', error);
@@ -149,5 +153,9 @@ export class RolesPermisos implements OnInit {
     console.log('Filtros aplicados:', filterData);
     // Aquí puedes implementar la lógica de filtrado
     // Por ejemplo, filtrar el array de roles basado en searchTerm y filters
+  }
+
+  trackByRoleId(index: number, role: Role): string {
+    return role.id;
   }
 }
