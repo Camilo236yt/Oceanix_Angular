@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
+import { AuthService } from '../../../../services/auth.service';
 
 interface MenuItem {
   path: string;
@@ -25,8 +26,10 @@ export class CrmLayout implements OnInit, OnDestroy {
   currentDate: string = '';
   private midnightTimer: any;
 
-  // Servicio de temas
+  // Servicios
   themeService = inject(ThemeService);
+  authService = inject(AuthService);
+  router = inject(Router);
 
   menuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -136,5 +139,16 @@ export class CrmLayout implements OnInit, OnDestroy {
 
   isDarkMode(): boolean {
     return this.themeService.isDark();
+  }
+
+  /**
+   * Cierra la sesión del usuario y redirige al login
+   */
+  logout() {
+    // Limpiar datos de autenticación
+    this.authService.logout();
+
+    // Redirigir al login
+    this.router.navigate(['/login']);
   }
 }
