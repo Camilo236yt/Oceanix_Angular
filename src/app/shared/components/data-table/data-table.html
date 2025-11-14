@@ -16,7 +16,7 @@
         </tr>
       </thead>
       <tbody class="bg-[var(--card-bg)] divide-y divide-[var(--border-primary)]">
-        @for (row of data; track row) {
+        @for (row of data; track row.id) {
           <tr class="hover:bg-[var(--bg-hover)] transition-colors">
             @for (column of columns; track column.key) {
               <td class="px-4 py-4 text-sm text-[var(--text-primary)]"
@@ -94,7 +94,7 @@
       </div>
     }
 
-    @for (row of data; track row) {
+    @for (row of data; track row.id) {
       <div class="border-b border-[var(--border-primary)] last:border-b-0 p-4 hover:bg-[var(--bg-hover)] transition-colors">
         <div class="space-y-3">
           @for (column of columns; track column.key) {

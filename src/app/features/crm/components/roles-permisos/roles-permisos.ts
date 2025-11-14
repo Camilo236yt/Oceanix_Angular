@@ -120,8 +120,10 @@ export class RolesPermisos implements OnInit {
   loadRoles() {
     this.rolesService.getRoles().subscribe({
       next: (roles) => {
-        this.roles = roles;
+        this.roles = [...roles];
         console.log('Roles cargados:', roles);
+        console.log('Array roles en componente:', this.roles);
+        console.log('Length del array:', this.roles.length);
       },
       error: (error) => {
         console.error('Error al cargar roles:', error);
