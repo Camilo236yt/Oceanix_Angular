@@ -145,10 +145,16 @@ export class CrmLayout implements OnInit, OnDestroy {
    * Cierra la sesión del usuario y redirige al login
    */
   logout() {
+    console.log('Logout button clicked!');
+
     // Limpiar datos de autenticación
     this.authService.logout();
 
+    console.log('Auth service logout called, navigating to login...');
+
     // Redirigir al login
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login']).then(() => {
+      console.log('Navigation to login completed');
+    });
   }
 }
