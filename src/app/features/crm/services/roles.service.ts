@@ -12,6 +12,8 @@ export class RolesService {
   constructor(private http: HttpClient) {}
 
   getRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(this.apiUrl);
+    return this.http.get<Role[]>(this.apiUrl, {
+      withCredentials: true
+    });
   }
 }
