@@ -42,42 +42,8 @@ export class RolesPermisos implements OnInit {
     }
   ];
 
-  stats: RoleStats = {
-    totalRoles: 4,
-    rolesActivos: 4,
-    permisosTotales: 12,
-    usuariosConRoles: 24
-  };
-
   tableColumns: TableColumn[] = [
-    {
-      key: 'rol',
-      label: 'Rol',
-      type: 'badge',
-      sortable: true,
-      badgeConfig: {
-        'SuperAdmin': {
-          color: 'text-purple-600 dark:text-purple-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-purple-600 dark:bg-purple-400'
-        },
-        'Admin': {
-          color: 'text-blue-600 dark:text-blue-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-blue-600 dark:bg-blue-400'
-        },
-        'Supervisor': {
-          color: 'text-green-600 dark:text-green-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-green-600 dark:bg-green-400'
-        },
-        'Empleado': {
-          color: 'text-gray-600 dark:text-gray-300',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-gray-600 dark:bg-gray-300'
-        }
-      }
-    },
+    { key: 'rol', label: 'Rol', sortable: true },
     { key: 'descripcion', label: 'Descripción', sortable: true },
     { key: 'permisos', label: 'Permisos', type: 'badges' },
     {
@@ -121,6 +87,32 @@ export class RolesPermisos implements OnInit {
   isPermissionsModalOpen = false;
   selectedPermissions: string[] = [];
   selectedRoleName: string = '';
+
+  // Computed stats
+  get totalRoles(): number {
+    return this.roles.length;
+  }
+
+  get rolesActivos(): number {
+    return this.roles.filter(role => role.estado === 'Activo').length;
+  }
+
+  get permisosTotales(): number {
+    // Obtener todos los permisos únicos de todos los roles
+    const allPermissions = new Set<string>();
+    this.roles.forEach(role => {
+      if (role.permisos && Array.isArray(role.permisos)) {
+        role.permisos.forEach(permiso => allPermissions.add(permiso));
+      }
+    });
+    return allPermissions.size;
+  }
+
+  get usuariosConRoles(): number {
+    // Por ahora retorna 0 ya que el modelo Role no incluye información de usuarios
+    // Este valor debe ser proporcionado por un servicio que tenga acceso a los datos de usuarios
+    return 0;
+  }
 
   ngOnInit() {
     this.loadRoles();
