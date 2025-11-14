@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { emailValidator } from '../../utils/validators';
 import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../interface/auth.interface';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -80,13 +81,13 @@ export class Login implements OnInit {
         this.isLoading = false;
         console.error('Error en login:', error);
 
-        // Manejar diferentes tipos de errores
+        // Mostrar Sweet Alert según el tipo de error
         if (error.status === 401) {
-          this.errorMessage = 'Credenciales inválidas. Por favor, verifica tu email y contraseña.';
+          this.showLoginErrorAlert();
         } else if (error.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+          this.showConnectionErrorAlert();
         } else {
-          this.errorMessage = error.error?.message || 'Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente.';
+          this.showGenericErrorAlert(error.error?.message);
         }
       }
     });
@@ -154,5 +155,51 @@ export class Login implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.loginForm.get(fieldName);
     return !!(field && field.invalid && field.touched);
+  }
+
+  /**
+   * Muestra Sweet Alert para credenciales incorrectas (error 401)
+   */
+  private showLoginErrorAlert(): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'No se pudo iniciar sesión',
+      text: 'Usuario o contraseña incorrectos.',
+      footer: '<a href="/register" style="color: #9333ea; font-weight: 600;">¿No tienes cuenta? Regístrate aquí</a>',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#9333ea',
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    });
+  }
+
+  /**
+   * Muestra Sweet Alert para error de conexión
+   */
+  private showConnectionErrorAlert(): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de conexión',
+      text: 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#9333ea',
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    });
+  }
+
+  /**
+   * Muestra Sweet Alert para errores genéricos
+   */
+  private showGenericErrorAlert(message?: string): void {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error inesperado',
+      text: message || 'Ocurrió un error al iniciar sesión. Por favor, intenta nuevamente.',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#9333ea',
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    });
   }
 }
