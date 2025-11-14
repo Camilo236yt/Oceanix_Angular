@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableColumn, TableAction } from '../../models/table.model';
 import { IconComponent } from '../icon/icon.component';
@@ -8,6 +8,7 @@ import { IconComponent } from '../icon/icon.component';
   imports: [CommonModule, IconComponent],
   templateUrl: './data-table.html',
   styleUrl: './data-table.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTable {
   @Input() columns: TableColumn[] = [];
