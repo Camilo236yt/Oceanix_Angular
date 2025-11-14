@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
@@ -6,6 +6,7 @@ import { SearchFiltersComponent } from '../../../../shared/components/search-fil
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
+import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-roles-permisos',
@@ -13,7 +14,8 @@ import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
-export class RolesPermisos {
+export class RolesPermisos implements OnInit {
+  constructor(private rolesService: RolesService) {}
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -109,36 +111,23 @@ export class RolesPermisos {
     }
   ];
 
-  roles: Role[] = [
-    {
-      id: '1',
-      rol: 'SuperAdmin',
-      descripcion: 'Acceso total al sistema con todos los permisos administrativos',
-      permisos: ['Gestión completa', 'Configuración del sistema', 'Gestión de usuarios', 'Gestión de roles'],
-      estado: 'Activo'
-    },
-    {
-      id: '2',
-      rol: 'Admin',
-      descripcion: 'Administrador con permisos de gestión de empresas y usuarios',
-      permisos: ['Gestión de empresas', 'Gestión de usuarios', 'Gestión de incidencias'],
-      estado: 'Activo'
-    },
-    {
-      id: '3',
-      rol: 'Supervisor',
-      descripcion: 'Supervisor de incidencias y reportes con permisos limitados',
-      permisos: ['Ver incidencias', 'Editar incidencias', 'Generar reportes'],
-      estado: 'Activo'
-    },
-    {
-      id: '4',
-      rol: 'Empleado',
-      descripcion: 'Usuario básico con permisos de consulta y registro de incidencias',
-      permisos: ['Ver incidencias', 'Crear incidencias'],
-      estado: 'Activo'
-    }
-  ];
+  roles: Role[] = [];
+
+  ngOnInit() {
+    this.loadRoles();
+  }
+
+  loadRoles() {
+    this.rolesService.getRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+        console.log('Roles cargados:', roles);
+      },
+      error: (error) => {
+        console.error('Error al cargar roles:', error);
+      }
+    });
+  }
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
