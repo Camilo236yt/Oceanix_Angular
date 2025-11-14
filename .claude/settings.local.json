@@ -26,7 +26,8 @@
       "Bash(ng build:*)",
       "Bash(npm uninstall:*)",
       "Bash(git reset:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(ping:*)"
     ],
     "deny": [],
     "ask": []
