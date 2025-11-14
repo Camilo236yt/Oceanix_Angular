@@ -200,11 +200,10 @@ export class AuthService {
 
     // Si el subdomain no coincide con la empresa del usuario
     if (enterprise.subdomain !== currentSubdomain) {
-      // Limpiar la sesión local
-      this.logout();
-
-      // Limpiar la cookie del backend
-      this.clearAuthCookie();
+      // Limpiar la sesión local y la cookie del backend
+      this.logout().subscribe({
+        error: (err) => console.error('Error clearing auth cookie:', err)
+      });
 
       return false;
     }
@@ -214,19 +213,21 @@ export class AuthService {
 
   /**
    * Limpia la cookie de autenticación haciendo una petición al backend
+   * @returns Observable que se completa cuando la cookie se limpia
    */
-  private clearAuthCookie(): void {
-    this.http.post(
+  clearAuthCookie(): Observable<any> {
+    return this.http.post(
       `${this.API_URL}/auth/logout`,
       {},
       { withCredentials: true }
-    ).subscribe();
+    );
   }
 
   /**
    * Logout user and clear stored data
+   * @returns Observable que se completa cuando el logout finaliza
    */
-  logout(): void {
+  logout(): Observable<any> {
     // Limpiar localStorage
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -237,8 +238,8 @@ export class AuthService {
     // Actualizar estado de autenticación
     this.isAuthenticatedSubject.next(false);
 
-    // Limpiar cookie del backend
-    this.clearAuthCookie();
+    // Limpiar cookie del backend y retornar el observable
+    return this.clearAuthCookie();
   }
 
   /**

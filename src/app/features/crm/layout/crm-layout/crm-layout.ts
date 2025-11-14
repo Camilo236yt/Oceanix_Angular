@@ -147,12 +147,24 @@ export class CrmLayout implements OnInit, OnDestroy {
   logout() {
     console.log('Logout button clicked!');
 
-    // Limpiar datos de autenticación
-    this.authService.logout();
+    // Limpiar datos de autenticación y esperar a que la cookie del backend se limpie
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Backend logout completed successfully');
+        this.performLogoutRedirect();
+      },
+      error: (error) => {
+        console.error('Error during backend logout:', error);
+        // Incluso si falla el backend, redirigir al login
+        this.performLogoutRedirect();
+      }
+    });
+  }
 
-    console.log('Auth service logout called, redirecting...');
-
-    // Obtener el hostname actual
+  /**
+   * Realiza la redirección al login según el entorno
+   */
+  private performLogoutRedirect(): void {
     const hostname = window.location.hostname;
 
     // Si estamos en localhost, usar router.navigate
@@ -163,7 +175,6 @@ export class CrmLayout implements OnInit, OnDestroy {
     } else {
       // En producción, usar window.location para forzar recarga completa
       // Esto asegura que se limpie todo el estado de la aplicación
-      const currentSubdomain = hostname.split('.')[0];
       const loginUrl = `${window.location.protocol}//${hostname}/login`;
 
       console.log('Redirecting to:', loginUrl);
