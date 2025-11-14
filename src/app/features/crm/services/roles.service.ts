@@ -17,7 +17,12 @@ export class RolesService {
     return this.http.get<RolesApiResponse>(this.apiUrl, {
       withCredentials: true
     }).pipe(
-      map(response => this.transformRoles(response.data))
+      map(response => {
+        console.log('Respuesta del backend:', response);
+        const transformed = this.transformRoles(response.data);
+        console.log('Datos transformados:', transformed);
+        return transformed;
+      })
     );
   }
 
