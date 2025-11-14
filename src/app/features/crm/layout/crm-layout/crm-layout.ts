@@ -150,11 +150,24 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Limpiar datos de autenticación
     this.authService.logout();
 
-    console.log('Auth service logout called, navigating to login...');
+    console.log('Auth service logout called, redirecting...');
 
-    // Redirigir al login
-    this.router.navigate(['/login']).then(() => {
-      console.log('Navigation to login completed');
-    });
+    // Obtener el hostname actual
+    const hostname = window.location.hostname;
+
+    // Si estamos en localhost, usar router.navigate
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      this.router.navigate(['/login']).then(() => {
+        console.log('Navigation to login completed (localhost)');
+      });
+    } else {
+      // En producción, usar window.location para forzar recarga completa
+      // Esto asegura que se limpie todo el estado de la aplicación
+      const currentSubdomain = hostname.split('.')[0];
+      const loginUrl = `${window.location.protocol}//${hostname}/login`;
+
+      console.log('Redirecting to:', loginUrl);
+      window.location.href = loginUrl;
+    }
   }
 }
