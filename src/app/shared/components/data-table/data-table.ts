@@ -14,6 +14,7 @@ export class DataTable implements OnChanges {
   @Input() data: any[] = [];
   @Input() actions: TableAction[] = [];
   @Output() onActionClick = new EventEmitter<{ action: TableAction; row: any }>();
+  @Output() onViewMorePermissions = new EventEmitter<{ permissions: string[]; roleName: string }>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -36,5 +37,20 @@ export class DataTable implements OnChanges {
 
   getNestedValue(obj: any, key: string): any {
     return key.split('.').reduce((o, k) => (o || {})[k], obj);
+  }
+
+  getVisiblePermissions(permissions: string[], limit: number = 2): string[] {
+    return permissions?.slice(0, limit) || [];
+  }
+
+  hasMorePermissions(permissions: string[], limit: number = 2): boolean {
+    return permissions?.length > limit;
+  }
+
+  handleViewMorePermissions(row: any) {
+    this.onViewMorePermissions.emit({
+      permissions: row.permisos || [],
+      roleName: row.rol || 'Rol'
+    });
   }
 }

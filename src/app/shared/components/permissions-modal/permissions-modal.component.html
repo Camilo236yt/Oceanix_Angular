@@ -1,0 +1,79 @@
+<!-- Modal Overlay -->
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal Container -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative w-full max-w-3xl transform overflow-hidden rounded-xl bg-[var(--card-bg)] shadow-2xl transition-all border border-[var(--card-border)]"
+           (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="border-b border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-[var(--text-primary)]">
+                Permisos del Rol
+              </h3>
+              <p class="text-sm text-[var(--text-tertiary)] mt-0.5">
+                {{ roleName }} • {{ permissions.length }} permisos
+              </p>
+            </div>
+            <button (click)="closeModal()"
+                    class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+              <app-icon name="x" class="w-5 h-5"></app-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-5 max-h-[calc(100vh-200px)] overflow-y-auto bg-[var(--card-bg)]">
+          @if (permissions.length === 0) {
+            <div class="text-center py-12">
+              <div class="inline-flex p-4 rounded-full bg-[var(--bg-tertiary)] mb-4">
+                <app-icon name="shield-off" class="w-8 h-8 text-[var(--text-tertiary)]"></app-icon>
+              </div>
+              <p class="text-[var(--text-tertiary)]">No hay permisos asignados a este rol</p>
+            </div>
+          } @else {
+            <div class="space-y-5">
+              @for (category of categoryKeys; track category) {
+                <div>
+                  <!-- Category Header -->
+                  <div class="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border-primary)]">
+                    <h4 class="text-sm font-semibold text-[var(--text-primary)]">
+                      {{ category }}
+                    </h4>
+                    <span class="text-xs text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] px-2 py-0.5 rounded-full">
+                      {{ groupedPermissions[category].length }}
+                    </span>
+                  </div>
+
+                  <!-- Permissions Grid -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    @for (permission of groupedPermissions[category]; track permission) {
+                      <div class="flex items-center gap-2 px-3 py-2 rounded bg-[var(--bg-tertiary)] border border-[var(--card-border)] text-sm text-[var(--text-secondary)]">
+                        <span class="truncate">{{ permission }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-end">
+            <button (click)="closeModal()"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

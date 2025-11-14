@@ -82,6 +82,15 @@
     [columns]="tableColumns"
     [data]="roles"
     [actions]="tableActions"
-    (onActionClick)="handleTableAction($event)">
+    (onActionClick)="handleTableAction($event)"
+    (onViewMorePermissions)="handleViewMorePermissions($event)">
   </app-data-table>
+
+  <!-- Modal de permisos -->
+  <app-permissions-modal
+    [isOpen]="isPermissionsModalOpen"
+    [permissions]="selectedPermissions"
+    [roleName]="selectedRoleName"
+    (onClose)="closePermissionsModal()">
+  </app-permissions-modal>
 </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
+import { PermissionsModalComponent } from '../../../../shared/components/permissions-modal/permissions-modal.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
@@ -10,7 +11,7 @@ import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
@@ -116,6 +117,11 @@ export class RolesPermisos implements OnInit {
 
   roles: Role[] = [];
 
+  // Modal state
+  isPermissionsModalOpen = false;
+  selectedPermissions: string[] = [];
+  selectedRoleName: string = '';
+
   ngOnInit() {
     this.loadRoles();
   }
@@ -157,5 +163,15 @@ export class RolesPermisos implements OnInit {
 
   trackByRoleId(index: number, role: Role): string {
     return role.id;
+  }
+
+  handleViewMorePermissions(event: { permissions: string[]; roleName: string }) {
+    this.selectedPermissions = event.permissions;
+    this.selectedRoleName = event.roleName;
+    this.isPermissionsModalOpen = true;
+  }
+
+  closePermissionsModal() {
+    this.isPermissionsModalOpen = false;
   }
 }

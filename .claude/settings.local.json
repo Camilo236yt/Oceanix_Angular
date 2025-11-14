@@ -27,7 +27,8 @@
       "Bash(npm uninstall:*)",
       "Bash(git reset:*)",
       "Bash(git push:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
