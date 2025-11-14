@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { emailValidator } from '../../utils/validators';
 import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../interface/auth.interface';
+import { SubdomainService } from '../../core/services/subdomain.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -20,11 +21,13 @@ export class Login implements OnInit {
   isLoading = false;
   showPassword = false;
   errorMessage = '';
+  isSubdomain = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private subdomainService: SubdomainService
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +35,9 @@ export class Login implements OnInit {
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'instant' });
     }, 0);
+
+    // Detectar si estamos en un subdominio
+    this.isSubdomain = this.subdomainService.hasSubdomain();
 
     this.initializeForm();
   }
@@ -161,16 +167,22 @@ export class Login implements OnInit {
    * Muestra Sweet Alert para credenciales incorrectas (error 401)
    */
   private showLoginErrorAlert(): void {
-    Swal.fire({
+    const config: any = {
       icon: 'error',
       title: 'No se pudo iniciar sesión',
       text: 'Usuario o contraseña incorrectos.',
-      footer: '<a href="/register" style="color: #9333ea; font-weight: 600;">¿No tienes cuenta? Regístrate aquí</a>',
       confirmButtonText: 'Entendido',
       confirmButtonColor: '#9333ea',
       allowOutsideClick: true,
       allowEscapeKey: true
-    });
+    };
+
+    // Solo mostrar footer con link de registro si NO estamos en un subdominio
+    if (!this.isSubdomain) {
+      config.footer = '<a href="/register" style="color: #9333ea; font-weight: 600;">¿No tienes cuenta? Regístrate aquí</a>';
+    }
+
+    Swal.fire(config);
   }
 
   /**

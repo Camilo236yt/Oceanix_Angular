@@ -5,12 +5,13 @@ import { Register } from './auth/register/register';
 import { ActivateAccount } from './auth/activate-account/activate-account';
 import { mainDomainGuard } from './core/guards/main-domain.guard';
 import { subdomainGuard } from './core/guards/subdomain.guard';
+import { authRedirectGuard } from './core/guards/auth-redirect.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: LandingComponent,
-    canActivate: [mainDomainGuard] // Solo accesible desde oceanix.space
+    canActivate: [mainDomainGuard, authRedirectGuard] // Solo accesible desde oceanix.space y sin autenticación
   },
   {
     path: 'login',
@@ -18,7 +19,8 @@ export const routes: Routes = [
   },
   {
     path: 'register',
-    component: Register
+    component: Register,
+    canActivate: [mainDomainGuard, authRedirectGuard] // Solo en dominio principal y sin autenticación
   },
   {
     path: 'auth/activate',
