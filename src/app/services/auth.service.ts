@@ -227,10 +227,18 @@ export class AuthService {
    * Logout user and clear stored data
    */
   logout(): void {
+    // Limpiar localStorage
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ENTERPRISE_KEY);
+    localStorage.removeItem('subdomain');
+    localStorage.removeItem('dev_subdomain');
+
+    // Actualizar estado de autenticación
     this.isAuthenticatedSubject.next(false);
+
+    // Limpiar cookie del backend
+    this.clearAuthCookie();
   }
 
   /**
