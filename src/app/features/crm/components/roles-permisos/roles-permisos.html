@@ -93,4 +93,11 @@
     [roleName]="selectedRoleName"
     (onClose)="closePermissionsModal()">
   </app-permissions-modal>
+
+  <!-- Modal de crear rol -->
+  <app-create-role-modal
+    [isOpen]="isCreateRoleModalOpen"
+    (onClose)="closeCreateRoleModal()"
+    (onSubmit)="handleCreateRole($event)">
+  </app-create-role-modal>
 </div>

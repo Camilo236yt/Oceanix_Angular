@@ -4,14 +4,16 @@ import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { PermissionsModalComponent } from '../../../../shared/components/permissions-modal/permissions-modal.component';
+import { CreateRoleModalComponent } from '../../../../shared/components/create-role-modal/create-role-modal.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
+import { CreateRoleRequest } from '../../../../shared/models/permission.model';
 import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, CreateRoleModalComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
@@ -87,6 +89,7 @@ export class RolesPermisos implements OnInit {
   isPermissionsModalOpen = false;
   selectedPermissions: string[] = [];
   selectedRoleName: string = '';
+  isCreateRoleModalOpen = false;
 
   // Computed stats
   get totalRoles(): number {
@@ -144,7 +147,25 @@ export class RolesPermisos implements OnInit {
   }
 
   createNewRole() {
-    console.log('Crear nuevo rol');
+    this.isCreateRoleModalOpen = true;
+  }
+
+  handleCreateRole(request: CreateRoleRequest) {
+    console.log('Crear rol con datos:', request);
+    this.rolesService.createRole(request).subscribe({
+      next: (response: any) => {
+        console.log('Rol creado exitosamente:', response);
+        this.closeCreateRoleModal();
+        this.loadRoles(); // Recargar la lista de roles
+      },
+      error: (error: any) => {
+        console.error('Error al crear rol:', error);
+      }
+    });
+  }
+
+  closeCreateRoleModal() {
+    this.isCreateRoleModalOpen = false;
   }
 
   onFilterChange(filterData: SearchFilterData) {

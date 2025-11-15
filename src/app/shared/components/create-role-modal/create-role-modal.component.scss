@@ -1,0 +1,9 @@
+// Estilos específicos para el modal de crear rol
+// Los estilos principales están en las clases de Tailwind en el template
+
+// Personalización del checkbox indeterminado
+input[type="checkbox"]:indeterminate {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3E%3C/svg%3E");
+  background-color: rgb(147, 51, 234); // purple-600
+  border-color: rgb(147, 51, 234);
+}

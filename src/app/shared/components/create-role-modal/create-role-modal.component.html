@@ -1,0 +1,203 @@
+<!-- Modal Overlay -->
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal Container -->
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative w-full max-w-3xl transform overflow-hidden rounded-xl bg-[var(--card-bg)] shadow-2xl transition-all border border-[var(--card-border)]"
+           (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="border-b border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-[var(--text-primary)]">
+                Crear Nuevo Rol
+              </h3>
+              <p class="text-xs text-[var(--text-tertiary)] mt-1">
+                Define el nombre, descripción y permisos del rol
+              </p>
+            </div>
+            <button (click)="closeModal()"
+                    class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
+              <app-icon name="x" class="w-5 h-5"></app-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-4 max-h-[calc(100vh-250px)] overflow-y-auto bg-[var(--card-bg)]">
+          @if (errorMessage) {
+            <div class="mb-5 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
+            </div>
+          }
+
+          <form class="space-y-4">
+            <!-- Nombre del Rol -->
+            <div>
+              <label for="roleName" class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Nombre del Rol <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="roleName"
+                [(ngModel)]="roleName"
+                name="roleName"
+                (input)="clearNameError()"
+                [class.border-red-500]="nameError"
+                class="w-full px-4 py-2.5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                placeholder="Ej: admin-everything" />
+              @if (nameError) {
+                <p class="mt-1 text-sm text-red-500">{{ nameError }}</p>
+              }
+            </div>
+
+            <!-- Descripción -->
+            <div>
+              <label for="roleDescription" class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Descripción <span class="text-red-500">*</span>
+              </label>
+              <textarea
+                id="roleDescription"
+                [(ngModel)]="roleDescription"
+                name="roleDescription"
+                (input)="clearDescriptionError()"
+                [class.border-red-500]="descriptionError"
+                rows="3"
+                class="w-full px-4 py-2.5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                placeholder="Ej: Agent responsible for handling customer support tickets"></textarea>
+              @if (descriptionError) {
+                <p class="mt-1 text-sm text-red-500">{{ descriptionError }}</p>
+              }
+            </div>
+
+            <!-- Seleccionar Permisos -->
+            <div>
+              <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Seleccionar Permisos <span class="text-red-500">*</span>
+              </label>
+
+              @if (isLoading) {
+                <div class="flex items-center justify-center py-12">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              } @else {
+                <div class="space-y-2">
+                  @for (category of categories; track category.name) {
+                    <div class="border border-[var(--card-border)] rounded-lg overflow-hidden bg-[var(--card-bg)] hover:border-purple-200 dark:hover:border-purple-800 transition-colors">
+                      <!-- Category Header -->
+                      <div
+                        class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors"
+                        (click)="toggleCategory(category)">
+                        <div class="flex items-center gap-3 flex-1">
+                          <!-- Category Checkbox -->
+                          <div class="flex items-center" (click)="$event.stopPropagation()">
+                            <input
+                              type="checkbox"
+                              [checked]="isCategoryFullySelected(category)"
+                              [indeterminate]="isCategoryPartiallySelected(category)"
+                              (change)="toggleCategorySelection(category, $event)"
+                              class="w-4 h-4 text-purple-600 bg-[var(--card-bg)] border-[var(--card-border)] rounded focus:ring-purple-500 focus:ring-2" />
+                          </div>
+
+                          <!-- Category Info -->
+                          <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-semibold text-[var(--text-primary)]">
+                              {{ category.name }}
+                            </h4>
+                            <p class="text-xs text-[var(--text-tertiary)] mt-0.5">
+                              {{ category.permissions.length }} {{ category.permissions.length === 1 ? 'permiso' : 'permisos' }}
+                            </p>
+                          </div>
+
+                          <!-- Selected Count Badge & Chevron -->
+                          <div class="flex items-center gap-2">
+                            @if (category.selectedCount > 0) {
+                              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                {{ category.selectedCount }}/{{ category.permissions.length }}
+                              </span>
+                            }
+                            <app-icon
+                              [name]="category.expanded ? 'chevron-up' : 'chevron-down'"
+                              class="w-4 h-4 text-[var(--text-tertiary)]"></app-icon>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Category Permissions (Expandable) -->
+                      @if (category.expanded) {
+                        <div class="border-t border-[var(--card-border)] bg-[var(--bg-secondary)]">
+                          <div class="px-5 py-3 space-y-1">
+                            @for (permission of category.permissions; track permission.id) {
+                              <label
+                                class="flex items-start gap-3 p-2.5 rounded-md hover:bg-[var(--bg-hover)] cursor-pointer transition-colors group">
+                                <input
+                                  type="checkbox"
+                                  [checked]="isPermissionSelected(permission.id)"
+                                  (change)="togglePermission(permission, category)"
+                                  class="w-4 h-4 mt-0.5 text-purple-600 bg-[var(--card-bg)] border-[var(--card-border)] rounded focus:ring-purple-500 focus:ring-2" />
+                                <div class="flex-1 min-w-0">
+                                  <p class="text-sm font-medium text-[var(--text-primary)] group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                    {{ permission.title }}
+                                  </p>
+                                  <p class="text-xs text-[var(--text-tertiary)] mt-0.5 leading-relaxed">
+                                    {{ permission.description }}
+                                  </p>
+                                </div>
+                              </label>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (permissionsError) {
+                <p class="mt-2 text-sm text-red-500">{{ permissionsError }}</p>
+              }
+            </div>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-between">
+            <div class="text-sm">
+              @if (totalSelectedPermissions > 0) {
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200">
+                  <span class="font-semibold text-blue-700">
+                    {{ totalSelectedPermissions }}
+                  </span>
+                  <span class="text-blue-700">
+                    {{ totalSelectedPermissions === 1 ? 'permiso seleccionado' : 'permisos seleccionados' }}
+                  </span>
+                </span>
+              } @else {
+                <span class="text-[var(--text-tertiary)]">No hay permisos seleccionados</span>
+              }
+            </div>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                (click)="closeModal()"
+                class="px-5 py-2.5 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors border border-[var(--card-border)]">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                (click)="handleSubmit()"
+                class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
+                Crear Rol
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

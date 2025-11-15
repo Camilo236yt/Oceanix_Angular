@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Role } from '../models/role.model';
 import { RolesApiResponse, RoleData } from '../../../interface/roles-api.interface';
+import { CreateRoleRequest } from '../../../shared/models/permission.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,12 @@ export class RolesService {
     }).pipe(
       map(response => this.transformRoles(response.data))
     );
+  }
+
+  createRole(request: CreateRoleRequest): Observable<any> {
+    return this.http.post(this.apiUrl, request, {
+      withCredentials: true
+    });
   }
 
   private transformRoles(rolesData: RoleData[]): Role[] {
