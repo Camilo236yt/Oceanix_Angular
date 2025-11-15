@@ -28,6 +28,26 @@ export class RolesService {
     });
   }
 
+  deleteRole(roleId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${roleId}`, {
+      withCredentials: true
+    });
+  }
+
+  updateRole(roleId: string, request: CreateRoleRequest): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${roleId}`, request, {
+      withCredentials: true
+    });
+  }
+
+  getRoleById(roleId: string): Observable<RoleData> {
+    return this.http.get<{ success: boolean; data: RoleData }>(`${this.apiUrl}/${roleId}`, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
+
   private transformRoles(rolesData: RoleData[]): Role[] {
     return rolesData.map(role => ({
       id: role.id,

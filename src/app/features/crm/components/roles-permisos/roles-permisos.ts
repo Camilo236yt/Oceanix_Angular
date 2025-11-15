@@ -10,6 +10,7 @@ import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { CreateRoleRequest } from '../../../../shared/models/permission.model';
 import { RolesService } from '../../services/roles.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-roles-permisos',
@@ -90,6 +91,9 @@ export class RolesPermisos implements OnInit {
   selectedPermissions: string[] = [];
   selectedRoleName: string = '';
   isCreateRoleModalOpen = false;
+  isEditRoleModalOpen = false;
+  editingRoleId: string | null = null;
+  editingRoleData: { name: string; description: string; permissionIds: string[] } | null = null;
 
   // Computed stats
   get totalRoles(): number {
@@ -140,10 +144,112 @@ export class RolesPermisos implements OnInit {
 
   editRole(role: Role) {
     console.log('Editar rol:', role);
+
+    // Mostrar loading inmediatamente
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos del rol...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Preparar los datos primero
+    this.editingRoleId = role.id;
+
+    // Obtener los datos completos del rol desde el backend
+    this.rolesService.getRoleById(role.id).subscribe({
+      next: (roleData) => {
+        // Cerrar loading
+        Swal.close();
+
+        this.editingRoleData = {
+          name: roleData.name,
+          description: roleData.description,
+          permissionIds: roleData.permissions.map(p => p.permission.id)
+        };
+        // Abrir el modal inmediatamente después de cargar los datos
+        this.isEditRoleModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        // Cerrar loading
+        Swal.close();
+
+        console.error('Error al cargar rol:', error);
+        this.editingRoleId = null;
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar el rol',
+          text: 'No se pudo cargar la información del rol',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   deleteRole(role: Role) {
-    console.log('Eliminar rol:', role);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `El rol "${role.rol}" será eliminado permanentemente`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.rolesService.deleteRole(role.id).subscribe({
+          next: () => {
+            this.loadRoles(); // Recargar la lista de roles
+
+            // Mostrar notificación de éxito
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Rol eliminado exitosamente',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+              }
+            });
+          },
+          error: (error: any) => {
+            console.error('Error al eliminar rol:', error);
+
+            // Mostrar notificación de error
+            const errorMessage = error?.error?.message || 'No se pudo eliminar el rol. Por favor, intenta nuevamente.';
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Error al eliminar el rol',
+              text: errorMessage,
+              showConfirmButton: false,
+              timer: 4000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+              }
+            });
+          }
+        });
+      }
+    });
   }
 
   createNewRole() {
@@ -157,15 +263,101 @@ export class RolesPermisos implements OnInit {
         console.log('Rol creado exitosamente:', response);
         this.closeCreateRoleModal();
         this.loadRoles(); // Recargar la lista de roles
+
+        // Mostrar notificación de éxito
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Rol creado exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
       },
       error: (error: any) => {
         console.error('Error al crear rol:', error);
+
+        // Mostrar notificación de error
+        const errorMessage = error?.error?.message || 'No se pudo crear el rol. Por favor, intenta nuevamente.';
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al crear el rol',
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
       }
     });
   }
 
   closeCreateRoleModal() {
     this.isCreateRoleModalOpen = false;
+  }
+
+  handleEditRole(data: any) {
+    const { roleId, name, description, permissionIds } = data;
+    console.log('Actualizar rol con datos:', data);
+
+    this.rolesService.updateRole(roleId, { name, description, permissionIds }).subscribe({
+      next: (response: any) => {
+        console.log('Rol actualizado exitosamente:', response);
+        this.closeEditRoleModal();
+        this.loadRoles(); // Recargar la lista de roles
+
+        // Mostrar notificación de éxito
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Rol actualizado exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
+      },
+      error: (error: any) => {
+        console.error('Error al actualizar rol:', error);
+
+        // Mostrar notificación de error
+        const errorMessage = error?.error?.message || 'No se pudo actualizar el rol. Por favor, intenta nuevamente.';
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al actualizar el rol',
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
+      }
+    });
+  }
+
+  closeEditRoleModal() {
+    this.isEditRoleModalOpen = false;
+    this.editingRoleId = null;
+    this.editingRoleData = null;
   }
 
   onFilterChange(filterData: SearchFilterData) {

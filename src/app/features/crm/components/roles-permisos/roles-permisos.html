@@ -98,7 +98,19 @@
   <app-dynamic-form-modal
     [isOpen]="isCreateRoleModalOpen"
     [mode]="'role'"
+    [editMode]="false"
     (onClose)="closeCreateRoleModal()"
     (onSubmit)="handleCreateRole($event)">
+  </app-dynamic-form-modal>
+
+  <!-- Modal de editar rol -->
+  <app-dynamic-form-modal
+    [isOpen]="isEditRoleModalOpen"
+    [mode]="'role'"
+    [editMode]="true"
+    [roleId]="editingRoleId"
+    [initialData]="editingRoleData"
+    (onClose)="closeEditRoleModal()"
+    (onSubmit)="handleEditRole($event)">
   </app-dynamic-form-modal>
 </div>

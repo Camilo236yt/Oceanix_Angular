@@ -17,7 +17,7 @@
       </thead>
       <tbody class="bg-[var(--card-bg)] divide-y divide-[var(--border-primary)]">
         @for (row of data; track row.id) {
-          <tr class="hover:bg-[var(--bg-hover)] transition-colors">
+          <tr>
             @for (column of columns; track column.key) {
               <td class="px-4 py-4 text-sm text-[var(--text-primary)]"
                   [ngClass]="{
@@ -58,7 +58,7 @@
                     @if (hasMorePermissions(getNestedValue(row, column.key))) {
                       <button
                         (click)="handleViewMorePermissions(row)"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all whitespace-nowrap flex-shrink-0">
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all duration-200 whitespace-nowrap flex-shrink-0 cursor-pointer hover:scale-105 active:scale-95">
                         <span>Ver más</span>
                         <app-icon name="eye" class="w-3.5 h-3.5"></app-icon>
                       </button>
@@ -72,8 +72,8 @@
                     @for (action of actions; track action.label) {
                       <button (click)="handleAction(action, row)"
                               [title]="action.label"
-                              class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
-                              [ngClass]="action.color || 'text-[var(--text-tertiary)]'">
+                              class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95"
+                              [ngClass]="action.color || 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'">
                         <app-icon [name]="action.icon" class="w-5 h-5"></app-icon>
                       </button>
                     }
@@ -105,7 +105,7 @@
     }
 
     @for (row of data; track row.id) {
-      <div class="border-b border-[var(--border-primary)] last:border-b-0 p-4 hover:bg-[var(--bg-hover)] transition-colors">
+      <div class="border-b border-[var(--border-primary)] last:border-b-0 p-4">
         <div class="space-y-3">
           @for (column of columns; track column.key) {
             @if (column.type !== 'actions') {
@@ -146,7 +146,7 @@
                     @if (hasMorePermissions(getNestedValue(row, column.key))) {
                       <button
                         (click)="handleViewMorePermissions(row)"
-                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all">
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95">
                         <span>Ver más</span>
                         <app-icon name="eye" class="w-3.5 h-3.5"></app-icon>
                       </button>
@@ -162,8 +162,8 @@
             @for (action of actions; track action.label) {
               <button (click)="handleAction(action, row)"
                       [title]="action.label"
-                      class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
-                      [ngClass]="action.color || 'text-[var(--text-tertiary)]'">
+                      class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95"
+                      [ngClass]="action.color || 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'">
                 <app-icon [name]="action.icon" class="w-5 h-5"></app-icon>
               </button>
             }

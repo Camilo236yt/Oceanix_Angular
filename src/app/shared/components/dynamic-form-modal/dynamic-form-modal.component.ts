@@ -17,6 +17,9 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() config: DynamicFormModalConfig | null = null;
   @Input() mode: 'role' | 'generic' = 'role'; // Modo de compatibilidad
+  @Input() editMode = false; // Indica si está en modo edición
+  @Input() roleId: string | null = null; // ID del rol a editar
+  @Input() initialData: { name?: string; description?: string; permissionIds?: string[] } | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<any>();
 
@@ -52,10 +55,21 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    // Cargar datos iniciales PRIMERO cuando se pasa initialData
+    if (changes['initialData'] && this.initialData && this.editMode) {
+      this.roleName = this.initialData.name || '';
+      this.roleDescription = this.initialData.description || '';
+      if (this.initialData.permissionIds) {
+        this.selectedPermissions = new Set(this.initialData.permissionIds);
+      }
+    }
+
     if (changes['isOpen'] && changes['isOpen'].currentValue) {
       if (this.mode === 'role') {
         console.log('Modal abierto, cargando permisos...');
-        this.resetFormFields();
+        if (!this.editMode) {
+          this.resetFormFields();
+        }
         this.loadPermissions();
       } else if (this.mode === 'generic' && this.config) {
         this.resetGenericForm();
@@ -137,6 +151,16 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
         console.log('Cantidad de categorías:', categoriesData.length);
 
         this.categories = categoriesData;
+
+        // Actualizar selectedCount de las categorías si hay permisos pre-seleccionados
+        if (this.editMode && this.selectedPermissions.size > 0) {
+          this.categories.forEach(category => {
+            category.selectedCount = category.permissions.filter(p =>
+              this.selectedPermissions.has(p.id)
+            ).length;
+          });
+        }
+
         this.isLoading = false;
         this.cdr.markForCheck();
       },
@@ -298,7 +322,12 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
       permissionIds: Array.from(this.selectedPermissions)
     };
 
-    this.onSubmit.emit(request);
+    // Si está en modo edición, emitir también el roleId
+    if (this.editMode && this.roleId) {
+      this.onSubmit.emit({ ...request, roleId: this.roleId });
+    } else {
+      this.onSubmit.emit(request);
+    }
   }
 
   resetFormFields() {
@@ -347,21 +376,23 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     if (this.mode === 'generic' && this.config) {
       return this.config.title;
     }
-    return 'Crear Nuevo Rol';
+    return this.editMode ? 'Editar Rol' : 'Crear Nuevo Rol';
   }
 
   get modalSubtitle(): string | undefined {
     if (this.mode === 'generic' && this.config) {
       return this.config.subtitle;
     }
-    return 'Define el nombre, descripción y permisos del rol';
+    return this.editMode
+      ? 'Modifica el nombre, descripción y permisos del rol'
+      : 'Define el nombre, descripción y permisos del rol';
   }
 
   get submitButtonLabel(): string {
     if (this.mode === 'generic' && this.config) {
       return this.config.submitButtonText || 'Guardar';
     }
-    return 'Crear Rol';
+    return this.editMode ? 'Actualizar Rol' : 'Crear Rol';
   }
 
   get cancelButtonLabel(): string {
