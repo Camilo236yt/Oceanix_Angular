@@ -95,9 +95,10 @@
   </app-permissions-modal>
 
   <!-- Modal de crear rol -->
-  <app-create-role-modal
+  <app-dynamic-form-modal
     [isOpen]="isCreateRoleModalOpen"
+    [mode]="'role'"
     (onClose)="closeCreateRoleModal()"
     (onSubmit)="handleCreateRole($event)">
-  </app-create-role-modal>
+  </app-dynamic-form-modal>
 </div>

@@ -1,12 +1,12 @@
 <!-- Modal Overlay -->
 @if (isOpen) {
-  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (isClosing ? 'animate-fadeOut' : 'animate-fadeIn')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (!isClosing ? 'animate-overlayIn' : 'animate-overlayOut')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Background overlay -->
-    <div [class]="'fixed inset-0 bg-black/50 backdrop-blur-sm transition-all duration-500 ' + (isClosing ? 'opacity-0' : 'opacity-100')" (click)="closeModal()"></div>
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" (click)="closeModal()"></div>
 
     <!-- Modal Container -->
-    <div class="flex min-h-full items-end justify-center p-0">
-      <div [class]="'relative w-full max-w-3xl transform overflow-hidden rounded-t-2xl bg-[var(--card-bg)] shadow-2xl border-t border-[var(--card-border)] pb-safe ' + (isClosing ? 'animate-slideDown' : 'animate-slideUp')"
+    <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4">
+      <div [class]="'relative w-full max-w-3xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-[var(--card-bg)] shadow-2xl border-t sm:border border-[var(--card-border)] pb-safe ' + (!isClosing ? 'animate-slideUp' : 'animate-slideDown')"
            (click)="$event.stopPropagation()">
 
         <!-- Header -->
@@ -14,11 +14,13 @@
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
               <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
-                Crear Nuevo Rol
+                {{ modalTitle }}
               </h3>
-              <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
-                Define el nombre, descripción y permisos del rol
-              </p>
+              @if (modalSubtitle) {
+                <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
+                  {{ modalSubtitle }}
+                </p>
+              }
             </div>
             <button (click)="closeModal()"
                     class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex-shrink-0">
@@ -36,57 +38,98 @@
           }
 
           <form class="space-y-3 sm:space-y-4">
-            <!-- Nombre del Rol -->
-            <div>
-              <label for="roleName" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Nombre del Rol <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="roleName"
-                [(ngModel)]="roleName"
-                name="roleName"
-                (input)="clearNameError()"
-                [class.border-red-500]="nameError"
-                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="Ej: admin-everything" />
-              @if (nameError) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ nameError }}</p>
-              }
-            </div>
+            <!-- Modo Role: Campos específicos -->
+            @if (isRoleMode) {
+              <!-- Nombre del Rol -->
+              <div>
+                <label for="roleName" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Nombre del Rol <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="roleName"
+                  [(ngModel)]="roleName"
+                  name="roleName"
+                  (input)="clearNameError()"
+                  [class.border-red-500]="nameError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Ej: admin-everything" />
+                @if (nameError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ nameError }}</p>
+                }
+              </div>
 
-            <!-- Descripción -->
-            <div>
-              <label for="roleDescription" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Descripción <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                id="roleDescription"
-                [(ngModel)]="roleDescription"
-                name="roleDescription"
-                (input)="clearDescriptionError()"
-                [class.border-red-500]="descriptionError"
-                rows="2"
-                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none sm:rows-3"
-                placeholder="Ej: Agent responsible for handling customer support tickets"></textarea>
-              @if (descriptionError) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ descriptionError }}</p>
-              }
-            </div>
+              <!-- Descripción -->
+              <div>
+                <label for="roleDescription" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Descripción <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="roleDescription"
+                  [(ngModel)]="roleDescription"
+                  name="roleDescription"
+                  (input)="clearDescriptionError()"
+                  [class.border-red-500]="descriptionError"
+                  rows="2"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none sm:rows-3"
+                  placeholder="Ej: Agent responsible for handling customer support tickets"></textarea>
+                @if (descriptionError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ descriptionError }}</p>
+                }
+              </div>
+            }
 
-            <!-- Seleccionar Permisos -->
-            <div>
-              <label class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Seleccionar Permisos <span class="text-red-500">*</span>
-              </label>
-
-              @if (isLoading) {
-                <div class="flex items-center justify-center py-8 sm:py-12">
-                  <div class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-purple-600"></div>
+            <!-- Modo Generic: Campos dinámicos -->
+            @if (isGenericMode && config) {
+              @for (field of config.fields; track field.name) {
+                <div>
+                  <label [for]="field.name" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                    {{ field.label }} @if (field.required) {<span class="text-red-500">*</span>}
+                  </label>
+                  @if (field.type === 'textarea') {
+                    <textarea
+                      [id]="field.name"
+                      [(ngModel)]="formData[field.name]"
+                      [name]="field.name"
+                      [class.border-red-500]="fieldErrors[field.name]"
+                      [rows]="field.rows || 2"
+                      class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                      [placeholder]="field.placeholder || ''"></textarea>
+                  } @else {
+                    <input
+                      [type]="field.type"
+                      [id]="field.name"
+                      [(ngModel)]="formData[field.name]"
+                      [name]="field.name"
+                      [class.border-red-500]="fieldErrors[field.name]"
+                      class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      [placeholder]="field.placeholder || ''" />
+                  }
+                  @if (fieldErrors[field.name]) {
+                    <p class="mt-1 text-xs sm:text-sm text-red-500">{{ fieldErrors[field.name] }}</p>
+                  }
                 </div>
-              } @else {
-                <div class="space-y-2">
-                  @for (category of categories; track category.name) {
+              }
+            }
+
+            <!-- Seleccionar Permisos (Modo Role) o Sección Seleccionable (Modo Generic) -->
+            @if (isRoleMode || (isGenericMode && config?.selectableSection)) {
+              <div>
+                <label class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  @if (isRoleMode) {
+                    Seleccionar Permisos <span class="text-red-500">*</span>
+                  } @else if (config?.selectableSection?.label) {
+                    {{ config?.selectableSection?.label }} <span class="text-red-500">*</span>
+                  }
+                </label>
+
+                @if (isLoading) {
+                  <div class="flex items-center justify-center py-8 sm:py-12">
+                    <div class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-purple-600"></div>
+                  </div>
+                } @else {
+                  <div class="space-y-2">
+                    @for (category of categories; track category.name) {
                     <div class="border border-[var(--card-border)] rounded-lg overflow-hidden bg-[var(--card-bg)] hover:border-purple-200 dark:hover:border-purple-800 transition-colors">
                       <!-- Category Header -->
                       <div
@@ -157,10 +200,14 @@
                 </div>
               }
 
-              @if (permissionsError) {
-                <p class="mt-2 text-sm text-red-500">{{ permissionsError }}</p>
-              }
-            </div>
+                @if (isRoleMode && permissionsError) {
+                  <p class="mt-2 text-sm text-red-500">{{ permissionsError }}</p>
+                }
+                @if (isGenericMode && fieldErrors['selectable']) {
+                  <p class="mt-2 text-sm text-red-500">{{ fieldErrors['selectable'] }}</p>
+                }
+              </div>
+            }
           </form>
         </div>
 
@@ -189,13 +236,13 @@
                 type="button"
                 (click)="closeModal()"
                 class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors border border-[var(--card-border)]">
-                Cancelar
+                {{ cancelButtonLabel }}
               </button>
               <button
                 type="button"
                 (click)="handleSubmit()"
                 class="flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
-                Crear Rol
+                {{ submitButtonLabel }}
               </button>
             </div>
           </div>

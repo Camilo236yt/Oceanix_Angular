@@ -1,12 +1,12 @@
 <!-- Modal Overlay -->
 @if (isOpen) {
-  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (isClosing ? 'animate-fadeOut' : 'animate-fadeIn')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (!isClosing ? 'animate-overlayIn' : 'animate-overlayOut')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!-- Background overlay -->
-    <div [class]="'fixed inset-0 bg-black/50 backdrop-blur-sm transition-all duration-500 ' + (isClosing ? 'opacity-0' : 'opacity-100')" (click)="closeModal()"></div>
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" (click)="closeModal()"></div>
 
     <!-- Modal Container -->
-    <div class="flex min-h-full items-end justify-center p-0">
-      <div [class]="'relative w-full max-w-3xl transform overflow-hidden rounded-t-2xl bg-[var(--card-bg)] shadow-2xl border-t border-[var(--card-border)] pb-safe ' + (isClosing ? 'animate-slideDown' : 'animate-slideUp')"
+    <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4">
+      <div [class]="'relative w-full max-w-3xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-[var(--card-bg)] shadow-2xl border-t sm:border border-[var(--card-border)] pb-safe ' + (!isClosing ? 'animate-slideUp' : 'animate-slideDown')"
            (click)="$event.stopPropagation()">
 
         <!-- Header -->

@@ -4,7 +4,7 @@ import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { PermissionsModalComponent } from '../../../../shared/components/permissions-modal/permissions-modal.component';
-import { CreateRoleModalComponent } from '../../../../shared/components/create-role-modal/create-role-modal.component';
+import { DynamicFormModalComponent } from '../../../../shared/components/dynamic-form-modal/dynamic-form-modal.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
@@ -13,7 +13,7 @@ import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, CreateRoleModalComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, DynamicFormModalComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })

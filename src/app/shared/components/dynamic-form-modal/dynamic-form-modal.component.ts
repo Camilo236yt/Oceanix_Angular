@@ -4,19 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 import { Permission, PermissionCategory, CreateRoleRequest } from '../../models/permission.model';
 import { PermissionsService } from '../../services/permissions.service';
+import { DynamicFormModalConfig, DynamicFormData, SelectableSection } from '../../models/dynamic-form-modal.model';
 
 @Component({
-  selector: 'app-create-role-modal',
+  selector: 'app-dynamic-form-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent],
-  templateUrl: './create-role-modal.component.html',
-  styleUrl: './create-role-modal.component.scss'
+  templateUrl: './dynamic-form-modal.component.html',
+  styleUrl: './dynamic-form-modal.component.scss'
 })
-export class CreateRoleModalComponent implements OnInit, OnChanges {
+export class DynamicFormModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
+  @Input() config: DynamicFormModalConfig | null = null;
+  @Input() mode: 'role' | 'generic' = 'role'; // Modo de compatibilidad
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<CreateRoleRequest>();
+  @Output() onSubmit = new EventEmitter<any>();
 
+  // Modo role (compatibilidad con implementación anterior)
   roleName = '';
   roleDescription = '';
   categories: PermissionCategory[] = [];
@@ -25,7 +29,13 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
   errorMessage = '';
   isClosing = false;
 
+  // Modo genérico
+  formData: { [key: string]: any } = {};
+  selectedItems: Set<string> = new Set();
+  sections: SelectableSection[] = [];
+
   // Validation errors
+  fieldErrors: { [key: string]: string } = {};
   nameError = '';
   descriptionError = '';
   permissionsError = '';
@@ -36,15 +46,80 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit() {
-    // Los permisos se cargan cuando se abre el modal
+    if (this.mode === 'generic' && this.config) {
+      this.initializeGenericForm();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isOpen'] && changes['isOpen'].currentValue) {
-      console.log('Modal abierto, cargando permisos...');
-      this.resetFormFields();
-      this.loadPermissions();
+      if (this.mode === 'role') {
+        console.log('Modal abierto, cargando permisos...');
+        this.resetFormFields();
+        this.loadPermissions();
+      } else if (this.mode === 'generic' && this.config) {
+        this.resetGenericForm();
+        if (this.config.selectableSection?.loadDataFn) {
+          this.config.selectableSection.loadDataFn();
+        }
+      }
     }
+  }
+
+  // Métodos para modo genérico
+  initializeGenericForm() {
+    if (!this.config) return;
+
+    this.config.fields.forEach(field => {
+      this.formData[field.name] = field.value || '';
+    });
+  }
+
+  resetGenericForm() {
+    if (!this.config) return;
+
+    this.config.fields.forEach(field => {
+      this.formData[field.name] = '';
+    });
+    this.selectedItems.clear();
+    this.fieldErrors = {};
+    this.sections = [];
+  }
+
+  validateGenericForm(): boolean {
+    if (!this.config) return false;
+
+    let isValid = true;
+    this.fieldErrors = {};
+
+    // Validar campos
+    this.config.fields.forEach(field => {
+      if (field.required && !this.formData[field.name]?.toString().trim()) {
+        this.fieldErrors[field.name] = `${field.label} es obligatorio`;
+        isValid = false;
+      }
+    });
+
+    // Validar sección seleccionable si existe
+    if (this.config.selectableSection && this.selectedItems.size === 0) {
+      this.fieldErrors['selectable'] = this.config.selectableSection.requiredMessage || 'Debes seleccionar al menos un elemento';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  handleGenericSubmit() {
+    if (!this.validateGenericForm()) {
+      return;
+    }
+
+    const data: DynamicFormData = {
+      fields: { ...this.formData },
+      selectedItems: Array.from(this.selectedItems)
+    };
+
+    this.onSubmit.emit(data);
   }
 
   loadPermissions() {
@@ -205,6 +280,14 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
   }
 
   handleSubmit() {
+    if (this.mode === 'generic') {
+      this.handleGenericSubmit();
+    } else {
+      this.handleRoleSubmit();
+    }
+  }
+
+  handleRoleSubmit() {
     if (!this.validateForm()) {
       return;
     }
@@ -243,11 +326,56 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
     this.cdr.markForCheck();
 
     // Esperar a que la animación de salida termine antes de cerrar
+    // 300ms para mobile (slideDown), 150ms para desktop (modalFadeOutPro)
+    const isMobile = window.innerWidth < 640;
+    const delay = isMobile ? 300 : 150;
+
     setTimeout(() => {
       this.isClosing = false;
-      this.resetForm();
+      if (this.mode === 'generic') {
+        this.resetGenericForm();
+      } else {
+        this.resetForm();
+      }
       this.onClose.emit();
       this.cdr.markForCheck();
-    }, 500); // Duración de la animación de salida
+    }, delay);
+  }
+
+  // Getters para el template
+  get modalTitle(): string {
+    if (this.mode === 'generic' && this.config) {
+      return this.config.title;
+    }
+    return 'Crear Nuevo Rol';
+  }
+
+  get modalSubtitle(): string | undefined {
+    if (this.mode === 'generic' && this.config) {
+      return this.config.subtitle;
+    }
+    return 'Define el nombre, descripción y permisos del rol';
+  }
+
+  get submitButtonLabel(): string {
+    if (this.mode === 'generic' && this.config) {
+      return this.config.submitButtonText || 'Guardar';
+    }
+    return 'Crear Rol';
+  }
+
+  get cancelButtonLabel(): string {
+    if (this.mode === 'generic' && this.config) {
+      return this.config.cancelButtonText || 'Cancelar';
+    }
+    return 'Cancelar';
+  }
+
+  get isGenericMode(): boolean {
+    return this.mode === 'generic';
+  }
+
+  get isRoleMode(): boolean {
+    return this.mode === 'role';
   }
 }

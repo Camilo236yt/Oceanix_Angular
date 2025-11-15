@@ -28,7 +28,9 @@
       "Bash(git reset:*)",
       "Bash(git push:*)",
       "Bash(ping:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(ren create-role-modal dynamic-form-modal)",
+      "Bash(move create-role-modal dynamic-form-modal)"
     ],
     "deny": [],
     "ask": []

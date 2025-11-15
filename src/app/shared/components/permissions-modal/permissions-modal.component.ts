@@ -20,10 +20,14 @@ export class PermissionsModalComponent {
     this.isClosing = true;
 
     // Esperar a que la animación de salida termine antes de cerrar
+    // 300ms para mobile (slideDown), 150ms para desktop (modalFadeOutPro)
+    const isMobile = window.innerWidth < 640;
+    const delay = isMobile ? 300 : 150;
+
     setTimeout(() => {
       this.isClosing = false;
       this.onClose.emit();
-    }, 500); // Duración de la animación de salida
+    }, delay);
   }
 
   // Agrupar permisos por categoría

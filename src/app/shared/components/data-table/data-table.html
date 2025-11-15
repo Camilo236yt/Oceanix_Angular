@@ -47,10 +47,10 @@
 
                 <!-- Badges type (múltiples badges) -->
                 @if (column.type === 'badges') {
-                  <div class="flex items-center gap-2">
-                    <div class="flex flex-wrap gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div class="flex flex-wrap gap-1.5 min-w-0 flex-1">
                       @for (item of getVisiblePermissions(getNestedValue(row, column.key)); track item) {
-                        <span class="inline-flex items-center px-3 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 whitespace-nowrap">
                           {{ item }}
                         </span>
                       }
@@ -58,7 +58,7 @@
                     @if (hasMorePermissions(getNestedValue(row, column.key))) {
                       <button
                         (click)="handleViewMorePermissions(row)"
-                        class="inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all whitespace-nowrap flex-shrink-0">
                         <span>Ver más</span>
                         <app-icon name="eye" class="w-3.5 h-3.5"></app-icon>
                       </button>
@@ -135,10 +135,10 @@
 
                 <!-- Badges type (múltiples badges) -->
                 @if (column.type === 'badges') {
-                  <div class="flex flex-col items-end gap-1">
-                    <div class="flex flex-wrap gap-1 justify-end">
+                  <div class="flex flex-col items-end gap-1.5 min-w-0 flex-1">
+                    <div class="flex flex-wrap gap-1.5 justify-end">
                       @for (item of getVisiblePermissions(getNestedValue(row, column.key)); track item) {
-                        <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
                           {{ item }}
                         </span>
                       }
@@ -146,7 +146,7 @@
                     @if (hasMorePermissions(getNestedValue(row, column.key))) {
                       <button
                         (click)="handleViewMorePermissions(row)"
-                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all">
                         <span>Ver más</span>
                         <app-icon name="eye" class="w-3.5 h-3.5"></app-icon>
                       </button>
