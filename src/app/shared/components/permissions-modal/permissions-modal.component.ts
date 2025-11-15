@@ -14,9 +14,16 @@ export class PermissionsModalComponent {
   @Input() permissions: string[] = [];
   @Input() roleName: string = '';
   @Output() onClose = new EventEmitter<void>();
+  isClosing = false;
 
   closeModal() {
-    this.onClose.emit();
+    this.isClosing = true;
+
+    // Esperar a que la animación de salida termine antes de cerrar
+    setTimeout(() => {
+      this.isClosing = false;
+      this.onClose.emit();
+    }, 500); // Duración de la animación de salida
   }
 
   // Agrupar permisos por categoría

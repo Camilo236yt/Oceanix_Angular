@@ -23,6 +23,7 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
   selectedPermissions: Set<string> = new Set();
   isLoading = false;
   errorMessage = '';
+  isClosing = false;
 
   // Validation errors
   nameError = '';
@@ -238,7 +239,15 @@ export class CreateRoleModalComponent implements OnInit, OnChanges {
   }
 
   closeModal() {
-    this.resetForm();
-    this.onClose.emit();
+    this.isClosing = true;
+    this.cdr.markForCheck();
+
+    // Esperar a que la animación de salida termine antes de cerrar
+    setTimeout(() => {
+      this.isClosing = false;
+      this.resetForm();
+      this.onClose.emit();
+      this.cdr.markForCheck();
+    }, 500); // Duración de la animación de salida
   }
 }
