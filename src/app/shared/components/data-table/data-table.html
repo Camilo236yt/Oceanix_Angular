@@ -68,7 +68,12 @@
 
                 <!-- Actions type -->
                 @if (column.type === 'actions') {
-                  <div class="flex items-center justify-center gap-2">
+                  <div class="flex items-center gap-2"
+                       [ngClass]="{
+                         'justify-center': column.align === 'center',
+                         'justify-end': column.align === 'right',
+                         'justify-start': !column.align || column.align === 'left'
+                       }">
                     @for (action of actions; track action.label) {
                       <button (click)="handleAction(action, row)"
                               [title]="action.label"

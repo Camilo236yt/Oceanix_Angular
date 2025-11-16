@@ -98,10 +98,15 @@ export class Usuarios implements OnInit {
       }
     },
     { key: 'fechaRegistro', label: 'Fecha Registro', type: 'date', sortable: true },
-    { key: 'actions', label: 'Acciones', type: 'actions', align: 'center' }
+    { key: 'actions', label: 'Acciones', type: 'actions', align: 'left' }
   ];
 
   tableActions: TableAction[] = [
+    {
+      icon: 'eye',
+      label: 'Ver',
+      action: (row) => this.viewUser(row)
+    },
     {
       icon: 'pencil',
       label: 'Editar',
@@ -169,6 +174,11 @@ export class Usuarios implements OnInit {
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
+  }
+
+  viewUser(user: User) {
+    // Método placeholder para ver detalles del usuario
+    console.log('Ver usuario:', user);
   }
 
   editUser(user: User) {
