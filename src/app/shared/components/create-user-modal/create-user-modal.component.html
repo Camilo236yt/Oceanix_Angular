@@ -14,10 +14,10 @@
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
               <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
-                Crear Nuevo Usuario
+                {{ isEditMode ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}
               </h3>
               <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
-                Complete los datos del nuevo usuario
+                {{ isEditMode ? 'Modifique los datos del usuario' : 'Complete los datos del nuevo usuario' }}
               </p>
             </div>
             <button (click)="closeModal()"
@@ -96,7 +96,7 @@
               <!-- Contraseña -->
               <div>
                 <label for="userPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Contraseña <span class="text-red-500">*</span>
+                  Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
                 </label>
                 <input
                   type="password"
@@ -106,7 +106,7 @@
                   (input)="clearPasswordError()"
                   [class.border-red-500]="passwordError"
                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  placeholder="Mínimo 8 caracteres" />
+                  [placeholder]="isEditMode ? 'Dejar vacío para mantener actual' : 'Mínimo 8 caracteres'" />
                 @if (passwordError) {
                   <p class="mt-1 text-xs sm:text-sm text-red-500">{{ passwordError }}</p>
                 }
@@ -115,7 +115,7 @@
               <!-- Confirmar Contraseña -->
               <div>
                 <label for="userConfirmPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Confirmar Contraseña <span class="text-red-500">*</span>
+                  Confirmar Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
                 </label>
                 <input
                   type="password"
@@ -152,48 +152,50 @@
               }
             </div>
 
-            <!-- Tipo de Identificación y Número en grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <!-- Tipo de Identificación -->
-              <div>
-                <label for="identificationType" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Tipo de Identificación <span class="text-red-500">*</span>
-                </label>
-                <select
-                  id="identificationType"
-                  [(ngModel)]="identificationType"
-                  name="identificationType"
-                  (change)="clearIdentificationTypeError()"
-                  [class.border-red-500]="identificationTypeError"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
-                  @for (option of identificationTypeOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
+            <!-- Tipo de Identificación y Número en grid (only for create mode) -->
+            @if (!isEditMode) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <!-- Tipo de Identificación -->
+                <div>
+                  <label for="identificationType" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                    Tipo de Identificación <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="identificationType"
+                    [(ngModel)]="identificationType"
+                    name="identificationType"
+                    (change)="clearIdentificationTypeError()"
+                    [class.border-red-500]="identificationTypeError"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                    @for (option of identificationTypeOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                  @if (identificationTypeError) {
+                    <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationTypeError }}</p>
                   }
-                </select>
-                @if (identificationTypeError) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationTypeError }}</p>
-                }
-              </div>
+                </div>
 
-              <!-- Número de Identificación -->
-              <div>
-                <label for="identificationNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Número de Identificación <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="identificationNumber"
-                  [(ngModel)]="identificationNumber"
-                  name="identificationNumber"
-                  (input)="onIdentificationNumberInput($event)"
-                  [class.border-red-500]="identificationNumberError"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  placeholder="Ej: 1234567890" />
-                @if (identificationNumberError) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationNumberError }}</p>
-                }
+                <!-- Número de Identificación -->
+                <div>
+                  <label for="identificationNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                    Número de Identificación <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="identificationNumber"
+                    [(ngModel)]="identificationNumber"
+                    name="identificationNumber"
+                    (input)="onIdentificationNumberInput($event)"
+                    [class.border-red-500]="identificationNumberError"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Ej: 1234567890" />
+                  @if (identificationNumberError) {
+                    <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationNumberError }}</p>
+                  }
+                </div>
               </div>
-            </div>
+            }
           </form>
         </div>
 
@@ -210,7 +212,7 @@
               type="button"
               (click)="handleSubmit()"
               class="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
-              Crear Usuario
+              {{ isEditMode ? 'Guardar Cambios' : 'Crear Usuario' }}
             </button>
           </div>
         </div>

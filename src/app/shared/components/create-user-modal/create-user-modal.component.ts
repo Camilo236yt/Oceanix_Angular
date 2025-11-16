@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, Chang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
-import { CreateUserRequest } from '../../models/user-request.model';
+import { CreateUserRequest, UpdateUserRequest } from '../../models/user-request.model';
 
 @Component({
   selector: 'app-create-user-modal',
@@ -13,8 +13,11 @@ import { CreateUserRequest } from '../../models/user-request.model';
 })
 export class CreateUserModalComponent implements OnChanges {
   @Input() isOpen = false;
+  @Input() isEditMode = false;
+  @Input() editUserData: { name: string; lastName: string; email: string; phoneNumber: string } | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<CreateUserRequest>();
+  @Output() onUpdate = new EventEmitter<UpdateUserRequest>();
 
   // Form fields
   userName = '';
@@ -51,8 +54,46 @@ export class CreateUserModalComponent implements OnChanges {
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnChanges(changes: SimpleChanges) {
+    // Check if modal is opening
     if (changes['isOpen'] && changes['isOpen'].currentValue) {
-      this.resetForm();
+      // Use setTimeout to ensure all inputs are updated before processing
+      setTimeout(() => {
+        if (this.isEditMode && this.editUserData) {
+          this.loadEditData();
+        } else {
+          this.resetForm();
+        }
+        this.cdr.detectChanges();
+      }, 0);
+    }
+
+    // Also handle when editUserData changes while modal is already open
+    if (changes['editUserData'] && this.isOpen && this.isEditMode && this.editUserData) {
+      this.loadEditData();
+      this.cdr.detectChanges();
+    }
+  }
+
+  loadEditData() {
+    if (this.editUserData) {
+      this.userName = this.editUserData.name;
+      this.userLastName = this.editUserData.lastName;
+      this.userEmail = this.editUserData.email;
+      this.userPhoneNumber = this.editUserData.phoneNumber;
+      this.userPassword = '';
+      this.userConfirmPassword = '';
+      this.identificationType = '';
+      this.identificationNumber = '';
+
+      // Clear all errors
+      this.nameError = '';
+      this.lastNameError = '';
+      this.emailError = '';
+      this.passwordError = '';
+      this.confirmPasswordError = '';
+      this.phoneError = '';
+      this.identificationTypeError = '';
+      this.identificationNumberError = '';
     }
   }
 
@@ -90,22 +131,36 @@ export class CreateUserModalComponent implements OnChanges {
       isValid = false;
     }
 
-    // Validate password
-    if (!this.userPassword.trim()) {
-      this.passwordError = 'La contraseña es obligatoria';
-      isValid = false;
-    } else if (this.userPassword.length < 8) {
-      this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
-      isValid = false;
-    }
+    // Validate password (required for create, optional for edit)
+    if (!this.isEditMode) {
+      if (!this.userPassword.trim()) {
+        this.passwordError = 'La contraseña es obligatoria';
+        isValid = false;
+      } else if (this.userPassword.length < 8) {
+        this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
+        isValid = false;
+      }
 
-    // Validate confirm password
-    if (!this.userConfirmPassword.trim()) {
-      this.confirmPasswordError = 'Debe confirmar la contraseña';
-      isValid = false;
-    } else if (this.userPassword !== this.userConfirmPassword) {
-      this.confirmPasswordError = 'Las contraseñas no coinciden';
-      isValid = false;
+      // Validate confirm password
+      if (!this.userConfirmPassword.trim()) {
+        this.confirmPasswordError = 'Debe confirmar la contraseña';
+        isValid = false;
+      } else if (this.userPassword !== this.userConfirmPassword) {
+        this.confirmPasswordError = 'Las contraseñas no coinciden';
+        isValid = false;
+      }
+    } else {
+      // In edit mode, validate password only if provided
+      if (this.userPassword.trim()) {
+        if (this.userPassword.length < 8) {
+          this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
+          isValid = false;
+        }
+        if (this.userPassword !== this.userConfirmPassword) {
+          this.confirmPasswordError = 'Las contraseñas no coinciden';
+          isValid = false;
+        }
+      }
     }
 
     // Validate phone
@@ -117,19 +172,21 @@ export class CreateUserModalComponent implements OnChanges {
       isValid = false;
     }
 
-    // Validate identificationType
-    if (!this.identificationType) {
-      this.identificationTypeError = 'El tipo de identificación es obligatorio';
-      isValid = false;
-    }
+    // Validate identificationType (only for create mode)
+    if (!this.isEditMode) {
+      if (!this.identificationType) {
+        this.identificationTypeError = 'El tipo de identificación es obligatorio';
+        isValid = false;
+      }
 
-    // Validate identificationNumber
-    if (!this.identificationNumber.trim()) {
-      this.identificationNumberError = 'El número de identificación es obligatorio';
-      isValid = false;
-    } else if (!this.isValidIdentificationNumber(this.identificationNumber)) {
-      this.identificationNumberError = 'El número de identificación debe contener solo números';
-      isValid = false;
+      // Validate identificationNumber
+      if (!this.identificationNumber.trim()) {
+        this.identificationNumberError = 'El número de identificación es obligatorio';
+        isValid = false;
+      } else if (!this.isValidIdentificationNumber(this.identificationNumber)) {
+        this.identificationNumberError = 'El número de identificación debe contener solo números';
+        isValid = false;
+      }
     }
 
     return isValid;
@@ -220,18 +277,35 @@ export class CreateUserModalComponent implements OnChanges {
       return;
     }
 
-    const request: CreateUserRequest = {
-      name: this.userName.trim(),
-      lastName: this.userLastName.trim(),
-      email: this.userEmail.trim(),
-      password: this.userPassword,
-      confirmPassword: this.userConfirmPassword,
-      phoneNumber: this.userPhoneNumber.trim(),
-      identificationType: this.identificationType,
-      identificationNumber: this.identificationNumber.trim()
-    };
+    if (this.isEditMode) {
+      const updateRequest: UpdateUserRequest = {
+        name: this.userName.trim(),
+        lastName: this.userLastName.trim(),
+        email: this.userEmail.trim(),
+        phoneNumber: this.userPhoneNumber.trim()
+      };
 
-    this.onSubmit.emit(request);
+      // Only include password if provided
+      if (this.userPassword.trim()) {
+        updateRequest.password = this.userPassword;
+        updateRequest.confirmPassword = this.userConfirmPassword;
+      }
+
+      this.onUpdate.emit(updateRequest);
+    } else {
+      const request: CreateUserRequest = {
+        name: this.userName.trim(),
+        lastName: this.userLastName.trim(),
+        email: this.userEmail.trim(),
+        password: this.userPassword,
+        confirmPassword: this.userConfirmPassword,
+        phoneNumber: this.userPhoneNumber.trim(),
+        identificationType: this.identificationType,
+        identificationNumber: this.identificationNumber.trim()
+      };
+
+      this.onSubmit.emit(request);
+    }
   }
 
   resetForm() {

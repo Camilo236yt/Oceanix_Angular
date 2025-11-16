@@ -31,9 +31,12 @@
   </app-data-table>
 </div>
 
-<!-- Modal para crear usuario -->
+<!-- Modal para crear/editar usuario -->
 <app-create-user-modal
   [isOpen]="isCreateUserModalOpen"
+  [isEditMode]="isEditMode"
+  [editUserData]="editingUserData"
   (onClose)="closeCreateUserModal()"
-  (onSubmit)="handleCreateUser($event)">
+  (onSubmit)="handleCreateUser($event)"
+  (onUpdate)="handleUpdateUser($event)">
 </app-create-user-modal>

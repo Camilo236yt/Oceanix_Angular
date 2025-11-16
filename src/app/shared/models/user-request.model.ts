@@ -9,4 +9,13 @@ export interface CreateUserRequest {
   identificationNumber: string;
 }
 
+export interface UpdateUserRequest {
+  name: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
 export type IdentificationType = 'CC' | 'CE' | 'PASSPORT' | 'NIT';

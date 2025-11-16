@@ -7,7 +7,7 @@ import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { UsuariosService } from '../../services/usuarios.service';
 import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
-import { CreateUserRequest } from '../../../../shared/models/user-request.model';
+import { CreateUserRequest, UpdateUserRequest } from '../../../../shared/models/user-request.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,6 +19,9 @@ import Swal from 'sweetalert2';
 export class Usuarios implements OnInit {
   // Modal state
   isCreateUserModalOpen = false;
+  isEditMode = false;
+  editingUserId: string | null = null;
+  editingUserData: { name: string; lastName: string; email: string; phoneNumber: string } | null = null;
 
   constructor(
     private usuariosService: UsuariosService,
@@ -144,7 +147,55 @@ export class Usuarios implements OnInit {
   }
 
   editUser(user: User) {
-    console.log('Editar usuario:', user);
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos del usuario...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.editingUserId = user.id;
+
+    // Get full user data from backend
+    this.usuariosService.getUsuarioById(user.id).subscribe({
+      next: (userData) => {
+        Swal.close();
+
+        // Set edit data first
+        this.editingUserData = {
+          name: userData.name,
+          lastName: userData.lastName,
+          email: userData.email,
+          phoneNumber: userData.phoneNumber
+        };
+        this.isEditMode = true;
+
+        // Force change detection before opening modal
+        this.cdr.detectChanges();
+
+        // Then open modal
+        this.isCreateUserModalOpen = true;
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar usuario:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar el usuario',
+          text: 'No se pudo cargar la información del usuario',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   deleteUser(user: User) {
@@ -205,11 +256,17 @@ export class Usuarios implements OnInit {
   }
 
   createNewUser() {
+    this.isEditMode = false;
+    this.editingUserId = null;
+    this.editingUserData = null;
     this.isCreateUserModalOpen = true;
   }
 
   closeCreateUserModal() {
     this.isCreateUserModalOpen = false;
+    this.isEditMode = false;
+    this.editingUserId = null;
+    this.editingUserData = null;
   }
 
   handleCreateUser(request: CreateUserRequest) {
@@ -247,6 +304,51 @@ export class Usuarios implements OnInit {
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  handleUpdateUser(request: UpdateUserRequest) {
+    if (!this.editingUserId) return;
+
+    console.log('Actualizar usuario con datos:', request);
+    this.usuariosService.updateUser(this.editingUserId, request).subscribe({
+      next: (response: any) => {
+        console.log('Usuario actualizado exitosamente:', response);
+        this.closeCreateUserModal();
+        this.loadUsuarios();
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Usuario actualizado exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
+      },
+      error: (error: any) => {
+        console.error('Error al actualizar usuario:', error);
+        const errorMessage = error?.error?.message || 'No se pudo actualizar el usuario. Por favor, intenta nuevamente.';
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al actualizar el usuario',
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
         });
       }
     });

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { UsuariosApiResponse, UsuarioData } from '../../../interface/usuarios-api.interface';
-import { CreateUserRequest } from '../../../shared/models/user-request.model';
+import { CreateUserRequest, UpdateUserRequest } from '../../../shared/models/user-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +48,13 @@ export class UsuariosService {
   // DELETE - Delete user (soft delete)
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${userId}`, {
+      withCredentials: true
+    });
+  }
+
+  // PATCH - Update user
+  updateUser(userId: string, request: UpdateUserRequest): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${userId}`, request, {
       withCredentials: true
     });
   }
