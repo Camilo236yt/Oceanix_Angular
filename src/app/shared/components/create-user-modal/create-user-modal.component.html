@@ -1,0 +1,220 @@
+<!-- Modal Overlay -->
+@if (isOpen) {
+  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (!isClosing ? 'animate-overlayIn' : 'animate-overlayOut')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" (click)="closeModal()"></div>
+
+    <!-- Modal Container -->
+    <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4">
+      <div [class]="'relative w-full max-w-2xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-[var(--card-bg)] shadow-2xl border-t sm:border border-[var(--card-border)] pb-safe ' + (!isClosing ? 'animate-slideUp' : 'animate-slideDown')"
+           (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="border-b border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
+                Crear Nuevo Usuario
+              </h3>
+              <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
+                Complete los datos del nuevo usuario
+              </p>
+            </div>
+            <button (click)="closeModal()"
+                    class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex-shrink-0">
+              <app-icon name="x" class="w-5 h-5"></app-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-250px)] overflow-y-auto bg-[var(--card-bg)]">
+          <form class="space-y-3 sm:space-y-4">
+            <!-- Nombre y Apellido en grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Nombre -->
+              <div>
+                <label for="userName" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Nombre <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="userName"
+                  [(ngModel)]="userName"
+                  name="userName"
+                  (input)="clearNameError()"
+                  [class.border-red-500]="nameError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Ej: Juan" />
+                @if (nameError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ nameError }}</p>
+                }
+              </div>
+
+              <!-- Apellido -->
+              <div>
+                <label for="userLastName" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Apellido <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="userLastName"
+                  [(ngModel)]="userLastName"
+                  name="userLastName"
+                  (input)="clearLastNameError()"
+                  [class.border-red-500]="lastNameError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Ej: Pérez" />
+                @if (lastNameError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ lastNameError }}</p>
+                }
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="userEmail" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Correo Electrónico <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                id="userEmail"
+                [(ngModel)]="userEmail"
+                name="userEmail"
+                (input)="onEmailInput()"
+                (blur)="onEmailInput()"
+                [class.border-red-500]="emailError"
+                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                placeholder="Ej: juan.perez@empresa.com" />
+              @if (emailError) {
+                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ emailError }}</p>
+              }
+            </div>
+
+            <!-- Contraseña y Confirmar Contraseña en grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Contraseña -->
+              <div>
+                <label for="userPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Contraseña <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="userPassword"
+                  [(ngModel)]="userPassword"
+                  name="userPassword"
+                  (input)="clearPasswordError()"
+                  [class.border-red-500]="passwordError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Mínimo 8 caracteres" />
+                @if (passwordError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ passwordError }}</p>
+                }
+              </div>
+
+              <!-- Confirmar Contraseña -->
+              <div>
+                <label for="userConfirmPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Confirmar Contraseña <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="userConfirmPassword"
+                  [(ngModel)]="userConfirmPassword"
+                  name="userConfirmPassword"
+                  (input)="clearConfirmPasswordError()"
+                  [class.border-red-500]="confirmPasswordError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Repita la contraseña" />
+                @if (confirmPasswordError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ confirmPasswordError }}</p>
+                }
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div>
+              <label for="userPhoneNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Teléfono <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                id="userPhoneNumber"
+                [(ngModel)]="userPhoneNumber"
+                name="userPhoneNumber"
+                (input)="onPhoneInput($event)"
+                [class.border-red-500]="phoneError"
+                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                placeholder="Ej: 3001234567"
+                maxlength="10" />
+              @if (phoneError) {
+                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ phoneError }}</p>
+              }
+            </div>
+
+            <!-- Tipo de Identificación y Número en grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <!-- Tipo de Identificación -->
+              <div>
+                <label for="identificationType" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Tipo de Identificación <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="identificationType"
+                  [(ngModel)]="identificationType"
+                  name="identificationType"
+                  (change)="clearIdentificationTypeError()"
+                  [class.border-red-500]="identificationTypeError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                  @for (option of identificationTypeOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                @if (identificationTypeError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationTypeError }}</p>
+                }
+              </div>
+
+              <!-- Número de Identificación -->
+              <div>
+                <label for="identificationNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Número de Identificación <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="identificationNumber"
+                  [(ngModel)]="identificationNumber"
+                  name="identificationNumber"
+                  (input)="onIdentificationNumberInput($event)"
+                  [class.border-red-500]="identificationNumberError"
+                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="Ej: 1234567890" />
+                @if (identificationNumberError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ identificationNumberError }}</p>
+                }
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
+          <div class="flex items-center justify-end gap-2 sm:gap-3">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors border border-[var(--card-border)]">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="handleSubmit()"
+              class="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
+              Crear Usuario
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

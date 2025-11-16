@@ -1,18 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
+import { UsuariosService } from '../../services/usuarios.service';
+import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
+import { CreateUserRequest } from '../../../../shared/models/user-request.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [DataTable, IconComponent, SearchFiltersComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
-export class Usuarios {
+export class Usuarios implements OnInit {
+  // Modal state
+  isCreateUserModalOpen = false;
+
+  constructor(
+    private usuariosService: UsuariosService,
+    private cdr: ChangeDetectorRef
+  ) {}
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -96,40 +107,37 @@ export class Usuarios {
     }
   ];
 
-  users: User[] = [
-    {
-      id: '1',
-      nombre: 'Juan Pérez',
-      correo: 'juan.perez@empresa.com',
-      rol: 'Admin',
-      estado: 'Activo',
-      fechaRegistro: '14/6/2023'
-    },
-    {
-      id: '2',
-      nombre: 'María García',
-      correo: 'maria.garcia@empresa.com',
-      rol: 'Empleado',
-      estado: 'Activo',
-      fechaRegistro: '19/8/2023'
-    },
-    {
-      id: '3',
-      nombre: 'Carlos López',
-      correo: 'carlos.lopez@empresa.com',
-      rol: 'Supervisor',
-      estado: 'Activo',
-      fechaRegistro: '9/7/2023'
-    },
-    {
-      id: '4',
-      nombre: 'Ana Martínez',
-      correo: 'ana.martinez@empresa.com',
-      rol: 'Empleado',
-      estado: 'Inactivo',
-      fechaRegistro: '4/5/2023'
-    }
-  ];
+  users: User[] = [];
+
+  ngOnInit() {
+    this.loadUsuarios();
+  }
+
+  loadUsuarios() {
+    this.usuariosService.getUsuarios().subscribe({
+      next: (usuarios) => {
+        console.log('Usuarios cargados:', usuarios);
+        this.users = [...usuarios]; // Create new array reference
+        this.cdr.detectChanges(); // Force change detection
+      },
+      error: (error) => {
+        console.error('Error al cargar usuarios:', error);
+      }
+    });
+  }
+
+  // Computed statistics
+  get totalUsuarios(): number {
+    return this.users.length;
+  }
+
+  get usuariosActivos(): number {
+    return this.users.filter(user => user.estado === 'Activo').length;
+  }
+
+  get usuariosInactivos(): number {
+    return this.users.filter(user => user.estado === 'Inactivo').length;
+  }
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
@@ -144,7 +152,51 @@ export class Usuarios {
   }
 
   createNewUser() {
-    console.log('Crear nuevo usuario');
+    this.isCreateUserModalOpen = true;
+  }
+
+  closeCreateUserModal() {
+    this.isCreateUserModalOpen = false;
+  }
+
+  handleCreateUser(request: CreateUserRequest) {
+    console.log('Crear usuario con datos:', request);
+    this.usuariosService.createUser(request).subscribe({
+      next: (response: any) => {
+        console.log('Usuario creado exitosamente:', response);
+        this.closeCreateUserModal();
+        this.loadUsuarios(); // Reload data
+
+        // Show success notification
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Usuario creado exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
+          }
+        });
+      },
+      error: (error: any) => {
+        console.error('Error al crear usuario:', error);
+        const errorMessage = error?.error?.message || 'No se pudo crear el usuario. Intente nuevamente.';
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al crear el usuario',
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   onFilterChange(filterData: SearchFilterData) {

@@ -9,3 +9,9 @@ export interface User {
 
 export type UserRole = 'Admin' | 'Empleado' | 'Supervisor';
 export type UserStatus = 'Activo' | 'Inactivo';
+
+export interface UserStats {
+  totalUsuarios: number;
+  usuariosActivos: number;
+  usuariosInactivos: number;
+}

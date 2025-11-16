@@ -1,0 +1,120 @@
+// Animaciones suaves de entrada
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+// Animación para el overlay/backdrop
+@keyframes overlayIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+// Animación profesional para desktop - fade + scale muy sutil
+@keyframes modalFadeInPro {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalFadeOutPro {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+// Clases de animación de entrada
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// Clases de animación de salida
+.animate-slideDown {
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+// Clases para animación del overlay
+.animate-overlayIn {
+  animation: overlayIn 0.25s ease-out;
+}
+
+.animate-overlayOut {
+  animation: overlayOut 0.2s ease-in;
+}
+
+// Aplicar animación profesional en desktop, slide en mobile
+@media (min-width: 640px) {
+  .animate-slideUp {
+    animation: modalFadeInPro 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .animate-slideDown {
+    animation: modalFadeOutPro 0.15s cubic-bezier(0.4, 0, 1, 1) !important;
+  }
+}
+
+// Soporte para safe area de iOS
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+// Para dispositivos móviles con safe area
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);
+  }
+}
