@@ -41,3 +41,10 @@
   (onSubmit)="handleCreateUser($event)"
   (onUpdate)="handleUpdateUser($event)">
 </app-create-user-modal>
+
+<!-- Modal para ver detalles del usuario -->
+<app-view-user-modal
+  [isOpen]="isViewUserModalOpen"
+  [userData]="viewingUserData"
+  (onClose)="closeViewUserModal()">
+</app-view-user-modal>

@@ -8,14 +8,16 @@ import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter
 import { UsuariosService } from '../../services/usuarios.service';
 import { RolesService } from '../../services/roles.service';
 import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
+import { ViewUserModalComponent } from '../../../../shared/components/view-user-modal/view-user-modal';
 import { CreateUserWithRolesRequest, UpdateUserRequest, RoleOption } from '../../../../shared/models/user-request.model';
+import { UsuarioData } from '../../../../interface/usuarios-api.interface';
 import Swal from 'sweetalert2';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent, ViewUserModalComponent],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
@@ -26,6 +28,10 @@ export class Usuarios implements OnInit {
   editingUserId: string | null = null;
   editingUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[] } | null = null;
   availableRoles: RoleOption[] = [];
+
+  // View user modal state
+  isViewUserModalOpen = false;
+  viewingUserData: UsuarioData | null = null;
 
   constructor(
     private usuariosService: UsuariosService,
@@ -68,9 +74,9 @@ export class Usuarios implements OnInit {
           dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
         'Empleado': {
-          color: 'text-gray-600 dark:text-gray-300',
+          color: 'text-gray-900 dark:text-gray-300',
           bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-gray-600 dark:bg-gray-300'
+          dotColor: 'bg-gray-900 dark:bg-gray-300'
         },
         'Supervisor': {
           color: 'text-orange-600 dark:text-orange-400',
@@ -177,8 +183,56 @@ export class Usuarios implements OnInit {
   }
 
   viewUser(user: User) {
-    // Método placeholder para ver detalles del usuario
-    console.log('Ver usuario:', user);
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos del usuario...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get full user data from backend
+    this.usuariosService.getUsuarioById(user.id).subscribe({
+      next: (userData) => {
+        Swal.close();
+        console.log('Usuario completo para ver:', userData);
+        console.log('Roles del usuario:', userData.roles);
+
+        // Set user data first
+        this.viewingUserData = userData;
+
+        // Force change detection
+        this.cdr.detectChanges();
+
+        // Open modal after data is set
+        setTimeout(() => {
+          this.isViewUserModalOpen = true;
+          this.cdr.detectChanges();
+        }, 0);
+      },
+      error: (error: any) => {
+        console.error('Error al cargar usuario:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar el usuario',
+          text: 'No se pudo cargar la información del usuario',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  closeViewUserModal() {
+    this.isViewUserModalOpen = false;
+    this.viewingUserData = null;
   }
 
   editUser(user: User) {

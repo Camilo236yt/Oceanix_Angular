@@ -28,7 +28,7 @@
 
                 <!-- Text type -->
                 @if (!column.type || column.type === 'text') {
-                  <span [ngClass]="column.key === 'rol' ? 'font-semibold text-purple-600 dark:text-purple-400' : ''">{{ getNestedValue(row, column.key) }}</span>
+                  <span>{{ getNestedValue(row, column.key) }}</span>
                 }
 
                 <!-- Badge type -->
@@ -121,7 +121,7 @@
 
                 <!-- Text type -->
                 @if (!column.type || column.type === 'text') {
-                  <span [ngClass]="column.key === 'rol' ? 'text-sm font-semibold text-purple-600 dark:text-purple-400 text-right' : 'text-sm text-[var(--text-primary)] text-right'">{{ getNestedValue(row, column.key) }}</span>
+                  <span class="text-sm text-[var(--text-primary)] text-right">{{ getNestedValue(row, column.key) }}</span>
                 }
 
                 <!-- Badge type -->
