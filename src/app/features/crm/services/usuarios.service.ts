@@ -45,6 +45,13 @@ export class UsuariosService {
     });
   }
 
+  // DELETE - Delete user (soft delete)
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${userId}`, {
+      withCredentials: true
+    });
+  }
+
   // Data transformation - converts API response to UI model
   private transformUsuarios(usuariosData: UsuarioData[]): User[] {
     if (!usuariosData || !Array.isArray(usuariosData)) {

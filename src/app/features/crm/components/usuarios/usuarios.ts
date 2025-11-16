@@ -148,7 +148,60 @@ export class Usuarios implements OnInit {
   }
 
   deleteUser(user: User) {
-    console.log('Eliminar usuario:', user);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `El usuario "${user.nombre}" será eliminado permanentemente`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.usuariosService.deleteUser(user.id).subscribe({
+          next: () => {
+            this.loadUsuarios(); // Recargar la lista de usuarios
+
+            // Mostrar notificación de éxito
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Usuario eliminado exitosamente',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+              }
+            });
+          },
+          error: (error: any) => {
+            console.error('Error al eliminar usuario:', error);
+
+            // Mostrar notificación de error
+            const errorMessage = error?.error?.message || 'No se pudo eliminar el usuario. Por favor, intenta nuevamente.';
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Error al eliminar el usuario',
+              text: errorMessage,
+              showConfirmButton: false,
+              timer: 4000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+              }
+            });
+          }
+        });
+      }
+    });
   }
 
   createNewUser() {
