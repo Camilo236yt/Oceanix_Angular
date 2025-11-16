@@ -196,6 +196,44 @@
                 </div>
               </div>
             }
+
+            <!-- Selección de Roles (for both create and edit mode) -->
+            <div>
+              <label class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Seleccionar Roles <span class="text-red-500">*</span>
+              </label>
+              <div [class.border-red-500]="rolesError" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                @if (availableRoles.length === 0) {
+                  <p class="text-xs sm:text-sm text-[var(--text-tertiary)] text-center py-2 col-span-2">Cargando roles...</p>
+                } @else {
+                  @for (role of availableRoles; track role.id) {
+                    <label
+                      class="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] cursor-pointer transition-all hover:bg-[var(--bg-hover)] hover:border-purple-400"
+                      [class.border-purple-500]="isRoleSelected(role.id)"
+                      [class.bg-purple-50]="isRoleSelected(role.id)"
+                      [class.dark:bg-purple-900/20]="isRoleSelected(role.id)">
+                      <input
+                        type="checkbox"
+                        [checked]="isRoleSelected(role.id)"
+                        (change)="toggleRole(role.id)"
+                        class="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600 bg-[var(--card-bg)] border-[var(--card-border)] rounded focus:ring-purple-500 focus:ring-2" />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-[var(--text-primary)]">{{ role.name }}</p>
+                        @if (role.description) {
+                          <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ role.description }}</p>
+                        }
+                      </div>
+                    </label>
+                  }
+                }
+              </div>
+              @if (rolesError) {
+                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ rolesError }}</p>
+              }
+              @if (selectedRoles.length > 0) {
+                <p class="mt-1 text-xs text-[var(--text-tertiary)]">{{ selectedRoles.length }} rol(es) seleccionado(s)</p>
+              }
+            </div>
           </form>
         </div>
 

@@ -9,6 +9,11 @@ export interface CreateUserRequest {
   identificationNumber: string;
 }
 
+export interface CreateUserWithRolesRequest {
+  userData: CreateUserRequest;
+  roleIds: string[];
+}
+
 export interface UpdateUserRequest {
   name: string;
   lastName: string;
@@ -19,3 +24,10 @@ export interface UpdateUserRequest {
 }
 
 export type IdentificationType = 'CC' | 'CE' | 'PASSPORT' | 'NIT';
+
+export interface RoleOption {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+}

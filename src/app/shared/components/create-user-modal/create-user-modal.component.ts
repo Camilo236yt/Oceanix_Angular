@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, Chang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
-import { CreateUserRequest, UpdateUserRequest } from '../../models/user-request.model';
+import { CreateUserRequest, UpdateUserRequest, CreateUserWithRolesRequest, RoleOption } from '../../models/user-request.model';
 
 @Component({
   selector: 'app-create-user-modal',
@@ -14,10 +14,11 @@ import { CreateUserRequest, UpdateUserRequest } from '../../models/user-request.
 export class CreateUserModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
-  @Input() editUserData: { name: string; lastName: string; email: string; phoneNumber: string } | null = null;
+  @Input() editUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[] } | null = null;
+  @Input() availableRoles: RoleOption[] = [];
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<CreateUserRequest>();
-  @Output() onUpdate = new EventEmitter<UpdateUserRequest>();
+  @Output() onSubmit = new EventEmitter<CreateUserWithRolesRequest>();
+  @Output() onUpdate = new EventEmitter<UpdateUserRequest & { roleIds?: string[] }>();
 
   // Form fields
   userName = '';
@@ -28,6 +29,7 @@ export class CreateUserModalComponent implements OnChanges {
   userPhoneNumber = '';
   identificationType = '';
   identificationNumber = '';
+  selectedRoles: string[] = [];
 
   // Validation errors
   nameError = '';
@@ -38,6 +40,7 @@ export class CreateUserModalComponent implements OnChanges {
   phoneError = '';
   identificationTypeError = '';
   identificationNumberError = '';
+  rolesError = '';
 
   // Modal state
   isClosing = false;
@@ -59,8 +62,10 @@ export class CreateUserModalComponent implements OnChanges {
       // Use setTimeout to ensure all inputs are updated before processing
       setTimeout(() => {
         if (this.isEditMode && this.editUserData) {
+          console.log('Modal opening in edit mode, loading data:', this.editUserData);
           this.loadEditData();
         } else {
+          console.log('Modal opening in create mode, resetting form');
           this.resetForm();
         }
         this.cdr.detectChanges();
@@ -69,6 +74,15 @@ export class CreateUserModalComponent implements OnChanges {
 
     // Also handle when editUserData changes while modal is already open
     if (changes['editUserData'] && this.isOpen && this.isEditMode && this.editUserData) {
+      console.log('editUserData changed while modal is open:', this.editUserData);
+      this.loadEditData();
+      this.cdr.detectChanges();
+    }
+
+    // Handle when editUserData changes and modal is about to open
+    if (changes['editUserData'] && !this.isOpen && this.isEditMode && this.editUserData) {
+      console.log('editUserData updated before modal open:', this.editUserData);
+      // Pre-load the data so it's ready when modal opens
       this.loadEditData();
       this.cdr.detectChanges();
     }
@@ -76,6 +90,9 @@ export class CreateUserModalComponent implements OnChanges {
 
   loadEditData() {
     if (this.editUserData) {
+      console.log('Loading edit data into form:', this.editUserData);
+      console.log('Role IDs to load:', this.editUserData.roleIds);
+
       this.userName = this.editUserData.name;
       this.userLastName = this.editUserData.lastName;
       this.userEmail = this.editUserData.email;
@@ -84,6 +101,9 @@ export class CreateUserModalComponent implements OnChanges {
       this.userConfirmPassword = '';
       this.identificationType = '';
       this.identificationNumber = '';
+      this.selectedRoles = [...(this.editUserData.roleIds || [])];
+
+      console.log('Selected roles after loading:', this.selectedRoles);
 
       // Clear all errors
       this.nameError = '';
@@ -94,6 +114,7 @@ export class CreateUserModalComponent implements OnChanges {
       this.phoneError = '';
       this.identificationTypeError = '';
       this.identificationNumberError = '';
+      this.rolesError = '';
     }
   }
 
@@ -109,6 +130,7 @@ export class CreateUserModalComponent implements OnChanges {
     this.phoneError = '';
     this.identificationTypeError = '';
     this.identificationNumberError = '';
+    this.rolesError = '';
 
     // Validate name
     if (!this.userName.trim()) {
@@ -187,6 +209,12 @@ export class CreateUserModalComponent implements OnChanges {
         this.identificationNumberError = 'El número de identificación debe contener solo números';
         isValid = false;
       }
+    }
+
+    // Validate roles (required for both create and edit mode)
+    if (this.selectedRoles.length === 0) {
+      this.rolesError = 'Debe seleccionar al menos un rol';
+      isValid = false;
     }
 
     return isValid;
@@ -272,17 +300,36 @@ export class CreateUserModalComponent implements OnChanges {
     this.identificationNumberError = '';
   }
 
+  clearRolesError() {
+    this.rolesError = '';
+  }
+
+  toggleRole(roleId: string) {
+    const index = this.selectedRoles.indexOf(roleId);
+    if (index === -1) {
+      this.selectedRoles.push(roleId);
+    } else {
+      this.selectedRoles.splice(index, 1);
+    }
+    this.clearRolesError();
+  }
+
+  isRoleSelected(roleId: string): boolean {
+    return this.selectedRoles.includes(roleId);
+  }
+
   handleSubmit() {
     if (!this.validateForm()) {
       return;
     }
 
     if (this.isEditMode) {
-      const updateRequest: UpdateUserRequest = {
+      const updateRequest: UpdateUserRequest & { roleIds?: string[] } = {
         name: this.userName.trim(),
         lastName: this.userLastName.trim(),
         email: this.userEmail.trim(),
-        phoneNumber: this.userPhoneNumber.trim()
+        phoneNumber: this.userPhoneNumber.trim(),
+        roleIds: this.selectedRoles
       };
 
       // Only include password if provided
@@ -293,7 +340,7 @@ export class CreateUserModalComponent implements OnChanges {
 
       this.onUpdate.emit(updateRequest);
     } else {
-      const request: CreateUserRequest = {
+      const userData: CreateUserRequest = {
         name: this.userName.trim(),
         lastName: this.userLastName.trim(),
         email: this.userEmail.trim(),
@@ -302,6 +349,11 @@ export class CreateUserModalComponent implements OnChanges {
         phoneNumber: this.userPhoneNumber.trim(),
         identificationType: this.identificationType,
         identificationNumber: this.identificationNumber.trim()
+      };
+
+      const request: CreateUserWithRolesRequest = {
+        userData,
+        roleIds: this.selectedRoles
       };
 
       this.onSubmit.emit(request);
@@ -317,6 +369,7 @@ export class CreateUserModalComponent implements OnChanges {
     this.userPhoneNumber = '';
     this.identificationType = '';
     this.identificationNumber = '';
+    this.selectedRoles = [];
 
     this.nameError = '';
     this.lastNameError = '';
@@ -326,6 +379,7 @@ export class CreateUserModalComponent implements OnChanges {
     this.phoneError = '';
     this.identificationTypeError = '';
     this.identificationNumberError = '';
+    this.rolesError = '';
   }
 
   closeModal() {

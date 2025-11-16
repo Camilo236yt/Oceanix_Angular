@@ -1,3 +1,12 @@
+export interface UserRole {
+  id: string;
+  role: {
+    id: string;
+    name: string;
+    description: string;
+  };
+}
+
 export interface UsuarioData {
   id: string;
   enterpriseId: string;
@@ -15,6 +24,7 @@ export interface UsuarioData {
   isLegalRepresentative: boolean;
   createdAt: string;
   updatedAt: string;
+  roles?: UserRole[];
 }
 
 export interface UsuariosApiDataResponse {

@@ -6,9 +6,12 @@ import { TableColumn, TableAction } from '../../../../shared/models/table.model'
 import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { UsuariosService } from '../../services/usuarios.service';
+import { RolesService } from '../../services/roles.service';
 import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
-import { CreateUserRequest, UpdateUserRequest } from '../../../../shared/models/user-request.model';
+import { CreateUserWithRolesRequest, UpdateUserRequest, RoleOption } from '../../../../shared/models/user-request.model';
 import Swal from 'sweetalert2';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios',
@@ -21,10 +24,12 @@ export class Usuarios implements OnInit {
   isCreateUserModalOpen = false;
   isEditMode = false;
   editingUserId: string | null = null;
-  editingUserData: { name: string; lastName: string; email: string; phoneNumber: string } | null = null;
+  editingUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[] } | null = null;
+  availableRoles: RoleOption[] = [];
 
   constructor(
     private usuariosService: UsuariosService,
+    private rolesService: RolesService,
     private cdr: ChangeDetectorRef
   ) {}
   // Configuración de filtros
@@ -114,6 +119,26 @@ export class Usuarios implements OnInit {
 
   ngOnInit() {
     this.loadUsuarios();
+    this.loadRoles();
+  }
+
+  loadRoles() {
+    this.rolesService.getRoles().subscribe({
+      next: (roles) => {
+        this.availableRoles = roles
+          .filter(role => role.estado === 'Activo')
+          .map(role => ({
+            id: role.id,
+            name: role.rol,
+            description: role.descripcion,
+            isActive: role.estado === 'Activo'
+          }));
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al cargar roles:', error);
+      }
+    });
   }
 
   loadUsuarios() {
@@ -166,21 +191,56 @@ export class Usuarios implements OnInit {
       next: (userData) => {
         Swal.close();
 
-        // Set edit data first
+        // Extract role IDs from user data - handle different API response structures
+        console.log('User data received:', userData);
+        console.log('User roles:', userData.roles);
+
+        let roleIds: string[] = [];
+        if (userData.roles && Array.isArray(userData.roles)) {
+          // Try different structures the API might return
+          roleIds = userData.roles.map((r: any) => {
+            // Structure 1: { role: { id: '...' } }
+            if (r.role && r.role.id) {
+              return r.role.id;
+            }
+            // Structure 2: { roleId: '...' }
+            if (r.roleId) {
+              return r.roleId;
+            }
+            // Structure 3: { id: '...' } (role object directly)
+            if (r.id && !r.role) {
+              return r.id;
+            }
+            // Structure 4: string ID directly
+            if (typeof r === 'string') {
+              return r;
+            }
+            return null;
+          }).filter((id: string | null) => id !== null);
+        }
+        console.log('Extracted role IDs:', roleIds);
+
+        // Set edit mode first
+        this.isEditMode = true;
+
+        // Set edit data with roleIds
         this.editingUserData = {
           name: userData.name,
           lastName: userData.lastName,
           email: userData.email,
-          phoneNumber: userData.phoneNumber
+          phoneNumber: userData.phoneNumber,
+          roleIds: roleIds
         };
-        this.isEditMode = true;
+        console.log('Edit user data:', this.editingUserData);
 
-        // Force change detection before opening modal
+        // Force change detection to update all bindings
         this.cdr.detectChanges();
 
-        // Then open modal
-        this.isCreateUserModalOpen = true;
-        this.cdr.detectChanges();
+        // Use setTimeout to ensure bindings are complete before opening modal
+        setTimeout(() => {
+          this.isCreateUserModalOpen = true;
+          this.cdr.detectChanges();
+        }, 0);
       },
       error: (error: any) => {
         console.error('Error al cargar usuario:', error);
@@ -269,11 +329,25 @@ export class Usuarios implements OnInit {
     this.editingUserData = null;
   }
 
-  handleCreateUser(request: CreateUserRequest) {
+  handleCreateUser(request: CreateUserWithRolesRequest) {
     console.log('Crear usuario con datos:', request);
-    this.usuariosService.createUser(request).subscribe({
-      next: (response: any) => {
+
+    // First create the user, then assign roles
+    this.usuariosService.createUser(request.userData).pipe(
+      switchMap((response: any) => {
         console.log('Usuario creado exitosamente:', response);
+        const userId = response.data?.id || response.id;
+
+        if (!userId) {
+          throw new Error('No se pudo obtener el ID del usuario creado');
+        }
+
+        // Now assign roles to the created user
+        return this.usuariosService.assignRolesToUser(userId, request.roleIds);
+      })
+    ).subscribe({
+      next: () => {
+        console.log('Roles asignados exitosamente');
         this.closeCreateUserModal();
         this.loadUsuarios(); // Reload data
 
@@ -293,7 +367,7 @@ export class Usuarios implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error al crear usuario:', error);
+        console.error('Error al crear usuario o asignar roles:', error);
         const errorMessage = error?.error?.message || 'No se pudo crear el usuario. Intente nuevamente.';
         Swal.fire({
           toast: true,
@@ -309,13 +383,26 @@ export class Usuarios implements OnInit {
     });
   }
 
-  handleUpdateUser(request: UpdateUserRequest) {
+  handleUpdateUser(request: UpdateUserRequest & { roleIds?: string[] }) {
     if (!this.editingUserId) return;
 
     console.log('Actualizar usuario con datos:', request);
-    this.usuariosService.updateUser(this.editingUserId, request).subscribe({
-      next: (response: any) => {
-        console.log('Usuario actualizado exitosamente:', response);
+
+    // Extract roleIds from request
+    const { roleIds, ...userUpdateData } = request;
+
+    // First update user data, then update roles
+    this.usuariosService.updateUser(this.editingUserId, userUpdateData).pipe(
+      switchMap(() => {
+        // Now assign roles to the user
+        if (roleIds && roleIds.length > 0) {
+          return this.usuariosService.assignRolesToUser(this.editingUserId!, roleIds);
+        }
+        return of(null);
+      })
+    ).subscribe({
+      next: () => {
+        console.log('Usuario y roles actualizados exitosamente');
         this.closeCreateUserModal();
         this.loadUsuarios();
 

@@ -59,6 +59,13 @@ export class UsuariosService {
     });
   }
 
+  // POST - Assign roles to user
+  assignRolesToUser(userId: string, roleIds: string[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${userId}/roles`, { roleIds }, {
+      withCredentials: true
+    });
+  }
+
   // Data transformation - converts API response to UI model
   private transformUsuarios(usuariosData: UsuarioData[]): User[] {
     if (!usuariosData || !Array.isArray(usuariosData)) {
