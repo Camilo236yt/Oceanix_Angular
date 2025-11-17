@@ -194,7 +194,7 @@ export class PdfReportModalComponent implements OnInit {
       series: series,
       chart: {
         type: 'donut',
-        height: 180,
+        height: 170,
         background: 'transparent',
         foreColor: '#6B7280',
         animations: {
@@ -205,18 +205,21 @@ export class PdfReportModalComponent implements OnInit {
       colors: colors,
       legend: {
         position: 'bottom',
-        fontSize: '8px',
-        fontWeight: 500,
+        horizontalAlign: 'center',
+        fontSize: '7px',
+        fontWeight: 600,
         markers: {
           strokeWidth: 0,
         },
         itemMargin: {
-          horizontal: 8,
-          vertical: 0,
+          horizontal: 5,
+          vertical: 2,
         },
         labels: {
           colors: '#374151',
         },
+        offsetY: 5,
+        floating: false,
       },
       dataLabels: {
         enabled: true,
@@ -224,7 +227,7 @@ export class PdfReportModalComponent implements OnInit {
           return val.toFixed(0) + '%';
         },
         style: {
-          fontSize: '9px',
+          fontSize: '7px',
           fontWeight: 'bold',
           colors: ['#FFFFFF'],
         },
@@ -235,7 +238,7 @@ export class PdfReportModalComponent implements OnInit {
       plotOptions: {
         pie: {
           donut: {
-            size: '55%',
+            size: '45%',
             labels: {
               show: false,
             },
@@ -260,16 +263,11 @@ export class PdfReportModalComponent implements OnInit {
   }
 
   async downloadPdf(): Promise<void> {
-    this.isGenerating = true;
-
     try {
       const filename = `reporte-incidencias-${this.formatDate(this.currentDate)}.pdf`;
       await this.pdfService.generatePdfFromHtml('pdf-content', filename);
-      console.log('PDF generado exitosamente');
     } catch (error) {
       console.error('Error al generar PDF:', error);
-    } finally {
-      this.isGenerating = false;
     }
   }
 

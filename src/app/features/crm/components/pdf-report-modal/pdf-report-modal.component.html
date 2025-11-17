@@ -232,16 +232,14 @@
 
     <!-- Modal Footer -->
     <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="close()" [disabled]="isGenerating">
+      <button class="btn btn-secondary" (click)="close()">
         Cancelar
       </button>
       <button
         class="btn btn-primary"
         (click)="downloadPdf()"
-        [disabled]="isGenerating"
       >
         <svg
-          *ngIf="!isGenerating"
           width="20"
           height="20"
           fill="none"
@@ -250,29 +248,7 @@
         >
           <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
         </svg>
-        <svg
-          *ngIf="isGenerating"
-          class="spinner"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-            fill="none"
-            opacity="0.25"
-          />
-          <path
-            fill="currentColor"
-            d="M12 2a10 10 0 0 1 10 10h-4a6 6 0 0 0-6-6V2z"
-            opacity="0.75"
-          />
-        </svg>
-        {{ isGenerating ? 'Generando...' : 'Descargar PDF' }}
+        Descargar PDF
       </button>
     </div>
   </div>

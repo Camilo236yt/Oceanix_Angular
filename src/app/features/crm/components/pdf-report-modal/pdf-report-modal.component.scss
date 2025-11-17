@@ -118,7 +118,7 @@
   align-items: flex-start;
   margin-bottom: 0.8vh;
   padding-bottom: 0.5vh;
-  border-bottom: 1px solid #0ea5e9;
+  border-bottom: 1px solid #7c3aed;
   flex-shrink: 0;
 }
 
@@ -165,11 +165,11 @@
 }
 
 .midas-badge {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   padding: 6px 10px;
   border-radius: 4px;
   color: white;
-  box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
 
   h1 {
     margin: 0;
@@ -406,7 +406,7 @@
       .numero {
         font-size: 20px;
         font-weight: bold;
-        color: #0ea5e9;
+        color: #7c3aed;
       }
 
       .unidad {
@@ -441,7 +441,18 @@
 
 .apex-chart-container-donut {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
+  padding-bottom: 10px;
+
+  // Reducir tamaño de los marcadores de la leyenda
+  ::ng-deep .apexcharts-legend-marker {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  ::ng-deep .apexcharts-legend-text {
+    font-size: 7px !important;
+  }
 }
 
 .bar-item {
@@ -544,8 +555,9 @@
 
 // Donut Chart
 .donut-card {
-  padding: 6px 8px;
+  padding: 6px 8px 16px;
   flex: 0 0 auto;
+  overflow: visible;
 }
 
 .donut-chart {
@@ -647,7 +659,7 @@
 
 .info-icon {
   flex-shrink: 0;
-  color: #0ea5e9;
+  color: #7c3aed;
   width: 16px;
   height: 16px;
 }
@@ -721,12 +733,12 @@
   }
 
   &.btn-primary {
-    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
     color: white;
-    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
 
     &:hover:not(:disabled) {
-      box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
+      box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
       transform: translateY(-1px);
     }
   }
