@@ -65,15 +65,17 @@
 
 // Animación suave para el contenido colapsable
 .filter-content {
-  max-height: 1000px;
   overflow: hidden;
-  opacity: 1;
-  transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 
-  &.collapsed {
-    max-height: 0;
-    opacity: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+  &:not(.collapsed) {
+    max-height: 1000px;
+    opacity: 1;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
   }
 }
