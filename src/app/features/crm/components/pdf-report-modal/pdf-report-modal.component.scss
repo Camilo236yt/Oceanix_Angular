@@ -254,7 +254,9 @@
 
   &.chart-card {
     flex: 1;
-    min-height: 0;
+    min-height: 320px;
+    overflow: hidden;
+    padding-bottom: 10px;
   }
 }
 
@@ -429,6 +431,17 @@
   min-height: 120px;
   border: 1px solid #e5e7eb;
   position: relative;
+}
+
+.apex-chart-container {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.apex-chart-container-donut {
+  width: 100%;
+  overflow: hidden;
 }
 
 .bar-item {
