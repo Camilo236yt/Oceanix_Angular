@@ -35,6 +35,8 @@
     "aos": "^2.3.4",
     "apexcharts": "^5.3.6",
     "chart.js": "^4.5.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "ng-apexcharts": "^2.0.3",
     "ng2-charts": "^8.0.0",
     "postcss": "^8.5.6",

@@ -1,19 +1,21 @@
-import { Component, OnInit, ViewChild, effect, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { PdfReportModalComponent } from '../pdf-report-modal/pdf-report-modal.component';
 import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-reportes',
-  imports: [CommonModule, FormsModule, BaseChartDirective, IconComponent],
+  imports: [CommonModule, FormsModule, BaseChartDirective, IconComponent, PdfReportModalComponent],
   templateUrl: './reportes.html',
   styleUrl: './reportes.scss',
 })
-export class Reportes implements OnInit {
+export class Reportes implements OnInit, AfterViewInit {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  @ViewChild(PdfReportModalComponent) pdfModal?: PdfReportModalComponent;
   private themeService = inject(ThemeService);
 
   // Estado del collapse
@@ -35,6 +37,10 @@ export class Reportes implements OnInit {
   ngOnInit(): void {
     const isDark = this.themeService.isDark();
     this.initCharts(isDark);
+  }
+
+  ngAfterViewInit() {
+    console.log('PdfModal inicializado en Reportes:', this.pdfModal);
   }
 
   toggleFilters() {
@@ -167,7 +173,13 @@ export class Reportes implements OnInit {
   }
 
   exportarPDF() {
-    console.log('Exportar PDF');
+    console.log('exportarPDF llamado');
+    console.log('pdfModal:', this.pdfModal);
+    if (this.pdfModal) {
+      this.pdfModal.open();
+    } else {
+      console.error('El modal PDF no está inicializado');
+    }
   }
 
   exportarExcel() {
