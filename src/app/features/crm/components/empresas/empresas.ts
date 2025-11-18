@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Company } from '../../models/company.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
+import { EmpresaService } from '../../services/empresa.service';
 
 @Component({
   selector: 'app-empresas',
@@ -12,7 +13,11 @@ import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter
   templateUrl: './empresas.html',
   styleUrl: './empresas.scss',
 })
-export class Empresas {
+export class Empresas implements OnInit {
+  constructor(
+    private empresaService: EmpresaService,
+    private cdr: ChangeDetectorRef
+  ) {}
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -27,9 +32,9 @@ export class Empresas {
 
   tableColumns: TableColumn[] = [
     { key: 'nombreEmpresa', label: 'Nombre Empresa', sortable: true },
-    { key: 'nit', label: 'NIT', sortable: true },
+    { key: 'subdomain', label: 'Subdominio', sortable: true },
     { key: 'correoEmpresarial', label: 'Correo Empresarial', sortable: true },
-    { key: 'direccion', label: 'Dirección', sortable: true },
+    { key: 'telefono', label: 'Teléfono', sortable: true },
     {
       key: 'estado',
       label: 'Estado',
@@ -65,32 +70,24 @@ export class Empresas {
     }
   ];
 
-  companies: Company[] = [
-    {
-      id: '1',
-      nombreEmpresa: 'Empresa A S.A.S.',
-      nit: '900123456-1',
-      correoEmpresarial: 'contacto@empresaa.com',
-      direccion: 'Calle 123 #45-67',
-      estado: 'Activo'
-    },
-    {
-      id: '2',
-      nombreEmpresa: 'Empresa B Ltda.',
-      nit: '900234567-2',
-      correoEmpresarial: 'info@empresab.com',
-      direccion: 'Carrera 45 #12-34',
-      estado: 'Activo'
-    },
-    {
-      id: '3',
-      nombreEmpresa: 'Empresa C S.A.',
-      nit: '900345678-3',
-      correoEmpresarial: 'contacto@empresac.com',
-      direccion: 'Avenida 89 #23-45',
-      estado: 'Inactivo'
-    }
-  ];
+  companies: Company[] = [];
+
+  ngOnInit() {
+    this.loadEmpresas();
+  }
+
+  loadEmpresas() {
+    this.empresaService.getEmpresas().subscribe({
+      next: (data) => {
+        console.log('Empresas cargadas:', data);
+        this.companies = [...data]; // Create new array reference
+        this.cdr.detectChanges(); // Force change detection
+      },
+      error: (error) => {
+        console.error('Error al cargar empresas:', error);
+      }
+    });
+  }
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);

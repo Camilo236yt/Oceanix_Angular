@@ -1,9 +1,9 @@
 export interface Company {
   id: string;
   nombreEmpresa: string;
-  nit: string;
+  subdomain: string;
   correoEmpresarial: string;
-  direccion: string;
+  telefono: string;
   estado: string;
 }
 
