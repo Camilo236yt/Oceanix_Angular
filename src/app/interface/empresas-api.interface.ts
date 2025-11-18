@@ -40,6 +40,16 @@ export interface UserData {
   isLegalRepresentative: boolean;
   createdAt: string;
   updatedAt: string;
+  roles?: UserRoleRelation[];
+}
+
+export interface UserRoleRelation {
+  id: string;
+  userId: string;
+  roleId: string;
+  role: RoleData;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RoleData {

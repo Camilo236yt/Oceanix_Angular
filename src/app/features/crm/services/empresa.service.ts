@@ -28,6 +28,15 @@ export class EmpresaService {
     );
   }
 
+  // GET single enterprise by ID with relations
+  getEmpresaById(empresaId: string): Observable<EmpresaData> {
+    return this.http.get<{ success: boolean; data: EmpresaData }>(`${this.apiUrl}/${empresaId}?includeRelations=true`, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
+
   // Data transformation - converts API response to UI model
   private transformEmpresas(empresasData: EmpresaData[]): Company[] {
     if (!empresasData || !Array.isArray(empresasData)) {
