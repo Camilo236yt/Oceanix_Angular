@@ -7,12 +7,13 @@ import { Company } from '../../models/company.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { EmpresaService } from '../../services/empresa.service';
 import { ViewCompanyModalComponent } from '../../../../shared/components/view-company-modal/view-company-modal';
-import { EmpresaData } from '../../../../interface/empresas-api.interface';
+import { CreateCompanyModalComponent } from '../../../../shared/components/create-company-modal/create-company-modal';
+import { EmpresaData, CreateEmpresaRequest, UpdateEmpresaRequest } from '../../../../interface/empresas-api.interface';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-empresas',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewCompanyModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewCompanyModalComponent, CreateCompanyModalComponent],
   templateUrl: './empresas.html',
   styleUrl: './empresas.scss',
 })
@@ -83,6 +84,12 @@ export class Empresas implements OnInit {
   // View company modal state
   isViewCompanyModalOpen = false;
   viewingCompanyData: EmpresaData | null = null;
+
+  // Create company modal state
+  isCreateCompanyModalOpen = false;
+  isEditMode = false;
+  editingCompanyId: string | null = null;
+  editingCompanyData: CreateEmpresaRequest | null = null;
 
   ngOnInit() {
     this.loadEmpresas();
@@ -160,15 +167,205 @@ export class Empresas implements OnInit {
   }
 
   editCompany(company: Company) {
-    console.log('Editar empresa:', company);
+    // Set edit mode data
+    this.isEditMode = true;
+    this.editingCompanyId = company.id;
+    this.editingCompanyData = {
+      name: company.nombreEmpresa,
+      subdomain: company.subdomain,
+      email: company.correoEmpresarial,
+      phone: company.telefono
+    };
+
+    // Force change detection
+    this.cdr.detectChanges();
+
+    // Open modal with a small delay to ensure data is set
+    setTimeout(() => {
+      this.isCreateCompanyModalOpen = true;
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   deleteCompany(company: Company) {
-    console.log('Eliminar empresa:', company);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar la empresa "${company.nombreEmpresa}"? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Eliminando empresa...',
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Call API to delete empresa
+        this.empresaService.deleteEmpresa(company.id).subscribe({
+          next: () => {
+            Swal.close();
+
+            // Show success message
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Empresa eliminada exitosamente',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+
+            // Reload empresas list
+            this.loadEmpresas();
+          },
+          error: (error: any) => {
+            console.error('Error al eliminar empresa:', error);
+
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Error al eliminar la empresa',
+              text: error.error?.message || 'No se pudo eliminar la empresa',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+          }
+        });
+      }
+    });
   }
 
   createNewCompany() {
-    console.log('Crear nueva empresa');
+    this.isEditMode = false;
+    this.editingCompanyId = null;
+    this.editingCompanyData = null;
+    this.isCreateCompanyModalOpen = true;
+  }
+
+  closeCreateCompanyModal() {
+    this.isCreateCompanyModalOpen = false;
+    this.isEditMode = false;
+    this.editingCompanyId = null;
+    this.editingCompanyData = null;
+  }
+
+  handleCreateCompany(empresaData: CreateEmpresaRequest) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Creando empresa...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Call API to create empresa
+    this.empresaService.createEmpresa(empresaData).subscribe({
+      next: () => {
+        Swal.close();
+
+        // Show success message
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Empresa creada exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+
+        // Close modal
+        this.closeCreateCompanyModal();
+
+        // Reload empresas list
+        this.loadEmpresas();
+      },
+      error: (error: any) => {
+        console.error('Error al crear empresa:', error);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al crear la empresa',
+          text: error.error?.message || 'No se pudo crear la empresa',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  handleUpdateCompany(event: { id: string; data: UpdateEmpresaRequest }) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Actualizando empresa...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Call API to update empresa
+    this.empresaService.updateEmpresa(event.id, event.data).subscribe({
+      next: () => {
+        Swal.close();
+
+        // Show success message
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Empresa actualizada exitosamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+
+        // Close modal
+        this.closeCreateCompanyModal();
+
+        // Reload empresas list
+        this.loadEmpresas();
+      },
+      error: (error: any) => {
+        console.error('Error al actualizar empresa:', error);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al actualizar la empresa',
+          text: error.error?.message || 'No se pudo actualizar la empresa',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   onFilterChange(filterData: SearchFilterData) {

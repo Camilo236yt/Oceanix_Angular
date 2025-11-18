@@ -62,3 +62,29 @@ export interface RoleData {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateEmpresaRequest {
+  name: string;
+  subdomain: string;
+  email: string;
+  phone: string;
+}
+
+export interface CreateEmpresaResponse {
+  success: boolean;
+  data: EmpresaData;
+  statusCode: number;
+}
+
+export interface UpdateEmpresaRequest {
+  name: string;
+  subdomain: string;
+  email: string;
+  phone: string;
+}
+
+export interface UpdateEmpresaResponse {
+  success: boolean;
+  data: EmpresaData;
+  statusCode: number;
+}

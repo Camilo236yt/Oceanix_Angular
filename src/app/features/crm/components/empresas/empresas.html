@@ -37,3 +37,14 @@
   [companyData]="viewingCompanyData"
   (onClose)="closeViewCompanyModal()">
 </app-view-company-modal>
+
+<!-- Create/Edit Company Modal -->
+<app-create-company-modal
+  [isOpen]="isCreateCompanyModalOpen"
+  [isEditMode]="isEditMode"
+  [companyId]="editingCompanyId"
+  [initialData]="editingCompanyData"
+  (onClose)="closeCreateCompanyModal()"
+  (onCreate)="handleCreateCompany($event)"
+  (onUpdate)="handleUpdateCompany($event)">
+</app-create-company-modal>

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Company } from '../models/company.model';
-import { EmpresasApiResponse, EmpresaData } from '../../../interface/empresas-api.interface';
+import { EmpresasApiResponse, EmpresaData, CreateEmpresaRequest, CreateEmpresaResponse, UpdateEmpresaRequest, UpdateEmpresaResponse } from '../../../interface/empresas-api.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +35,31 @@ export class EmpresaService {
     }).pipe(
       map(response => response.data)
     );
+  }
+
+  // POST create new enterprise
+  createEmpresa(empresaData: CreateEmpresaRequest): Observable<EmpresaData> {
+    return this.http.post<CreateEmpresaResponse>(this.apiUrl, empresaData, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  // PATCH update enterprise by ID
+  updateEmpresa(empresaId: string, empresaData: UpdateEmpresaRequest): Observable<EmpresaData> {
+    return this.http.patch<UpdateEmpresaResponse>(`${this.apiUrl}/${empresaId}`, empresaData, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  // DELETE enterprise by ID
+  deleteEmpresa(empresaId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${empresaId}`, {
+      withCredentials: true
+    });
   }
 
   // Data transformation - converts API response to UI model
