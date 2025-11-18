@@ -1,0 +1,33 @@
+// Estilos adicionales para animaciones del menú desplegable
+:host ::ng-deep {
+  .dropdown-enter {
+    animation: dropdown-fade-in 0.2s ease-out;
+  }
+}
+
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Mejoras en el hover del botón de menú
+button[aria-label="Opciones de gráfico"] {
+  &:hover {
+    svg {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &:active {
+    svg {
+      transform: scale(0.95);
+    }
+  }
+}

@@ -52,8 +52,30 @@ export class Dashboard implements OnInit {
   barChartOptions!: Partial<BarChartOptions>;
   pieChartOptions!: Partial<PieChartOptions>;
 
+  // Menu visibility states
+  showBarChartMenu = false;
+  showPieChartMenu = false;
+
+  // Chart type options
+  barChartTypes = [
+    { value: 'bar', label: 'Barras Verticales' },
+    { value: 'horizontalBar', label: 'Barras Horizontales' },
+    { value: 'line', label: 'Líneas' },
+    { value: 'area', label: 'Área' }
+  ];
+
+  pieChartTypes = [
+    { value: 'donut', label: 'Dona' },
+    { value: 'pie', label: 'Circular' },
+    { value: 'radialBar', label: 'Radial' }
+  ];
+
+  // Current selected chart types
+  selectedBarChartType = 'bar';
+  selectedPieChartType = 'donut';
+
   private incidenciasService = inject(IncidenciasService);
-  private themeService = inject(ThemeService);
+  public themeService = inject(ThemeService);
 
   constructor() {
     // Efecto para actualizar gráficos cuando cambie el tema
@@ -66,7 +88,53 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadSavedChartPreferences();
     this.loadDashboardData();
+  }
+
+  loadSavedChartPreferences(): void {
+    const savedBarType = localStorage.getItem('dashboard_bar_chart_type');
+    const savedPieType = localStorage.getItem('dashboard_pie_chart_type');
+
+    if (savedBarType) {
+      this.selectedBarChartType = savedBarType;
+    }
+    if (savedPieType) {
+      this.selectedPieChartType = savedPieType;
+    }
+  }
+
+  toggleBarChartMenu(): void {
+    this.showBarChartMenu = !this.showBarChartMenu;
+    if (this.showBarChartMenu) {
+      this.showPieChartMenu = false;
+    }
+  }
+
+  togglePieChartMenu(): void {
+    this.showPieChartMenu = !this.showPieChartMenu;
+    if (this.showPieChartMenu) {
+      this.showBarChartMenu = false;
+    }
+  }
+
+  changeBarChartType(type: string): void {
+    this.selectedBarChartType = type;
+    localStorage.setItem('dashboard_bar_chart_type', type);
+    this.showBarChartMenu = false;
+    this.initBarChart();
+  }
+
+  changePieChartType(type: string): void {
+    this.selectedPieChartType = type;
+    localStorage.setItem('dashboard_pie_chart_type', type);
+    this.showPieChartMenu = false;
+    this.initPieChart();
+  }
+
+  closeMenus(): void {
+    this.showBarChartMenu = false;
+    this.showPieChartMenu = false;
   }
 
   loadDashboardData(): void {
@@ -84,13 +152,13 @@ export class Dashboard implements OnInit {
     const seriesData = this.dashboardData.incidenciasPorTipo.map(item => item.cantidad);
     const isDark = this.themeService.isDark();
 
-    this.barChartOptions = {
+    // Configuración base común
+    const baseConfig: any = {
       series: [{
         name: 'Incidencias',
         data: seriesData
       }],
       chart: {
-        type: 'bar',
         height: 320,
         width: '100%',
         toolbar: {
@@ -99,34 +167,8 @@ export class Dashboard implements OnInit {
         background: 'transparent',
         foreColor: isDark ? '#CBD5E1' : '#6B7280'
       },
-      plotOptions: {
-        bar: {
-          borderRadius: 8,
-          columnWidth: '50%',
-        }
-      },
       dataLabels: {
         enabled: false
-      },
-      xaxis: {
-        categories: categories,
-        labels: {
-          style: {
-            fontSize: '12px',
-            colors: isDark ? '#CBD5E1' : '#6B7280'
-          },
-          rotate: -45,
-          rotateAlways: false
-        },
-        axisBorder: {
-          color: isDark ? '#334155' : '#E5E7EB'
-        },
-        axisTicks: {
-          color: isDark ? '#334155' : '#E5E7EB'
-        }
-      },
-      fill: {
-        opacity: 1
       },
       colors: ['#7c3aed'],
       responsive: [
@@ -135,20 +177,159 @@ export class Dashboard implements OnInit {
           options: {
             chart: {
               height: 256
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  fontSize: '10px'
-                },
-                rotate: -45,
-                rotateAlways: true
-              }
             }
           }
         }
       ]
     };
+
+    // Configuración específica según el tipo de gráfico
+    switch (this.selectedBarChartType) {
+      case 'bar':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'bar'
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 8,
+              columnWidth: '50%',
+            }
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '12px',
+                colors: isDark ? '#CBD5E1' : '#6B7280'
+              },
+              rotate: -45,
+              rotateAlways: false
+            },
+            axisBorder: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            },
+            axisTicks: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            }
+          },
+          fill: {
+            opacity: 1
+          }
+        };
+        break;
+
+      case 'horizontalBar':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'bar'
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 8,
+              horizontal: true,
+              barHeight: '60%'
+            }
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '12px',
+                colors: isDark ? '#CBD5E1' : '#6B7280'
+              }
+            },
+            axisBorder: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            }
+          },
+          fill: {
+            opacity: 1
+          }
+        };
+        break;
+
+      case 'line':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'line'
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 3
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '12px',
+                colors: isDark ? '#CBD5E1' : '#6B7280'
+              },
+              rotate: -45,
+              rotateAlways: false
+            },
+            axisBorder: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            },
+            axisTicks: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            }
+          },
+          markers: {
+            size: 5,
+            hover: {
+              size: 7
+            }
+          }
+        };
+        break;
+
+      case 'area':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'area'
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 2
+          },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.7,
+              opacityTo: 0.3,
+              stops: [0, 90, 100]
+            }
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '12px',
+                colors: isDark ? '#CBD5E1' : '#6B7280'
+              },
+              rotate: -45,
+              rotateAlways: false
+            },
+            axisBorder: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            },
+            axisTicks: {
+              color: isDark ? '#334155' : '#E5E7EB'
+            }
+          }
+        };
+        break;
+    }
   }
 
   initPieChart(): void {
@@ -159,10 +340,10 @@ export class Dashboard implements OnInit {
     const colors = this.dashboardData.estadoIncidencias.map(item => item.color);
     const isDark = this.themeService.isDark();
 
-    this.pieChartOptions = {
+    // Configuración base común
+    const baseConfig: any = {
       series: series,
       chart: {
-        type: 'donut',
         height: 320,
         background: 'transparent',
         foreColor: isDark ? '#CBD5E1' : '#6B7280'
@@ -184,16 +365,6 @@ export class Dashboard implements OnInit {
           colors: ['#FFFFFF']
         }
       },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '65%',
-            labels: {
-              show: false
-            }
-          }
-        }
-      },
       responsive: [
         {
           breakpoint: 768,
@@ -208,18 +379,144 @@ export class Dashboard implements OnInit {
           options: {
             chart: {
               height: 240
-            },
-            plotOptions: {
-              pie: {
-                donut: {
-                  size: '60%'
-                }
-              }
             }
           }
         }
       ]
     };
+
+    // Configuración específica según el tipo de gráfico
+    switch (this.selectedPieChartType) {
+      case 'donut':
+        this.pieChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'donut'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '65%',
+                labels: {
+                  show: false
+                }
+              }
+            }
+          }
+        };
+        break;
+
+      case 'pie':
+        this.pieChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'pie'
+          },
+          plotOptions: {
+            pie: {
+              expandOnClick: true
+            }
+          }
+        };
+        break;
+
+      case 'radialBar':
+        this.pieChartOptions = {
+          series: series,
+          chart: {
+            height: 320,
+            type: 'radialBar',
+            background: 'transparent',
+            foreColor: isDark ? '#CBD5E1' : '#6B7280'
+          },
+          plotOptions: {
+            radialBar: {
+              offsetY: -10,
+              startAngle: -135,
+              endAngle: 135,
+              hollow: {
+                margin: 0,
+                size: '50%',
+                background: 'transparent',
+              },
+              track: {
+                background: isDark ? '#1e293b' : '#f1f5f9',
+                strokeWidth: '100%',
+                margin: 8,
+              },
+              dataLabels: {
+                name: {
+                  show: false
+                },
+                value: {
+                  show: false
+                },
+                total: {
+                  show: false
+                }
+              }
+            }
+          },
+          colors: colors,
+          labels: labels,
+          legend: {
+            show: true,
+            floating: false,
+            fontSize: '11px',
+            position: 'bottom',
+            offsetX: 0,
+            offsetY: 0,
+            labels: {
+              useSeriesColors: true,
+              colors: isDark ? '#CBD5E1' : '#6B7280'
+            },
+            formatter: function(seriesName: string, opts: any) {
+              return seriesName + ": " + opts.w.globals.series[opts.seriesIndex].toFixed(0) + '%';
+            },
+            itemMargin: {
+              horizontal: 8,
+              vertical: 2
+            }
+          },
+          responsive: [
+            {
+              breakpoint: 768,
+              options: {
+                chart: {
+                  height: 280
+                },
+                plotOptions: {
+                  radialBar: {
+                    offsetY: -5
+                  }
+                }
+              }
+            },
+            {
+              breakpoint: 480,
+              options: {
+                chart: {
+                  height: 240
+                },
+                plotOptions: {
+                  radialBar: {
+                    offsetY: 0,
+                    hollow: {
+                      size: '45%'
+                    }
+                  }
+                },
+                legend: {
+                  fontSize: '10px'
+                }
+              }
+            }
+          ]
+        };
+        break;
+    }
   }
 
   updateChartsTheme(isDark: boolean): void {

@@ -15,7 +15,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: Login
+    component: Login,
+    canActivate: [authRedirectGuard] // Redirige al dashboard si ya está autenticado
   },
   {
     path: 'register',

@@ -1,6 +1,6 @@
 <!-- Modal Overlay -->
 <div *ngIf="isOpen" class="modal-overlay" (click)="close()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
+  <div class="modal-container" (click)="$event.stopPropagation(); closeMenus()">
     <!-- Botón cerrar flotante -->
     <button class="close-button-floating" (click)="close()" aria-label="Cerrar">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -88,14 +88,67 @@
               </div>
 
               <!-- Incidencias por Tipo -->
-              <div class="section-card chart-card">
-                <div class="section-header">
-                  <div class="icon-badge icon-chart">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                      <path fill="currentColor" d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/>
-                    </svg>
+              <div class="section-card chart-card" style="position: relative;">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="icon-badge icon-chart">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/>
+                      </svg>
+                    </div>
+                    <h3>INCIDENCIAS POR TIPO</h3>
                   </div>
-                  <h3>INCIDENCIAS POR TIPO</h3>
+
+                  <!-- Menu Button -->
+                  <div style="position: relative;">
+                    <button
+                      (click)="toggleBarChartMenu(); $event.stopPropagation()"
+                      style="padding: 0.5rem; cursor: pointer; background: none; border: none; border-radius: 0.5rem; transition: background-color 0.2s;"
+                      onmouseover="this.style.backgroundColor='#f3f4f6'"
+                      onmouseout="this.style.backgroundColor='transparent'"
+                      aria-label="Opciones de gráfico"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" style="height: 1.25rem; width: 1.25rem; color: #6b7280;" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="5" r="2"/>
+                        <circle cx="12" cy="12" r="2"/>
+                        <circle cx="12" cy="19" r="2"/>
+                      </svg>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div *ngIf="showBarChartMenu" style="position: absolute; right: 0; top: 100%; margin-top: 0.5rem; width: 14rem; background-color: white; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; z-index: 50; overflow: hidden;" (click)="$event.stopPropagation()">
+                      <div style="padding: 0.25rem 0;">
+                        <button
+                          *ngFor="let chartType of barChartTypes"
+                          (click)="changeBarChartType(chartType.value)"
+                          style="width: 100%; padding: 0.625rem 1rem; text-align: left; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; background: none; border: none; transition: background-color 0.2s;"
+                          [style.background-color]="selectedBarChartType === chartType.value ? '#f9fafb' : 'transparent'"
+                          onmouseover="if(this.style.backgroundColor === 'transparent') this.style.backgroundColor='#f3f4f6'"
+                          onmouseout="if(this.getAttribute('data-selected') !== 'true') this.style.backgroundColor='transparent'"
+                          [attr.data-selected]="selectedBarChartType === chartType.value"
+                        >
+                          <!-- Icon for each chart type -->
+                          <svg *ngIf="chartType.value === 'bar'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          <svg *ngIf="chartType.value === 'horizontalBar'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18" />
+                          </svg>
+                          <svg *ngIf="chartType.value === 'line'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                          </svg>
+                          <svg *ngIf="chartType.value === 'area'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+
+                          <span style="font-size: 0.875rem; color: #111827;">{{ chartType.label }}</span>
+                          <svg *ngIf="selectedBarChartType === chartType.value" xmlns="http://www.w3.org/2000/svg" style="height: 1rem; width: 1rem; margin-left: auto; color: #7c3aed;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="apex-chart-container" *ngIf="barChartOptions">
@@ -117,9 +170,61 @@
             <!-- Right Column -->
             <div class="right-column">
               <!-- Mapa / Gráfico Circular -->
-              <div class="section-card donut-card">
-                <div class="section-header-small">
+              <div class="section-card donut-card" style="position: relative;">
+                <div class="section-header-small" style="display: flex; justify-content: space-between; align-items: center;">
                   <h4>DISTRIBUCIÓN DE ESTADOS</h4>
+
+                  <!-- Menu Button -->
+                  <div style="position: relative;">
+                    <button
+                      (click)="togglePieChartMenu(); $event.stopPropagation()"
+                      style="padding: 0.5rem; cursor: pointer; background: none; border: none; border-radius: 0.5rem; transition: background-color 0.2s;"
+                      onmouseover="this.style.backgroundColor='#f3f4f6'"
+                      onmouseout="this.style.backgroundColor='transparent'"
+                      aria-label="Opciones de gráfico"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" style="height: 1.25rem; width: 1.25rem; color: #6b7280;" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="5" r="2"/>
+                        <circle cx="12" cy="12" r="2"/>
+                        <circle cx="12" cy="19" r="2"/>
+                      </svg>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div *ngIf="showPieChartMenu" style="position: absolute; right: 0; top: 100%; margin-top: 0.5rem; width: 14rem; background-color: white; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; z-index: 50; overflow: hidden;" (click)="$event.stopPropagation()">
+                      <div style="padding: 0.25rem 0;">
+                        <button
+                          *ngFor="let chartType of pieChartTypes"
+                          (click)="changePieChartType(chartType.value)"
+                          style="width: 100%; padding: 0.625rem 1rem; text-align: left; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; background: none; border: none; transition: background-color 0.2s;"
+                          [style.background-color]="selectedPieChartType === chartType.value ? '#f9fafb' : 'transparent'"
+                          onmouseover="if(this.style.backgroundColor === 'transparent') this.style.backgroundColor='#f3f4f6'"
+                          onmouseout="if(this.getAttribute('data-selected') !== 'true') this.style.backgroundColor='transparent'"
+                          [attr.data-selected]="selectedPieChartType === chartType.value"
+                        >
+                          <!-- Icon for each chart type -->
+                          <svg *ngIf="chartType.value === 'donut'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="8" stroke-width="2" />
+                            <circle cx="12" cy="12" r="4" stroke-width="2" />
+                          </svg>
+                          <svg *ngIf="chartType.value === 'pie'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                          </svg>
+                          <svg *ngIf="chartType.value === 'radialBar'" style="width: 1.25rem; height: 1.25rem; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke-width="2" stroke-dasharray="10 5" />
+                            <circle cx="12" cy="12" r="6" stroke-width="2" stroke-dasharray="8 4" />
+                            <circle cx="12" cy="12" r="2" stroke-width="2" fill="currentColor" />
+                          </svg>
+
+                          <span style="font-size: 0.875rem; color: #111827;">{{ chartType.label }}</span>
+                          <svg *ngIf="selectedPieChartType === chartType.value" xmlns="http://www.w3.org/2000/svg" style="height: 1rem; width: 1rem; margin-left: auto; color: #7c3aed;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="apex-chart-container-donut" *ngIf="pieChartOptions">

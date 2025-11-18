@@ -59,8 +59,75 @@ export class PdfReportModalComponent implements OnInit {
   barChartOptions: Partial<BarChartOptions> | null = null;
   pieChartOptions: Partial<PieChartOptions> | null = null;
 
+  // Menu visibility states
+  showBarChartMenu = false;
+  showPieChartMenu = false;
+
+  // Chart type options
+  barChartTypes = [
+    { value: 'bar', label: 'Barras Verticales' },
+    { value: 'horizontalBar', label: 'Barras Horizontales' },
+    { value: 'line', label: 'Líneas' },
+    { value: 'area', label: 'Área' }
+  ];
+
+  pieChartTypes = [
+    { value: 'donut', label: 'Dona' },
+    { value: 'pie', label: 'Circular' }
+  ];
+
+  // Current selected chart types
+  selectedBarChartType = 'bar';
+  selectedPieChartType = 'donut';
+
   ngOnInit(): void {
+    this.loadSavedChartPreferences();
     this.loadData();
+  }
+
+  loadSavedChartPreferences(): void {
+    const savedBarType = localStorage.getItem('dashboard_bar_chart_type');
+    const savedPieType = localStorage.getItem('dashboard_pie_chart_type');
+
+    if (savedBarType) {
+      this.selectedBarChartType = savedBarType;
+    }
+    if (savedPieType) {
+      this.selectedPieChartType = savedPieType;
+    }
+  }
+
+  toggleBarChartMenu(): void {
+    this.showBarChartMenu = !this.showBarChartMenu;
+    if (this.showBarChartMenu) {
+      this.showPieChartMenu = false;
+    }
+  }
+
+  togglePieChartMenu(): void {
+    this.showPieChartMenu = !this.showPieChartMenu;
+    if (this.showPieChartMenu) {
+      this.showBarChartMenu = false;
+    }
+  }
+
+  changeBarChartType(type: string): void {
+    this.selectedBarChartType = type;
+    localStorage.setItem('dashboard_bar_chart_type', type);
+    this.showBarChartMenu = false;
+    this.initBarChart();
+  }
+
+  changePieChartType(type: string): void {
+    this.selectedPieChartType = type;
+    localStorage.setItem('dashboard_pie_chart_type', type);
+    this.showPieChartMenu = false;
+    this.initPieChart();
+  }
+
+  closeMenus(): void {
+    this.showBarChartMenu = false;
+    this.showPieChartMenu = false;
   }
 
   loadData(): void {
@@ -82,35 +149,23 @@ export class PdfReportModalComponent implements OnInit {
     const categories = this.dashboardData.incidenciasPorTipo.map((item) => item.tipo);
     const seriesData = this.dashboardData.incidenciasPorTipo.map((item) => item.cantidad);
 
-    this.barChartOptions = {
-      series: [
-        {
-          name: 'Incidencias',
-          data: seriesData,
-        },
-      ],
+    // Configuración base común
+    const baseConfig: any = {
+      series: [{
+        name: 'Incidencias',
+        data: seriesData
+      }],
       chart: {
-        type: 'bar',
         height: 260,
         width: '100%',
         toolbar: {
-          show: false,
+          show: false
         },
         background: 'transparent',
         foreColor: '#9CA3AF',
         animations: {
-          enabled: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 4,
-          columnWidth: '45%',
-          distributed: false,
-          dataLabels: {
-            position: 'top',
-          },
-        },
+          enabled: false
+        }
       },
       dataLabels: {
         enabled: true,
@@ -118,40 +173,24 @@ export class PdfReportModalComponent implements OnInit {
         style: {
           fontSize: '11px',
           fontWeight: 'bold',
-          colors: ['#374151'],
+          colors: ['#374151']
         },
         formatter: (val: number) => {
           return val.toString();
-        },
+        }
       },
-      xaxis: {
-        categories: categories,
-        labels: {
-          style: {
-            fontSize: '11px',
-            colors: '#6B7280',
-            fontWeight: 600,
-          },
-          offsetY: 2,
-        },
-        axisBorder: {
-          show: false,
-        },
-        axisTicks: {
-          show: false,
-        },
-      },
+      colors: ['#7c3aed'],
       yaxis: {
         show: true,
         labels: {
           style: {
             fontSize: '9px',
-            colors: '#9CA3AF',
+            colors: '#9CA3AF'
           },
           formatter: (val: number) => {
             return val.toFixed(0);
-          },
-        },
+          }
+        }
       },
       grid: {
         show: true,
@@ -160,27 +199,201 @@ export class PdfReportModalComponent implements OnInit {
         position: 'back',
         xaxis: {
           lines: {
-            show: false,
-          },
+            show: false
+          }
         },
         yaxis: {
           lines: {
-            show: true,
-          },
+            show: true
+          }
         },
         padding: {
           top: 0,
           bottom: 0,
           left: 10,
-          right: 10,
-        },
-      },
-      fill: {
-        opacity: 1,
-        type: 'solid',
-      },
-      colors: ['#7c3aed'], // Color morado
+          right: 10
+        }
+      }
     };
+
+    // Configuración específica según el tipo de gráfico
+    switch (this.selectedBarChartType) {
+      case 'bar':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'bar'
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 4,
+              columnWidth: '45%',
+              dataLabels: {
+                position: 'top'
+              }
+            }
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '11px',
+                colors: '#6B7280',
+                fontWeight: 600
+              },
+              offsetY: 2
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          },
+          fill: {
+            opacity: 1,
+            type: 'solid'
+          }
+        };
+        break;
+
+      case 'horizontalBar':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'bar'
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 4,
+              horizontal: true,
+              barHeight: '50%',
+              dataLabels: {
+                position: 'center'
+              }
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '10px',
+              fontWeight: 'bold',
+              colors: ['#FFFFFF']
+            },
+            formatter: (val: number) => {
+              return val.toString();
+            }
+          },
+          xaxis: {
+            labels: {
+              style: {
+                fontSize: '9px',
+                colors: '#6B7280',
+                fontWeight: 600
+              }
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          },
+          yaxis: {
+            labels: {
+              style: {
+                fontSize: '10px',
+                colors: '#6B7280',
+                fontWeight: 600
+              }
+            }
+          },
+          fill: {
+            opacity: 1,
+            type: 'solid'
+          }
+        };
+        break;
+
+      case 'line':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'line'
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 3
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '11px',
+                colors: '#6B7280',
+                fontWeight: 600
+              },
+              offsetY: 2
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          },
+          markers: {
+            size: 5,
+            hover: {
+              size: 7
+            }
+          }
+        };
+        break;
+
+      case 'area':
+        this.barChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'area'
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 2
+          },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.7,
+              opacityTo: 0.3,
+              stops: [0, 90, 100]
+            }
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                fontSize: '11px',
+                colors: '#6B7280',
+                fontWeight: 600
+              },
+              offsetY: 2
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          }
+        };
+        break;
+    }
   }
 
   initPieChart(): void {
@@ -190,16 +403,16 @@ export class PdfReportModalComponent implements OnInit {
     const series = this.dashboardData.estadoIncidencias.map((item) => item.porcentaje);
     const colors = this.dashboardData.estadoIncidencias.map((item) => item.color);
 
-    this.pieChartOptions = {
+    // Configuración base común
+    const baseConfig: any = {
       series: series,
       chart: {
-        type: 'donut',
         height: 170,
         background: 'transparent',
         foreColor: '#6B7280',
         animations: {
-          enabled: false,
-        },
+          enabled: false
+        }
       },
       labels: labels,
       colors: colors,
@@ -209,17 +422,17 @@ export class PdfReportModalComponent implements OnInit {
         fontSize: '7px',
         fontWeight: 600,
         markers: {
-          strokeWidth: 0,
+          strokeWidth: 0
         },
         itemMargin: {
           horizontal: 5,
-          vertical: 2,
+          vertical: 2
         },
         labels: {
-          colors: '#374151',
+          colors: '#374151'
         },
         offsetY: 5,
-        floating: false,
+        floating: false
       },
       dataLabels: {
         enabled: true,
@@ -229,24 +442,52 @@ export class PdfReportModalComponent implements OnInit {
         style: {
           fontSize: '7px',
           fontWeight: 'bold',
-          colors: ['#FFFFFF'],
+          colors: ['#FFFFFF']
         },
         dropShadow: {
-          enabled: false,
-        },
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '45%',
-            labels: {
-              show: false,
-            },
-          },
-          expandOnClick: false,
-        },
-      },
+          enabled: false
+        }
+      }
     };
+
+    // Configuración específica según el tipo de gráfico
+    switch (this.selectedPieChartType) {
+      case 'donut':
+        this.pieChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'donut'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '45%',
+                labels: {
+                  show: false
+                }
+              },
+              expandOnClick: false
+            }
+          }
+        };
+        break;
+
+      case 'pie':
+        this.pieChartOptions = {
+          ...baseConfig,
+          chart: {
+            ...baseConfig.chart,
+            type: 'pie'
+          },
+          plotOptions: {
+            pie: {
+              expandOnClick: false
+            }
+          }
+        };
+        break;
+    }
   }
 
   open(): void {
