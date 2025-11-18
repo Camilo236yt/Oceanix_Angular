@@ -79,8 +79,14 @@ export class Login implements OnInit {
       next: (response: LoginResponse) => {
         this.isLoading = false;
         if (response.success) {
-          // Redirigir al dashboard del CRM
-          this.authService.redirectToSubdomain(response.data.enterprise.subdomain);
+          // Verificar si hay empresa y subdomain en la respuesta
+          if (response.data?.enterprise?.subdomain) {
+            // Si tenemos subdomain, redirigir con el subdomain
+            this.authService.redirectToSubdomain(response.data.enterprise.subdomain);
+          } else {
+            // Si no hay subdomain, redirigir directamente al dashboard
+            this.router.navigate(['/crm/dashboard']);
+          }
         }
       },
       error: (error: HttpErrorResponse) => {
