@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject, effect } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { IncidenciasService } from '../../services/incidencias';
@@ -48,7 +48,7 @@ export class Dashboard implements OnInit {
   @ViewChild('barChart') barChart!: ChartComponent;
   @ViewChild('pieChart') pieChart!: ChartComponent;
 
-  dashboardData?: DashboardData;
+  dashboardData = signal<DashboardData | null>(null);
   barChartOptions!: Partial<BarChartOptions>;
   pieChartOptions!: Partial<PieChartOptions>;
 
@@ -81,7 +81,7 @@ export class Dashboard implements OnInit {
     // Efecto para actualizar gráficos cuando cambie el tema
     effect(() => {
       const isDark = this.themeService.isDark();
-      if (this.dashboardData) {
+      if (this.dashboardData()) {
         this.updateChartsTheme(isDark);
       }
     });
@@ -138,18 +138,24 @@ export class Dashboard implements OnInit {
   }
 
   loadDashboardData(): void {
-    this.incidenciasService.getDashboardData().subscribe(data => {
-      this.dashboardData = data;
-      this.initBarChart();
-      this.initPieChart();
+    this.incidenciasService.getDashboardData().subscribe({
+      next: (data) => {
+        this.dashboardData.set(data);
+        this.initBarChart();
+        this.initPieChart();
+      },
+      error: (error) => {
+        console.error('Error al cargar datos del dashboard:', error);
+      }
     });
   }
 
   initBarChart(): void {
-    if (!this.dashboardData) return;
+    const data = this.dashboardData();
+    if (!data) return;
 
-    const categories = this.dashboardData.incidenciasPorTipo.map(item => item.tipo);
-    const seriesData = this.dashboardData.incidenciasPorTipo.map(item => item.cantidad);
+    const categories = data.incidenciasPorTipo.map(item => item.tipo);
+    const seriesData = data.incidenciasPorTipo.map(item => item.cantidad);
     const isDark = this.themeService.isDark();
 
     // Configuración base común
@@ -333,11 +339,12 @@ export class Dashboard implements OnInit {
   }
 
   initPieChart(): void {
-    if (!this.dashboardData) return;
+    const data = this.dashboardData();
+    if (!data) return;
 
-    const labels = this.dashboardData.estadoIncidencias.map(item => item.estado);
-    const series = this.dashboardData.estadoIncidencias.map(item => item.porcentaje);
-    const colors = this.dashboardData.estadoIncidencias.map(item => item.color);
+    const labels = data.estadoIncidencias.map(item => item.estado);
+    const series = data.estadoIncidencias.map(item => item.porcentaje);
+    const colors = data.estadoIncidencias.map(item => item.color);
     const isDark = this.themeService.isDark();
 
     // Configuración base común

@@ -5,7 +5,7 @@
     <p class="text-sm md:text-base text-[var(--text-tertiary)] mt-1">Resumen general del sistema de incidencias</p>
   </div>
 
-  @if (dashboardData) {
+  @if (dashboardData()) {
     <!-- Stats Cards Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
       <!-- Total Incidencias Card -->
@@ -14,11 +14,11 @@
           <div class="flex-1">
             <p class="text-xs md:text-sm text-[var(--text-tertiary)] mb-1">Total Incidencias</p>
             <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-[var(--text-primary)]">
-              {{ dashboardData.stats.totalIncidencias.total }}
+              {{ dashboardData()!.stats.totalIncidencias.total }}
             </h3>
             <p class="text-xs md:text-sm text-green-600 dark:text-green-400 mt-1 md:mt-2 flex items-center gap-1">
               <span>↑</span>
-              {{ dashboardData.stats.totalIncidencias.cambio }}
+              {{ dashboardData()!.stats.totalIncidencias.cambio }}
             </p>
           </div>
           <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center self-end md:self-auto">
@@ -33,11 +33,11 @@
           <div class="flex-1">
             <p class="text-xs md:text-sm text-[var(--text-tertiary)] mb-1">Incidencias Resueltas</p>
             <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-[var(--text-primary)]">
-              {{ dashboardData.stats.incidenciasResueltas.total }}
+              {{ dashboardData()!.stats.incidenciasResueltas.total }}
             </h3>
             <p class="text-xs md:text-sm text-green-600 dark:text-green-400 mt-1 md:mt-2 flex items-center gap-1">
               <span>↑</span>
-              {{ dashboardData.stats.incidenciasResueltas.cambio }}
+              {{ dashboardData()!.stats.incidenciasResueltas.cambio }}
             </p>
           </div>
           <div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center self-end md:self-auto">
@@ -52,7 +52,7 @@
           <div class="flex-1">
             <p class="text-xs md:text-sm text-[var(--text-tertiary)] mb-1">Pendientes</p>
             <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-[var(--text-primary)]">
-              {{ dashboardData.stats.pendientes.total }}
+              {{ dashboardData()!.stats.pendientes.total }}
             </h3>
           </div>
           <div class="w-10 h-10 md:w-12 md:h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center self-end md:self-auto">
@@ -67,11 +67,11 @@
           <div class="flex-1">
             <p class="text-xs md:text-sm text-[var(--text-tertiary)] mb-1">Tiempo Promedio</p>
             <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-[var(--text-primary)]">
-              {{ dashboardData.stats.tiempoPromedio.dias }} días
+              {{ dashboardData()!.stats.tiempoPromedio.dias }} días
             </h3>
             <p class="text-xs md:text-sm text-green-600 dark:text-green-400 mt-1 md:mt-2 flex items-center gap-1">
               <span>↓</span>
-              {{ dashboardData.stats.tiempoPromedio.cambio }}
+              {{ dashboardData()!.stats.tiempoPromedio.cambio }}
             </p>
           </div>
           <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center self-end md:self-auto">
