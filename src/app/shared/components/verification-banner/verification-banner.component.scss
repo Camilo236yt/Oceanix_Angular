@@ -1,0 +1,73 @@
+.verification-banner {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.08);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.12);
+    border-color: rgba(147, 51, 234, 0.3);
+  }
+}
+
+.verification-banner-content {
+  display: flex;
+  align-items: center;
+}
+
+.verification-banner-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.verification-banner-icon {
+  width: 24px;
+  height: 24px;
+  color: #9333ea;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+}
+
+.verification-banner-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b21a8;
+  letter-spacing: -0.01em;
+
+  @media (max-width: 640px) {
+    font-size: 14px;
+  }
+}
+
+.verification-banner-link {
+  color: #7c3aed;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    color: #6d28d9;
+    text-decoration-thickness: 2px;
+    text-shadow: 0 1px 3px rgba(124, 58, 237, 0.3);
+  }
+
+  &:active {
+    color: #5b21b6;
+  }
+
+  &:focus {
+    outline: 2px solid rgba(124, 58, 237, 0.4);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}

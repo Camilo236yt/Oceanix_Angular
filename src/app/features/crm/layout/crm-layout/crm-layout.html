@@ -372,6 +372,9 @@
 
     <!-- Router Outlet - Scrollable Content -->
     <div class="flex-1 overflow-y-auto p-4 lg:p-8" [class.pt-20]="!isMobileMenuOpen" [class.lg:pt-0]="true">
+      <!-- Verification Banner -->
+      <app-verification-banner></app-verification-banner>
+
       <router-outlet />
     </div>
   </main>

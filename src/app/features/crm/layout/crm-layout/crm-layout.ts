@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../services/auth.service';
+import { VerificationBannerComponent } from '../../../../shared/components/verification-banner/verification-banner.component';
 
 interface MenuItem {
   path: string;
@@ -14,7 +15,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
