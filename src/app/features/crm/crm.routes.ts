@@ -6,6 +6,7 @@ import { Usuarios } from './components/usuarios/usuarios';
 import { Empresas } from './components/empresas/empresas';
 import { RolesPermisos } from './components/roles-permisos/roles-permisos';
 import { Reportes } from './components/reportes/reportes';
+import { VerificarCuenta } from './components/verificar-cuenta/verificar-cuenta';
 
 export const CRM_ROUTES: Routes = [
   {
@@ -40,6 +41,10 @@ export const CRM_ROUTES: Routes = [
       {
         path: 'reportes',
         component: Reportes
+      },
+      {
+        path: 'verificar-cuenta',
+        component: VerificarCuenta
       }
     ]
   }
