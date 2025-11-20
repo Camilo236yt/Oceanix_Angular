@@ -43,7 +43,49 @@
                   <h3>ESTADÍSTICAS 2025</h3>
                 </div>
 
-                <div class="stats-content" *ngIf="dashboardData">
+                <div class="stats-content" *ngIf="reporteData() && reporteData()!.estadisticas">
+                  <div class="stat-item-large">
+                    <p class="stat-label">Total de incidencias registradas</p>
+                    <h2 class="stat-value-large">
+                      {{ reporteData()!.estadisticas.totalIncidencias }}
+                    </h2>
+                  </div>
+
+                  <div class="stats-grid-mini">
+                    <div class="mini-stat">
+                      <div class="mini-stat-icon resolved">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path fill="white" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                      </div>
+                      <div class="mini-stat-value">
+                        {{ reporteData()!.estadisticas.resueltas }}
+                      </div>
+                      <div class="mini-stat-label">Resueltas</div>
+                    </div>
+
+                    <div class="mini-stat">
+                      <div class="mini-stat-icon pending">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path fill="white" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10s10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8zm.5-13H11v6l5.2 3.2l.8-1.3l-4.5-2.7V7z"/>
+                        </svg>
+                      </div>
+                      <div class="mini-stat-value">
+                        {{ reporteData()!.estadisticas.pendientes }}
+                      </div>
+                      <div class="mini-stat-label">Pendientes</div>
+                    </div>
+                  </div>
+
+                  <div class="tiempo-promedio">
+                    <div class="tiempo-label">Tiempo promedio de resolución</div>
+                    <div class="tiempo-value">
+                      <span class="numero">{{ reporteData()!.estadisticas.tiempoPromedioResolucion }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stats-content" *ngIf="(!reporteData() || !reporteData()!.estadisticas) && dashboardData">
                   <div class="stat-item-large">
                     <p class="stat-label">Total de incidencias registradas</p>
                     <h2 class="stat-value-large">
@@ -246,7 +288,40 @@
                   <h4>MÉTRICAS CLAVE</h4>
                 </div>
 
-                <div class="metrics-list" *ngIf="dashboardData">
+                <div class="metrics-list" *ngIf="reporteData() && reporteData()!.metricasClave">
+                  <div class="metric-row">
+                    <span class="metric-label">Tasa de resolución</span>
+                    <span class="metric-value success">
+                      {{ reporteData()!.metricasClave.tasaResolucion }}
+                    </span>
+                  </div>
+
+                  <div class="metric-row">
+                    <span class="metric-label">Incidencias críticas</span>
+                    <span class="metric-value critical">
+                      {{ reporteData()!.metricasClave.incidenciasCriticas }}
+                    </span>
+                  </div>
+
+                  <div class="metric-row">
+                    <span class="metric-label">Eficiencia operativa</span>
+                    <span class="metric-value"
+                          [class.success]="reporteData()!.metricasClave.eficienciaOperativa === 'Alta'"
+                          [class.warning]="reporteData()!.metricasClave.eficienciaOperativa === 'Media'"
+                          [class.critical]="reporteData()!.metricasClave.eficienciaOperativa === 'Baja'">
+                      {{ reporteData()!.metricasClave.eficienciaOperativa }}
+                    </span>
+                  </div>
+
+                  <div class="metric-row">
+                    <span class="metric-label">Tendencia mensual</span>
+                    <span class="metric-value">
+                      {{ reporteData()!.metricasClave.tendenciaMensual }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="metrics-list" *ngIf="(!reporteData() || !reporteData()!.metricasClave) && dashboardData">
                   <div class="metric-row">
                     <span class="metric-label">Tasa de resolución</span>
                     <span class="metric-value success">
@@ -285,7 +360,39 @@
                   <h4>INFORMACIÓN DEL REPORTE</h4>
                 </div>
 
-                <div class="info-list">
+                <div class="info-list" *ngIf="reporteData()">
+                  <div class="info-item">
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>
+                    </svg>
+                    <div>
+                      <div class="info-label">Fecha de generación</div>
+                      <div class="info-value">{{ reporteData()!.informacionReporte.fechaGeneracion }}</div>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                    </svg>
+                    <div>
+                      <div class="info-label">Período</div>
+                      <div class="info-value">{{ reporteData()!.informacionReporte.periodo }}</div>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
+                    </svg>
+                    <div>
+                      <div class="info-label">Sistema</div>
+                      <div class="info-value">{{ reporteData()!.informacionReporte.sistema }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-list" *ngIf="!reporteData()">
                   <div class="info-item">
                     <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>

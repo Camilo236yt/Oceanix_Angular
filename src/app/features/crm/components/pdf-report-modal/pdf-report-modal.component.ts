@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IncidenciasService } from '../../services/incidencias';
+import { ReportesService } from '../../services/reportes.service';
 import { PdfExportService } from '../../services/pdf-export.service';
 import { DashboardData } from '../../models/incidencia.interface';
+import { ReporteDataBackend } from '../../models/reporte.interface';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
   ApexAxisChartSeries,
@@ -48,10 +50,12 @@ export type PieChartOptions = {
 })
 export class PdfReportModalComponent implements OnInit {
   private incidenciasService = inject(IncidenciasService);
+  private reportesService = inject(ReportesService);
   private pdfService = inject(PdfExportService);
 
   isOpen = false;
   dashboardData: DashboardData | null = null;
+  reporteData = signal<ReporteDataBackend | null>(null);
   isGenerating = false;
   currentDate = new Date();
 
@@ -83,6 +87,7 @@ export class PdfReportModalComponent implements OnInit {
   ngOnInit(): void {
     this.loadSavedChartPreferences();
     this.loadData();
+    this.loadReportData();
   }
 
   loadSavedChartPreferences(): void {
@@ -140,6 +145,18 @@ export class PdfReportModalComponent implements OnInit {
       error: (error) => {
         console.error('Error loading dashboard data:', error);
       },
+    });
+  }
+
+  loadReportData(): void {
+    this.reportesService.getReportData().subscribe({
+      next: (data) => {
+        this.reporteData.set(data);
+        console.log('Datos del reporte PDF cargados:', data);
+      },
+      error: (error) => {
+        console.error('Error al cargar datos del reporte PDF:', error);
+      }
     });
   }
 

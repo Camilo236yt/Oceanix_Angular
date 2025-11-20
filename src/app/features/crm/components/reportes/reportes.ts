@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, effect, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
@@ -6,7 +6,9 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { PdfReportModalComponent } from '../pdf-report-modal/pdf-report-modal.component';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { IncidenciasService } from '../../services/incidencias';
+import { ReportesService } from '../../services/reportes.service';
 import { DashboardData } from '../../models/incidencia.interface';
+import { ReporteDataBackend } from '../../models/reporte.interface';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -53,6 +55,7 @@ export class Reportes implements OnInit, AfterViewInit {
   @ViewChild(PdfReportModalComponent) pdfModal?: PdfReportModalComponent;
 
   dashboardData?: DashboardData;
+  reporteData = signal<ReporteDataBackend | null>(null);
   barChartOptions!: Partial<BarChartOptions>;
   pieChartOptions!: Partial<PieChartOptions>;
 
@@ -79,6 +82,7 @@ export class Reportes implements OnInit, AfterViewInit {
   selectedPieChartType = 'donut';
 
   private incidenciasService = inject(IncidenciasService);
+  private reportesService = inject(ReportesService);
   public themeService = inject(ThemeService);
 
   // Estado del collapse
@@ -102,6 +106,7 @@ export class Reportes implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadSavedChartPreferences();
     this.loadDashboardData();
+    this.loadReportData();
   }
 
   ngAfterViewInit() {
@@ -162,6 +167,18 @@ export class Reportes implements OnInit, AfterViewInit {
       this.dashboardData = data;
       this.initBarChart();
       this.initPieChart();
+    });
+  }
+
+  loadReportData(): void {
+    this.reportesService.getReportData().subscribe({
+      next: (data) => {
+        this.reporteData.set(data);
+        console.log('Datos del reporte cargados:', data);
+      },
+      error: (error) => {
+        console.error('Error al cargar datos del reporte:', error);
+      }
     });
   }
 
