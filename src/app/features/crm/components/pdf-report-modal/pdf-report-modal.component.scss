@@ -57,10 +57,7 @@
     color: #374151;
   }
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+  svg { width: 16px; height: 16px; }
 }
 
 .modal-body {
@@ -83,7 +80,6 @@
   overflow: hidden;
 }
 
-// PDF Content
 .pdf-content {
   background: white;
   width: 100%;
@@ -97,7 +93,6 @@
   font-size: 10px;
 }
 
-// Header
 .report-header {
   display: flex;
   justify-content: space-between;
@@ -116,34 +111,17 @@
 
 .logo-container {
   flex-shrink: 0;
-
-  .company-logo {
-    height: 40px;
-    width: auto;
-  }
+  .company-logo { height: 40px; width: auto; }
 }
 
-// Main Title
 .main-title {
   margin-bottom: 0.6vh;
   flex-shrink: 0;
 
-  h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: bold;
-    color: #111827;
-  }
-
-  .subtitle-section {
-    margin: 2px 0 0;
-    font-size: 7px;
-    color: #6b7280;
-    font-weight: 500;
-  }
+  h2 { margin: 0; font-size: 18px; font-weight: bold; color: #111827; }
+  .subtitle-section { margin: 2px 0 0; font-size: 7px; color: #6b7280; font-weight: 500; }
 }
 
-// Grid
 .content-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -159,7 +137,6 @@
   overflow: hidden;
 }
 
-// Cards
 .section-card {
   background: white;
   border: 1px solid #e5e7eb;
@@ -170,15 +147,8 @@
   display: flex;
   flex-direction: column;
 
-  &.stats-card {
-    flex: 0 0 auto;
-  }
-
-  &.chart-card {
-    flex: 1;
-    min-height: 320px;
-    padding-bottom: 10px;
-  }
+  &.stats-card { flex: 0 0 auto; }
+  &.chart-card { flex: 1; min-height: 320px; padding-bottom: 10px; }
 }
 
 .section-header {
@@ -190,24 +160,14 @@
   border-bottom: 1px solid #f3f4f6;
   flex-shrink: 0;
 
-  h3 {
-    margin: 0;
-    font-size: 9px;
-    font-weight: bold;
-    color: #374151;
-  }
+  h3 { margin: 0; font-size: 9px; font-weight: bold; color: #374151; }
 }
 
 .section-header-small {
   margin-bottom: 6px;
   flex-shrink: 0;
 
-  h4 {
-    margin: 0;
-    font-size: 8px;
-    font-weight: bold;
-    color: #6b7280;
-  }
+  h4 { margin: 0; font-size: 8px; font-weight: bold; color: #6b7280; }
 }
 
 .icon-badge {
@@ -220,42 +180,21 @@
   color: white;
   flex-shrink: 0;
 
-  svg {
-    width: 12px;
-    height: 12px;
-  }
-
+  svg { width: 12px; height: 12px; }
   &.icon-stats { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
   &.icon-chart { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 }
 
-// Stats
 .stats-content {
   .stat-item-large {
     text-align: center;
     margin-bottom: 6px;
 
-    .stat-label {
-      margin: 0 0 2px;
-      font-size: 7px;
-      color: #6b7280;
-    }
-
-    .stat-value-large {
-      margin: 0;
-      font-size: 28px;
-      font-weight: bold;
-      color: #ef4444;
-      line-height: 1;
-    }
+    .stat-label { margin: 0 0 2px; font-size: 7px; color: #6b7280; }
+    .stat-value-large { margin: 0; font-size: 28px; font-weight: bold; color: #ef4444; line-height: 1; }
   }
 
-  .stats-grid-mini {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
+  .stats-grid-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; }
 
   .mini-stat {
     text-align: center;
@@ -269,27 +208,13 @@
       align-items: center;
       justify-content: center;
 
-      svg {
-        width: 14px;
-        height: 14px;
-      }
-
+      svg { width: 14px; height: 14px; }
       &.resolved { background: #10b981; }
       &.pending { background: #f59e0b; }
     }
 
-    .mini-stat-value {
-      font-size: 16px;
-      font-weight: bold;
-      color: #111827;
-      line-height: 1;
-      margin-bottom: 2px;
-    }
-
-    .mini-stat-label {
-      font-size: 7px;
-      color: #6b7280;
-    }
+    .mini-stat-value { font-size: 16px; font-weight: bold; color: #111827; line-height: 1; margin-bottom: 2px; }
+    .mini-stat-label { font-size: 7px; color: #6b7280; }
   }
 
   .tiempo-promedio {
@@ -298,67 +223,30 @@
     border-radius: 4px;
     text-align: center;
 
-    .tiempo-label {
-      font-size: 7px;
-      color: #6b7280;
-      margin-bottom: 2px;
-    }
-
+    .tiempo-label { font-size: 7px; color: #6b7280; margin-bottom: 2px; }
     .tiempo-value {
-      .numero {
-        font-size: 20px;
-        font-weight: bold;
-        color: #7c3aed;
-      }
-
-      .unidad {
-        font-size: 10px;
-        color: #6b7280;
-        margin-left: 2px;
-      }
+      .numero { font-size: 20px; font-weight: bold; color: #7c3aed; }
+      .unidad { font-size: 10px; color: #6b7280; margin-left: 2px; }
     }
   }
 }
 
-// Charts
-.apex-chart-container {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
+.apex-chart-container { flex: 1; min-height: 0; overflow: hidden; }
 
 .apex-chart-container-donut {
   width: 100%;
   overflow: visible;
   padding-bottom: 10px;
 
-  ::ng-deep .apexcharts-legend-marker {
-    width: 6px !important;
-    height: 6px !important;
-  }
-
-  ::ng-deep .apexcharts-legend-text {
-    font-size: 7px !important;
-  }
+  ::ng-deep .apexcharts-legend-marker { width: 6px !important; height: 6px !important; }
+  ::ng-deep .apexcharts-legend-text { font-size: 7px !important; }
 }
 
-.donut-card {
-  padding: 6px 8px 16px;
-  flex: 0 0 auto;
-  overflow: visible;
-}
+.donut-card { padding: 6px 8px 16px; flex: 0 0 auto; overflow: visible; }
 
-// Metrics
-.metrics-summary {
-  padding: 6px 8px;
-  flex: 0 0 auto;
-}
+.metrics-summary { padding: 6px 8px; flex: 0 0 auto; }
 
-.metrics-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.metrics-list { display: flex; flex-direction: column; gap: 4px; }
 
 .metric-row {
   display: flex;
@@ -370,31 +258,18 @@
   font-size: 7px;
 }
 
-.metric-label {
-  color: #6b7280;
-}
+.metric-label { color: #6b7280; }
 
 .metric-value {
   font-weight: bold;
   color: #111827;
-
   &.success { color: #10b981; }
   &.critical { color: #ef4444; }
 }
 
-// Info
-.info-card {
-  padding: 8px 10px;
-  flex: 1;
-}
+.info-card { padding: 8px 10px; flex: 1; }
 
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  height: 100%;
-  justify-content: space-around;
-}
+.info-list { display: flex; flex-direction: column; gap: 6px; height: 100%; justify-content: space-around; }
 
 .info-item {
   display: flex;
@@ -405,26 +280,10 @@
   align-items: center;
 }
 
-.info-icon {
-  flex-shrink: 0;
-  color: #7c3aed;
-  width: 16px;
-  height: 16px;
-}
+.info-icon { flex-shrink: 0; color: #7c3aed; width: 16px; height: 16px; }
+.info-label { font-size: 6px; color: #6b7280; margin-bottom: 2px; }
+.info-value { font-size: 8px; color: #111827; font-weight: 600; }
 
-.info-label {
-  font-size: 6px;
-  color: #6b7280;
-  margin-bottom: 2px;
-}
-
-.info-value {
-  font-size: 8px;
-  color: #111827;
-  font-weight: 600;
-}
-
-// Footer
 .report-footer {
   margin-top: 6px;
   padding-top: 6px;
@@ -432,11 +291,7 @@
   text-align: center;
   flex-shrink: 0;
 
-  p {
-    margin: 0;
-    font-size: 6px;
-    color: #9ca3af;
-  }
+  p { margin: 0; font-size: 6px; color: #9ca3af; }
 }
 
 .modal-footer {
@@ -449,7 +304,6 @@
   flex-shrink: 0;
 }
 
-// Buttons
 .btn {
   padding: 10px 20px;
   border-radius: 8px;
@@ -462,331 +316,28 @@
   align-items: center;
   gap: 8px;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &.btn-secondary {
     background: white;
     color: #374151;
     border: 1px solid #d1d5db;
-
-    &:hover:not(:disabled) {
-      background: #f9fafb;
-      border-color: #9ca3af;
-    }
+    &:hover:not(:disabled) { background: #f9fafb; border-color: #9ca3af; }
   }
 
   &.btn-primary {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
     color: white;
     box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
-
-    &:hover:not(:disabled) {
-      box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
-      transform: translateY(-1px);
-    }
-  }
-}
-
-// Responsive - Solo ajustes de tamaño del contenedor
-@media screen and (max-width: 1024px) {
-  .modal-container {
-    width: 95vw;
-    max-width: 95vw;
+    &:hover:not(:disabled) { box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3); transform: translateY(-1px); }
   }
 }
 
 @media screen and (max-width: 768px) {
-  .modal-container {
-    width: 100%;
-    max-width: 100%;
-    height: 100vh;
-    border-radius: 0;
-  }
-
-  .modal-overlay {
-    padding: 0;
-  }
-
-  .modal-body {
-    padding: 8px;
-  }
-
-  .pdf-preview-container {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .pdf-content {
-    overflow: visible;
-    height: auto;
-    padding: 12px 10px;
-    font-size: 11px;
-  }
-
-  // Header mobile
-  .report-header {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-  }
-
-  .logo-container .company-logo {
-    height: 36px;
-  }
-
-  // Título mobile
-  .main-title {
-    margin-bottom: 10px;
-
-    h2 {
-      font-size: 16px;
-    }
-
-    .subtitle-section {
-      font-size: 8px;
-    }
-  }
-
-  // Grid mobile
-  .content-grid {
-    gap: 10px;
-  }
-
-  .left-column,
-  .right-column {
-    gap: 10px;
-  }
-
-  // Cards mobile
-  .section-card {
-    padding: 10px;
-    border-radius: 8px;
-
-    &.stats-card {
-      padding: 12px;
-    }
-
-    &.chart-card {
-      min-height: 280px;
-      padding: 10px;
-    }
-  }
-
-  // Headers de sección mobile
-  .section-header {
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-
-    h3 {
-      font-size: 10px;
-    }
-  }
-
-  .section-header-small {
-    margin-bottom: 8px;
-
-    h4 {
-      font-size: 9px;
-    }
-  }
-
-  .icon-badge {
-    width: 24px;
-    height: 24px;
-
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-
-  // Stats mobile
-  .stats-content {
-    .stat-item-large {
-      margin-bottom: 10px;
-
-      .stat-label {
-        font-size: 8px;
-        margin-bottom: 4px;
-      }
-
-      .stat-value-large {
-        font-size: 32px;
-      }
-    }
-
-    .stats-grid-mini {
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .mini-stat {
-      padding: 8px;
-
-      .mini-stat-icon {
-        width: 28px;
-        height: 28px;
-        margin-bottom: 4px;
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
-      }
-
-      .mini-stat-value {
-        font-size: 18px;
-        margin-bottom: 3px;
-      }
-
-      .mini-stat-label {
-        font-size: 8px;
-      }
-    }
-
-    .tiempo-promedio {
-      padding: 10px;
-
-      .tiempo-label {
-        font-size: 8px;
-        margin-bottom: 3px;
-      }
-
-      .tiempo-value {
-        .numero {
-          font-size: 22px;
-        }
-
-        .unidad {
-          font-size: 11px;
-        }
-      }
-    }
-  }
-
-  // Charts mobile
-  .apex-chart-container {
-    min-height: 240px;
-  }
-
-  .apex-chart-container-donut {
-    padding-bottom: 12px;
-
-    ::ng-deep .apexcharts-legend-text {
-      font-size: 9px !important;
-    }
-  }
-
-  .donut-card {
-    padding: 10px;
-  }
-
-  // Métricas mobile
-  .metrics-summary {
-    padding: 10px;
-  }
-
-  .metrics-list {
-    gap: 6px;
-  }
-
-  .metric-row {
-    padding: 8px 10px;
-    border-radius: 5px;
-    font-size: 8px;
-  }
-
-  .metric-label {
-    font-size: 8px;
-  }
-
-  .metric-value {
-    font-size: 9px;
-  }
-
-  // Info mobile
-  .info-card {
-    padding: 10px;
-  }
-
-  .info-list {
-    gap: 8px;
-  }
-
-  .info-item {
-    padding: 8px 10px;
-    gap: 10px;
-    border-radius: 5px;
-  }
-
-  .info-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .info-label {
-    font-size: 7px;
-    margin-bottom: 2px;
-  }
-
-  .info-value {
-    font-size: 9px;
-  }
-
-  // Footer mobile
-  .report-footer {
-    margin-top: 10px;
-    padding-top: 8px;
-
-    p {
-      font-size: 8px;
-    }
-  }
-
-  // Modal footer mobile
-  .modal-footer {
-    padding: 12px 16px;
-    gap: 10px;
-  }
-
-  .btn {
-    padding: 12px 20px;
-    font-size: 14px;
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-}
-
-// Small mobile
-@media screen and (max-width: 480px) {
-  .pdf-content {
-    padding: 10px 8px;
-  }
-
-  .section-card {
-    padding: 8px;
-
-    &.stats-card {
-      padding: 10px;
-    }
-  }
-
-  .stats-content {
-    .stat-value-large {
-      font-size: 28px;
-    }
-
-    .mini-stat-value {
-      font-size: 16px;
-    }
-
-    .tiempo-value .numero {
-      font-size: 20px;
-    }
-  }
+  .modal-container { width: 100%; max-width: 100%; height: 100vh; border-radius: 0; }
+  .modal-overlay { padding: 0; }
+  .modal-body { padding: 8px; }
+  .pdf-preview-container { overflow-y: auto; }
+  .pdf-content { overflow: visible; height: auto; padding: 12px 10px; }
+  .section-card.chart-card { min-height: 280px; }
 }
