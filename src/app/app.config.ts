@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, APP_INITIALIZER } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withNavigationErrorHandler } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { catchError, of, tap } from 'rxjs';
@@ -50,7 +50,14 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withNavigationErrorHandler((error) => {
+        // Silenciar errores de navegación cuando un guard bloquea el acceso
+        // Esto previene que el wildcard se active cuando falla un guard
+        console.debug('[Navigation] Navegación bloqueada por guard');
+      })
+    ),
     provideHttpClient(
       withFetch(),
       withInterceptors([httpInterceptor])
