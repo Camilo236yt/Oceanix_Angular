@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, of, catchError } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   RegisterEnterpriseRequest,
@@ -264,6 +264,20 @@ export class AuthService {
           this.setMeData(response.data);
         }
       })
+    );
+  }
+
+  /**
+   * Check if current session is valid by calling /auth/check endpoint
+   * @returns Observable<boolean> - true if session is valid, false otherwise
+   */
+  checkSession(): Observable<boolean> {
+    return this.http.get<{ success: boolean }>(
+      `${this.API_URL}/auth/check`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.success === true),
+      catchError(() => of(false))
     );
   }
 
