@@ -14,7 +14,7 @@ export class ReportesService {
 
   /**
    * Obtiene los datos del reporte desde el backend
-   * Nota: No se envían parámetros de fecha para obtener todos los datos
+   * Sin parámetros de fecha devuelve toda la data histórica
    */
   getReportData(): Observable<ReporteDataBackend> {
     return this.http.get<ReporteApiResponse>(this.apiUrl, {
