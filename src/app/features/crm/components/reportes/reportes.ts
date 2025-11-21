@@ -54,7 +54,7 @@ export class Reportes implements OnInit, AfterViewInit {
   @ViewChild('pieChart') pieChart!: ChartComponent;
   @ViewChild(PdfReportModalComponent) pdfModal?: PdfReportModalComponent;
 
-  dashboardData?: DashboardData;
+  dashboardData = signal<DashboardData | null>(null);
   reporteData = signal<ReporteDataBackend | null>(null);
   barChartOptions!: Partial<BarChartOptions>;
   pieChartOptions!: Partial<PieChartOptions>;
@@ -91,13 +91,12 @@ export class Reportes implements OnInit, AfterViewInit {
   // Filtros
   fechaInicio: string = '';
   fechaFin: string = '';
-  tipoIncidencia: string = 'Todos';
 
   constructor() {
     // Efecto para actualizar gráficos cuando cambie el tema
     effect(() => {
       const isDark = this.themeService.isDark();
-      if (this.dashboardData) {
+      if (this.dashboardData()) {
         this.updateChartsTheme(isDark);
       }
     });
@@ -163,11 +162,57 @@ export class Reportes implements OnInit, AfterViewInit {
   }
 
   loadDashboardData(): void {
-    this.incidenciasService.getDashboardData().subscribe(data => {
-      this.dashboardData = data;
-      this.initBarChart();
-      this.initPieChart();
+    // Cargar datos de las gráficas desde el nuevo endpoint
+    this.reportesService.getChartsData().subscribe({
+      next: (data) => {
+        this.updateChartsWithNewData(data);
+      },
+      error: (error) => {
+        console.error('Error al cargar datos de gráficas:', error);
+      }
     });
+  }
+
+  updateChartsWithNewData(data: any): void {
+    // Transformar los datos del backend al formato que espera dashboardData
+    const total = data.incidenciasPorTipo.perdidas + data.incidenciasPorTipo.retrasos +
+                  data.incidenciasPorTipo.danos + data.incidenciasPorTipo.otros;
+
+    this.dashboardData.set({
+      stats: {
+        totalIncidencias: { total: total, cambio: '' },
+        incidenciasResueltas: { total: data.estadoIncidencias.resueltas.count, cambio: '' },
+        pendientes: { total: data.estadoIncidencias.pendientes.count },
+        tiempoPromedio: { dias: 0, cambio: '' }
+      },
+      incidenciasPorTipo: [
+        { tipo: 'Pérdidas', cantidad: data.incidenciasPorTipo.perdidas },
+        { tipo: 'Retrasos', cantidad: data.incidenciasPorTipo.retrasos },
+        { tipo: 'Daños', cantidad: data.incidenciasPorTipo.danos },
+        { tipo: 'Otros', cantidad: data.incidenciasPorTipo.otros }
+      ],
+      estadoIncidencias: [
+        {
+          estado: 'Resueltas',
+          porcentaje: data.estadoIncidencias.resueltas.percentage,
+          color: '#10b981'
+        },
+        {
+          estado: 'Pendientes',
+          porcentaje: data.estadoIncidencias.pendientes.percentage,
+          color: '#f59e0b'
+        },
+        {
+          estado: 'Críticas',
+          porcentaje: data.estadoIncidencias.criticas.percentage,
+          color: '#ef4444'
+        }
+      ]
+    });
+
+    // Reinicializar los gráficos
+    this.initBarChart();
+    this.initPieChart();
   }
 
   loadReportData(): void {
@@ -183,10 +228,11 @@ export class Reportes implements OnInit, AfterViewInit {
   }
 
   initBarChart(): void {
-    if (!this.dashboardData) return;
+    const data = this.dashboardData();
+    if (!data) return;
 
-    const categories = this.dashboardData.incidenciasPorTipo.map(item => item.tipo);
-    const seriesData = this.dashboardData.incidenciasPorTipo.map(item => item.cantidad);
+    const categories = data.incidenciasPorTipo.map(item => item.tipo);
+    const seriesData = data.incidenciasPorTipo.map(item => item.cantidad);
     const isDark = this.themeService.isDark();
 
     // Configuración base común
@@ -370,11 +416,12 @@ export class Reportes implements OnInit, AfterViewInit {
   }
 
   initPieChart(): void {
-    if (!this.dashboardData) return;
+    const data = this.dashboardData();
+    if (!data) return;
 
-    const labels = this.dashboardData.estadoIncidencias.map(item => item.estado);
-    const series = this.dashboardData.estadoIncidencias.map(item => item.porcentaje);
-    const colors = this.dashboardData.estadoIncidencias.map(item => item.color);
+    const labels = data.estadoIncidencias.map(item => item.estado);
+    const series = data.estadoIncidencias.map(item => item.porcentaje);
+    const colors = data.estadoIncidencias.map(item => item.color);
     const isDark = this.themeService.isDark();
 
     // Configuración base común
@@ -595,18 +642,35 @@ export class Reportes implements OnInit, AfterViewInit {
   }
 
   aplicarFiltros() {
-    console.log('Aplicar filtros:', {
-      fechaInicio: this.fechaInicio,
-      fechaFin: this.fechaFin,
-      tipoIncidencia: this.tipoIncidencia
+    // Aplicar filtros de fecha a las gráficas
+    const startDate = this.fechaInicio || undefined;
+    const endDate = this.fechaFin || undefined;
+
+    this.reportesService.getChartsData(startDate, endDate).subscribe({
+      next: (data) => {
+        this.updateChartsWithNewData(data);
+        console.log('Filtros aplicados:', { startDate, endDate });
+      },
+      error: (error) => {
+        console.error('Error al aplicar filtros:', error);
+      }
     });
   }
 
   limpiarFiltros() {
     this.fechaInicio = '';
     this.fechaFin = '';
-    this.tipoIncidencia = 'Todos';
-    console.log('Filtros limpiados');
+
+    // Recargar los datos sin filtros (toda la data)
+    this.reportesService.getChartsData().subscribe({
+      next: (data) => {
+        this.updateChartsWithNewData(data);
+        console.log('Filtros limpiados - mostrando toda la data');
+      },
+      error: (error) => {
+        console.error('Error al limpiar filtros:', error);
+      }
+    });
   }
 
   exportarPDF() {

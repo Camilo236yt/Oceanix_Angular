@@ -50,4 +50,29 @@ export class ReportesService {
       map(response => response.data)
     );
   }
+
+  /**
+   * Obtiene los datos de las gráficas de reportes
+   * @param startDate - Fecha de inicio en formato YYYY-MM-DD (opcional)
+   * @param endDate - Fecha de fin en formato YYYY-MM-DD (opcional)
+   */
+  getChartsData(startDate?: string, endDate?: string): Observable<any> {
+    const chartsUrl = 'https://backend-dev.oceanix.space/api/v1/reports';
+    const params: string[] = [];
+
+    if (startDate) {
+      params.push(`startDate=${startDate}`);
+    }
+    if (endDate) {
+      params.push(`endDate=${endDate}`);
+    }
+
+    const url = params.length > 0 ? `${chartsUrl}?${params.join('&')}` : chartsUrl;
+
+    return this.http.get<any>(url, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
 }
