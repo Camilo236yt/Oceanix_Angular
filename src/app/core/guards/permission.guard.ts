@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
  * Guard que verifica si el usuario tiene un permiso específico para acceder a una ruta
  * Primero verifica la sesión con el backend, luego verifica el permiso
  * Si NO está autenticado, redirige al login
- * Si NO tiene el permiso, previene el acceso
+ * Si NO tiene el permiso, redirige al dashboard
  *
  * Uso en rutas:
  * {
@@ -35,8 +35,9 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
           return true;
         }
 
-        // Si no tiene el permiso, prevenir acceso
+        // Si no tiene el permiso, redirigir al dashboard
         console.warn(`[PermissionGuard] Acceso denegado. Permiso requerido: ${requiredPermission}`);
+        router.navigate(['/crm/dashboard']);
         return false;
       }),
       catchError(() => {
@@ -51,7 +52,7 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
  * Guard que verifica si el usuario tiene ALGUNO de los permisos especificados
  * Primero verifica la sesión con el backend
  * Si NO está autenticado, redirige al login
- * Si NO tiene ninguno de los permisos, previene el acceso
+ * Si NO tiene ninguno de los permisos, redirige al dashboard
  *
  * Uso en rutas:
  * {
@@ -78,8 +79,9 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
           return true;
         }
 
-        // Si no tiene ninguno de los permisos, prevenir acceso
+        // Si no tiene ninguno de los permisos, redirigir al dashboard
         console.warn(`[PermissionGuard] Acceso denegado. Se requiere al menos uno de: ${requiredPermissions.join(', ')}`);
+        router.navigate(['/crm/dashboard']);
         return false;
       }),
       catchError(() => {
@@ -94,7 +96,7 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
  * Guard que verifica si el usuario tiene TODOS los permisos especificados
  * Primero verifica la sesión con el backend
  * Si NO está autenticado, redirige al login
- * Si NO tiene todos los permisos, previene el acceso
+ * Si NO tiene todos los permisos, redirige al dashboard
  *
  * Uso en rutas:
  * {
@@ -121,8 +123,9 @@ export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateF
           return true;
         }
 
-        // Si no tiene todos los permisos, prevenir acceso
+        // Si no tiene todos los permisos, redirigir al dashboard
         console.warn(`[PermissionGuard] Acceso denegado. Se requieren todos: ${requiredPermissions.join(', ')}`);
+        router.navigate(['/crm/dashboard']);
         return false;
       }),
       catchError(() => {
