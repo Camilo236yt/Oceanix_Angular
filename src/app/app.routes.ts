@@ -10,7 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LandingComponent,
-    canActivate: [authRedirectGuard] // Solo accesible si NO está autenticado
+    canActivate: [mainDomainGuard, authRedirectGuard] // Solo en dominio principal y sin autenticación
   },
   {
     path: 'login',
