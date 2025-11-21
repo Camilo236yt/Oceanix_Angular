@@ -7,17 +7,19 @@ import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { UsuariosService } from '../../services/usuarios.service';
 import { RolesService } from '../../services/roles.service';
+import { AuthService } from '../../../../services/auth.service';
 import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
 import { ViewUserModalComponent } from '../../../../shared/components/view-user-modal/view-user-modal';
 import { CreateUserWithRolesRequest, UpdateUserRequest, RoleOption } from '../../../../shared/models/user-request.model';
 import { UsuarioData } from '../../../../interface/usuarios-api.interface';
+import { HasPermissionDirective } from '../../../../directives/has-permission.directive';
 import Swal from 'sweetalert2';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent, ViewUserModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent, ViewUserModalComponent, HasPermissionDirective],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
@@ -33,9 +35,15 @@ export class Usuarios implements OnInit {
   isViewUserModalOpen = false;
   viewingUserData: UsuarioData | null = null;
 
+  // Permisos para acciones
+  canCreateUser = false;
+  canEditUser = false;
+  canDeleteUser = false;
+
   constructor(
     private usuariosService: UsuariosService,
     private rolesService: RolesService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
   // Configuración de filtros
@@ -107,30 +115,52 @@ export class Usuarios implements OnInit {
     { key: 'actions', label: 'Acciones', type: 'actions', align: 'left' }
   ];
 
-  tableActions: TableAction[] = [
-    {
-      icon: 'eye',
-      label: 'Ver',
-      action: (row) => this.viewUser(row)
-    },
-    {
-      icon: 'pencil',
-      label: 'Editar',
-      action: (row) => this.editUser(row)
-    },
-    {
-      icon: 'trash-2',
-      label: 'Eliminar',
-      action: (row) => this.deleteUser(row),
-      color: 'text-red-600 hover:text-red-700'
-    }
-  ];
+  tableActions: TableAction[] = [];
 
   users: User[] = [];
 
   ngOnInit() {
+    this.loadPermissions();
     this.loadUsuarios();
     this.loadRoles();
+  }
+
+  /**
+   * Carga los permisos del usuario y configura las acciones de la tabla
+   */
+  private loadPermissions(): void {
+    this.canCreateUser = this.authService.hasPermission('create_users');
+    this.canEditUser = this.authService.hasPermission('edit_users');
+    this.canDeleteUser = this.authService.hasPermission('delete_users');
+
+    // Configurar acciones de la tabla según permisos
+    this.tableActions = [];
+
+    // Ver siempre está disponible (si puede ver usuarios, puede ver detalles)
+    this.tableActions.push({
+      icon: 'eye',
+      label: 'Ver',
+      action: (row) => this.viewUser(row)
+    });
+
+    // Editar solo si tiene permiso
+    if (this.canEditUser) {
+      this.tableActions.push({
+        icon: 'pencil',
+        label: 'Editar',
+        action: (row) => this.editUser(row)
+      });
+    }
+
+    // Eliminar solo si tiene permiso
+    if (this.canDeleteUser) {
+      this.tableActions.push({
+        icon: 'trash-2',
+        label: 'Eliminar',
+        action: (row) => this.deleteUser(row),
+        color: 'text-red-600 hover:text-red-700'
+      });
+    }
   }
 
   loadRoles() {

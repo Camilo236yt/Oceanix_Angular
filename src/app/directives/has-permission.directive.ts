@@ -50,17 +50,21 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
     this.subscription?.unsubscribe();
   }
 
+  private hasView = false;
+
   private updateView() {
     const hasPermission = this.requireAll
       ? this.authService.hasAllPermissions(this.permissions)
       : this.authService.hasAnyPermission(this.permissions);
 
-    if (hasPermission) {
+    if (hasPermission && !this.hasView) {
       // Mostrar el elemento
       this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
+      this.hasView = true;
+    } else if (!hasPermission && this.hasView) {
       // Ocultar el elemento
       this.viewContainer.clear();
+      this.hasView = false;
     }
   }
 }

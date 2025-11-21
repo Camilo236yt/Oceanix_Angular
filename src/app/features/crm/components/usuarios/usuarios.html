@@ -6,6 +6,7 @@
       <p class="text-[var(--text-tertiary)] text-xs md:text-sm mt-1">Administra los usuarios y sus roles</p>
     </div>
     <button
+      *hasPermission="'create_users'"
       (click)="createNewUser()"
       class="bg-purple-600 hover:bg-purple-700 text-white px-3 md:px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm flex-shrink-0">
       <app-icon name="plus" class="w-5 h-5"></app-icon>
