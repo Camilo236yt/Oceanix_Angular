@@ -1,10 +1,11 @@
 import { inject } from '@angular/core';
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 /**
  * Guard que verifica si el usuario tiene un permiso específico para acceder a una ruta
- * Si NO tiene el permiso, NO redirige, simplemente previene el acceso
+ * Si NO está autenticado, redirige al login
+ * Si NO tiene el permiso, previene el acceso
  *
  * Uso en rutas:
  * {
@@ -16,6 +17,13 @@ import { AuthService } from '../../services/auth.service';
 export const permissionGuard = (requiredPermission: string): CanActivateFn => {
   return () => {
     const authService = inject(AuthService);
+    const router = inject(Router);
+
+    // Si no está autenticado, redirigir al login
+    if (!authService.isAuthenticated()) {
+      router.navigate(['/login']);
+      return false;
+    }
 
     // Si el usuario tiene el permiso, permitir acceso
     if (authService.hasPermission(requiredPermission)) {
@@ -30,6 +38,8 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
 
 /**
  * Guard que verifica si el usuario tiene ALGUNO de los permisos especificados
+ * Si NO está autenticado, redirige al login
+ * Si NO tiene ninguno de los permisos, previene el acceso
  *
  * Uso en rutas:
  * {
@@ -41,6 +51,13 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
 export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn => {
   return () => {
     const authService = inject(AuthService);
+    const router = inject(Router);
+
+    // Si no está autenticado, redirigir al login
+    if (!authService.isAuthenticated()) {
+      router.navigate(['/login']);
+      return false;
+    }
 
     // Si el usuario tiene al menos uno de los permisos, permitir acceso
     if (authService.hasAnyPermission(requiredPermissions)) {
@@ -55,6 +72,8 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
 
 /**
  * Guard que verifica si el usuario tiene TODOS los permisos especificados
+ * Si NO está autenticado, redirige al login
+ * Si NO tiene todos los permisos, previene el acceso
  *
  * Uso en rutas:
  * {
@@ -66,6 +85,13 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
 export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateFn => {
   return () => {
     const authService = inject(AuthService);
+    const router = inject(Router);
+
+    // Si no está autenticado, redirigir al login
+    if (!authService.isAuthenticated()) {
+      router.navigate(['/login']);
+      return false;
+    }
 
     // Si el usuario tiene todos los permisos, permitir acceso
     if (authService.hasAllPermissions(requiredPermissions)) {

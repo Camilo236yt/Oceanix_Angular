@@ -8,13 +8,11 @@ import { RolesPermisos } from './components/roles-permisos/roles-permisos';
 import { Reportes } from './components/reportes/reportes';
 import { VerificarCuenta } from './components/verificar-cuenta/verificar-cuenta';
 import { permissionGuard, anyPermissionGuard } from '../../core/guards/permission.guard';
-import { authGuard } from '../../core/guards/auth.guard';
 
 export const CRM_ROUTES: Routes = [
   {
     path: '',
     component: CrmLayout,
-    canActivate: [authGuard], // Proteger toda la sección CRM
     children: [
       {
         path: '',
