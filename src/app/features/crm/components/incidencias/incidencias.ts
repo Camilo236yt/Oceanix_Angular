@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Incident } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
+import { IncidenciasService } from '../../services/incidencias.service';
 
 @Component({
   selector: 'app-incidencias',
@@ -12,7 +13,11 @@ import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
-export class Incidencias {
+export class Incidencias implements OnInit {
+  constructor(
+    private incidenciasService: IncidenciasService,
+    private cdr: ChangeDetectorRef
+  ) {}
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -37,8 +42,8 @@ export class Incidencias {
   ];
 
   tableColumns: TableColumn[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'empresa', label: 'Empresa', sortable: true },
+    { key: 'name', label: 'Nombre', sortable: true },
+    { key: 'descripcion', label: 'Descripción', sortable: true },
     { key: 'tipoIncidencia', label: 'Tipo de Incidencia', sortable: true },
     {
       key: 'estado',
@@ -46,17 +51,17 @@ export class Incidencias {
       type: 'badge',
       sortable: true,
       badgeConfig: {
-        'En plazo': {
+        'RESOLVED': {
           color: 'text-green-600 dark:text-green-400',
           bgColor: 'bg-transparent dark:bg-transparent',
           dotColor: 'bg-green-600 dark:bg-green-400'
         },
-        'En riesgo': {
+        'IN_PROGRESS': {
           color: 'text-orange-600 dark:text-orange-400',
           bgColor: 'bg-transparent dark:bg-transparent',
           dotColor: 'bg-orange-600 dark:bg-orange-400'
         },
-        'Fuera de plazo': {
+        'PENDING': {
           color: 'text-red-600 dark:text-red-400',
           bgColor: 'bg-transparent dark:bg-transparent',
           dotColor: 'bg-red-600 dark:bg-red-400'
@@ -82,40 +87,24 @@ export class Incidencias {
     }
   ];
 
-  incidents: Incident[] = [
-    {
-      id: 'INC-001',
-      empresa: 'Empresa A',
-      tipoIncidencia: 'Pérdida',
-      estado: 'En plazo',
-      empleadoAsignado: 'Juan Pérez',
-      fechaCreacion: '14/1/2024'
-    },
-    {
-      id: 'INC-002',
-      empresa: 'Empresa B',
-      tipoIncidencia: 'Retraso',
-      estado: 'En riesgo',
-      empleadoAsignado: 'María García',
-      fechaCreacion: '13/1/2024'
-    },
-    {
-      id: 'INC-003',
-      empresa: 'Empresa C',
-      tipoIncidencia: 'Daño',
-      estado: 'Fuera de plazo',
-      empleadoAsignado: 'Carlos López',
-      fechaCreacion: '9/1/2024'
-    },
-    {
-      id: 'INC-004',
-      empresa: 'Empresa D',
-      tipoIncidencia: 'Otro',
-      estado: 'En plazo',
-      empleadoAsignado: 'Ana Martínez',
-      fechaCreacion: '15/1/2024'
-    }
-  ];
+  incidents: Incident[] = [];
+
+  ngOnInit(): void {
+    this.loadIncidencias();
+  }
+
+  loadIncidencias(): void {
+    this.incidenciasService.getIncidencias().subscribe({
+      next: (data) => {
+        console.log('Incidencias cargadas:', data);
+        this.incidents = [...data];
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al cargar incidencias:', error);
+      }
+    });
+  }
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
