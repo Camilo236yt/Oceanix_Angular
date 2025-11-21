@@ -24,6 +24,15 @@ export class IncidenciasService {
     );
   }
 
+  // GET - Obtener una incidencia por ID
+  getIncidenciaById(incidenciaId: string): Observable<IncidentData> {
+    return this.http.get<{ success: boolean; data: IncidentData }>(`${this.apiUrl}/${incidenciaId}`, {
+      withCredentials: true
+    }).pipe(
+      map(response => response.data)
+    );
+  }
+
   // Transformar datos del backend al modelo del DataTable
   private transformIncidencias(incidenciasData: IncidentData[]): Incident[] {
     if (!incidenciasData || !Array.isArray(incidenciasData)) {

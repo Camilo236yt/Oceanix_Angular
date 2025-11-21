@@ -3,17 +3,23 @@ import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
-import { Incident } from '../../models/incident.model';
+import { Incident, IncidentData } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { IncidenciasService } from '../../services/incidencias.service';
+import { ViewIncidentModalComponent } from '../../../../shared/components/view-incident-modal/view-incident-modal';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [DataTable, IconComponent, SearchFiltersComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewIncidentModalComponent],
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
 export class Incidencias implements OnInit {
+  // View incident modal state
+  isViewIncidentModalOpen = false;
+  viewingIncidentData: IncidentData | null = null;
+
   constructor(
     private incidenciasService: IncidenciasService,
     private cdr: ChangeDetectorRef
@@ -75,6 +81,11 @@ export class Incidencias implements OnInit {
 
   tableActions: TableAction[] = [
     {
+      icon: 'eye',
+      label: 'Ver',
+      action: (row) => this.viewIncident(row)
+    },
+    {
       icon: 'pencil',
       label: 'Editar',
       action: (row) => this.editIncident(row)
@@ -108,6 +119,58 @@ export class Incidencias implements OnInit {
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
+  }
+
+  viewIncident(incident: Incident) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos de la incidencia...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get full incident data from backend
+    this.incidenciasService.getIncidenciaById(incident.id).subscribe({
+      next: (incidentData) => {
+        Swal.close();
+        console.log('Incidencia completa:', incidentData);
+
+        // Set incident data
+        this.viewingIncidentData = incidentData;
+
+        // Force change detection
+        this.cdr.detectChanges();
+
+        // Open modal
+        setTimeout(() => {
+          this.isViewIncidentModalOpen = true;
+          this.cdr.detectChanges();
+        }, 0);
+      },
+      error: (error: any) => {
+        console.error('Error al cargar incidencia:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar la incidencia',
+          text: 'No se pudo cargar la información de la incidencia',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  closeViewIncidentModal() {
+    this.isViewIncidentModalOpen = false;
+    this.viewingIncidentData = null;
   }
 
   editIncident(incident: Incident) {

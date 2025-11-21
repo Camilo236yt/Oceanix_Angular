@@ -30,3 +30,10 @@
     (onActionClick)="handleTableAction($event)">
   </app-data-table>
 </div>
+
+<!-- View Incident Modal -->
+<app-view-incident-modal
+  [isOpen]="isViewIncidentModalOpen"
+  [incidentData]="viewingIncidentData"
+  (onClose)="closeViewIncidentModal()">
+</app-view-incident-modal>
