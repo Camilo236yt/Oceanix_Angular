@@ -490,14 +490,303 @@
   }
 }
 
-// Responsive
+// Responsive - Solo ajustes de tamaño del contenedor
 @media screen and (max-width: 1024px) {
-  .content-grid {
-    grid-template-columns: 1fr;
-    gap: 1vh;
+  .modal-container {
+    width: 95vw;
+    max-width: 95vw;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .modal-container {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-overlay {
+    padding: 0;
+  }
+
+  .modal-body {
+    padding: 8px;
+  }
+
+  .pdf-preview-container {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .pdf-content {
-    padding: 2vw;
+    overflow: visible;
+    height: auto;
+    padding: 12px 10px;
+    font-size: 11px;
+  }
+
+  // Header mobile
+  .report-header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .logo-container .company-logo {
+    height: 36px;
+  }
+
+  // Título mobile
+  .main-title {
+    margin-bottom: 10px;
+
+    h2 {
+      font-size: 16px;
+    }
+
+    .subtitle-section {
+      font-size: 8px;
+    }
+  }
+
+  // Grid mobile
+  .content-grid {
+    gap: 10px;
+  }
+
+  .left-column,
+  .right-column {
+    gap: 10px;
+  }
+
+  // Cards mobile
+  .section-card {
+    padding: 10px;
+    border-radius: 8px;
+
+    &.stats-card {
+      padding: 12px;
+    }
+
+    &.chart-card {
+      min-height: 280px;
+      padding: 10px;
+    }
+  }
+
+  // Headers de sección mobile
+  .section-header {
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+
+    h3 {
+      font-size: 10px;
+    }
+  }
+
+  .section-header-small {
+    margin-bottom: 8px;
+
+    h4 {
+      font-size: 9px;
+    }
+  }
+
+  .icon-badge {
+    width: 24px;
+    height: 24px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Stats mobile
+  .stats-content {
+    .stat-item-large {
+      margin-bottom: 10px;
+
+      .stat-label {
+        font-size: 8px;
+        margin-bottom: 4px;
+      }
+
+      .stat-value-large {
+        font-size: 32px;
+      }
+    }
+
+    .stats-grid-mini {
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mini-stat {
+      padding: 8px;
+
+      .mini-stat-icon {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 4px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .mini-stat-value {
+        font-size: 18px;
+        margin-bottom: 3px;
+      }
+
+      .mini-stat-label {
+        font-size: 8px;
+      }
+    }
+
+    .tiempo-promedio {
+      padding: 10px;
+
+      .tiempo-label {
+        font-size: 8px;
+        margin-bottom: 3px;
+      }
+
+      .tiempo-value {
+        .numero {
+          font-size: 22px;
+        }
+
+        .unidad {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  // Charts mobile
+  .apex-chart-container {
+    min-height: 240px;
+  }
+
+  .apex-chart-container-donut {
+    padding-bottom: 12px;
+
+    ::ng-deep .apexcharts-legend-text {
+      font-size: 9px !important;
+    }
+  }
+
+  .donut-card {
+    padding: 10px;
+  }
+
+  // Métricas mobile
+  .metrics-summary {
+    padding: 10px;
+  }
+
+  .metrics-list {
+    gap: 6px;
+  }
+
+  .metric-row {
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 8px;
+  }
+
+  .metric-label {
+    font-size: 8px;
+  }
+
+  .metric-value {
+    font-size: 9px;
+  }
+
+  // Info mobile
+  .info-card {
+    padding: 10px;
+  }
+
+  .info-list {
+    gap: 8px;
+  }
+
+  .info-item {
+    padding: 8px 10px;
+    gap: 10px;
+    border-radius: 5px;
+  }
+
+  .info-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .info-label {
+    font-size: 7px;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-size: 9px;
+  }
+
+  // Footer mobile
+  .report-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+
+    p {
+      font-size: 8px;
+    }
+  }
+
+  // Modal footer mobile
+  .modal-footer {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Small mobile
+@media screen and (max-width: 480px) {
+  .pdf-content {
+    padding: 10px 8px;
+  }
+
+  .section-card {
+    padding: 8px;
+
+    &.stats-card {
+      padding: 10px;
+    }
+  }
+
+  .stats-content {
+    .stat-value-large {
+      font-size: 28px;
+    }
+
+    .mini-stat-value {
+      font-size: 16px;
+    }
+
+    .tiempo-value .numero {
+      font-size: 20px;
+    }
   }
 }
