@@ -10,6 +10,7 @@ interface MenuItem {
   label: string;
   icon: string;
   permissions: string[]; // Array de permisos requeridos (OR logic)
+  userTypes?: string[]; // Array de userTypes requeridos (OR logic) - opcional
 }
 
 type MobileViewMode = 'icons-only' | 'icons-with-names';
@@ -37,7 +38,7 @@ export class CrmLayout implements OnInit, OnDestroy {
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard', permissions: ['read_dashboard'] },
     { path: '/crm/incidencias', label: 'Incidencias', icon: 'incidencias', permissions: ['view_incidents', 'view_own_incidents'] },
     { path: '/crm/usuarios', label: 'Usuarios', icon: 'usuarios', permissions: ['view_users'] },
-    { path: '/crm/empresas', label: 'Empresas', icon: 'empresas', permissions: ['manage_system'] },
+    { path: '/crm/empresas', label: 'Empresas', icon: 'empresas', permissions: [], userTypes: ['SUPER_ADMIN'] },
     { path: '/crm/roles-permisos', label: 'Roles y Permisos', icon: 'roles', permissions: ['manage_roles', 'manage_permissions'] },
     { path: '/crm/reportes', label: 'Reportes', icon: 'reportes', permissions: ['view_reports'] }
   ];
@@ -71,13 +72,23 @@ export class CrmLayout implements OnInit, OnDestroy {
   }
 
   /**
-   * Filtra los items del menú según los permisos del usuario
-   * Si el usuario tiene al menos uno de los permisos requeridos, muestra el item
+   * Filtra los items del menú según los permisos y userTypes del usuario
+   * Si el usuario tiene al menos uno de los permisos requeridos O uno de los userTypes, muestra el item
    */
   private filterMenuItemsByPermissions(): void {
     this.menuItems = this.allMenuItems.filter(item => {
+      // Si el item requiere userTypes, verificar que el usuario tenga al menos uno
+      if (item.userTypes && item.userTypes.length > 0) {
+        return this.authService.hasAnyUserType(item.userTypes);
+      }
+
       // Si el item requiere permisos, verificar que el usuario tenga al menos uno
-      return this.authService.hasAnyPermission(item.permissions);
+      if (item.permissions && item.permissions.length > 0) {
+        return this.authService.hasAnyPermission(item.permissions);
+      }
+
+      // Si no tiene restricciones, mostrar el item
+      return true;
     });
   }
 
