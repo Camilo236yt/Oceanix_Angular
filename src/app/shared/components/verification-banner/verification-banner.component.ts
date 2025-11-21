@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-verification-banner',
@@ -13,12 +14,31 @@ import { filter } from 'rxjs/operators';
 })
 export class VerificationBannerComponent implements OnInit, OnDestroy {
   // Property to control visibility of the banner
-  showBanner = true;
+  showBanner = false;
   private routerSubscription?: Subscription;
 
-  constructor(private router: Router) {}
+  // Permisos requeridos para ver el banner de verificación
+  private readonly verificationPermissions = [
+    'manage_enterprise_config',
+    'upload_enterprise_documents',
+    'verify_enterprises'
+  ];
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
+    // Verificar si el usuario tiene permisos de verificación
+    const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
+
+    if (!hasVerificationPermission) {
+      // Si no tiene permisos de verificación, no mostrar el banner
+      this.showBanner = false;
+      return;
+    }
+
     // Check initial route
     this.checkRoute(this.router.url);
 
@@ -38,7 +58,10 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   }
 
   private checkRoute(url: string) {
-    // Hide banner if we're on the verification page
-    this.showBanner = !url.includes('/verificar-cuenta');
+    // Verificar si tiene permisos de verificación
+    const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
+
+    // Hide banner if we're on the verification page or don't have permissions
+    this.showBanner = hasVerificationPermission && !url.includes('/verificar-cuenta');
   }
 }
