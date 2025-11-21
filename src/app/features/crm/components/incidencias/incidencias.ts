@@ -7,11 +7,12 @@ import { Incident, IncidentData } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { IncidenciasService } from '../../services/incidencias.service';
 import { ViewIncidentModalComponent } from '../../../../shared/components/view-incident-modal/view-incident-modal';
+import { EditIncidentStatusModalComponent } from '../../../../shared/components/edit-incident-status-modal/edit-incident-status-modal';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewIncidentModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewIncidentModalComponent, EditIncidentStatusModalComponent],
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
@@ -19,6 +20,12 @@ export class Incidencias implements OnInit {
   // View incident modal state
   isViewIncidentModalOpen = false;
   viewingIncidentData: IncidentData | null = null;
+
+  // Edit incident status modal state
+  isEditStatusModalOpen = false;
+  editingIncidentId: string = '';
+  editingIncidentName: string = '';
+  editingIncidentStatus: string = '';
 
   constructor(
     private incidenciasService: IncidenciasService,
@@ -140,17 +147,11 @@ export class Incidencias implements OnInit {
         Swal.close();
         console.log('Incidencia completa:', incidentData);
 
-        // Set incident data
+        // Set incident data and open modal
         this.viewingIncidentData = incidentData;
-
-        // Force change detection
+        this.isViewIncidentModalOpen = true;
+        this.cdr.markForCheck();
         this.cdr.detectChanges();
-
-        // Open modal
-        setTimeout(() => {
-          this.isViewIncidentModalOpen = true;
-          this.cdr.detectChanges();
-        }, 0);
       },
       error: (error: any) => {
         console.error('Error al cargar incidencia:', error);
@@ -174,7 +175,78 @@ export class Incidencias implements OnInit {
   }
 
   editIncident(incident: Incident) {
-    console.log('Editar incidencia:', incident);
+    // Get full incident data to get current status
+    this.incidenciasService.getIncidenciaById(incident.id).subscribe({
+      next: (incidentData) => {
+        this.editingIncidentId = incident.id;
+        this.editingIncidentName = incident.name;
+        this.editingIncidentStatus = incidentData.status;
+        this.isEditStatusModalOpen = true;
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar incidencia:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar la incidencia',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  closeEditStatusModal() {
+    this.isEditStatusModalOpen = false;
+    this.editingIncidentId = '';
+    this.editingIncidentName = '';
+    this.editingIncidentStatus = '';
+  }
+
+  saveIncidentStatus(event: { id: string; status: string }) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Actualizando estado...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    this.incidenciasService.updateIncidenciaStatus(event.id, event.status).subscribe({
+      next: () => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Estado actualizado correctamente',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+        this.closeEditStatusModal();
+        this.loadIncidencias();
+      },
+      error: (error: any) => {
+        console.error('Error al actualizar estado:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al actualizar',
+          text: 'No se pudo actualizar el estado de la incidencia',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   deleteIncident(incident: Incident) {

@@ -1,0 +1,71 @@
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
+       (click)="handleBackdropClick($event)">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md animate-scale-in">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Cambiar Estado</h2>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6">
+        <!-- Incident Name -->
+        <div class="mb-6">
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Incidencia</label>
+          <p class="mt-1 text-sm font-medium text-gray-900">{{ incidentName }}</p>
+        </div>
+
+        <!-- Status Options -->
+        <div class="space-y-3">
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Seleccionar estado</label>
+
+          @for (option of statusOptions; track option.value) {
+            <label class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all"
+                   [class]="selectedStatus === option.value
+                     ? (option.value === 'RESOLVED' ? 'border-emerald-300 bg-emerald-50' :
+                        option.value === 'IN_PROGRESS' ? 'border-amber-300 bg-amber-50' :
+                        'border-rose-300 bg-rose-50')
+                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">
+              <input type="radio"
+                     name="status"
+                     [value]="option.value"
+                     [(ngModel)]="selectedStatus"
+                     class="mt-0.5 w-4 h-4 text-purple-600 focus:ring-purple-500">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full"
+                        [class]="option.value === 'RESOLVED' ? 'bg-emerald-400' :
+                                 option.value === 'IN_PROGRESS' ? 'bg-amber-400' :
+                                 'bg-rose-400'"></span>
+                  <span class="text-sm font-medium text-gray-900">{{ option.label }}</span>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">{{ option.description }}</p>
+              </div>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+        <button (click)="closeModal()"
+                class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button (click)="saveStatus()"
+                [disabled]="!hasChanged"
+                class="px-4 py-2 rounded-md text-sm font-medium text-white transition-colors"
+                [class]="hasChanged ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-300 cursor-not-allowed'">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

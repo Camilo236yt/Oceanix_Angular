@@ -31,3 +31,13 @@
   [incidentData]="viewingIncidentData"
   (onClose)="closeViewIncidentModal()">
 </app-view-incident-modal>
+
+<!-- Edit Incident Status Modal -->
+<app-edit-incident-status-modal
+  [isOpen]="isEditStatusModalOpen"
+  [incidentId]="editingIncidentId"
+  [incidentName]="editingIncidentName"
+  [currentStatus]="editingIncidentStatus"
+  (onClose)="closeEditStatusModal()"
+  (onSave)="saveIncidentStatus($event)">
+</app-edit-incident-status-modal>
