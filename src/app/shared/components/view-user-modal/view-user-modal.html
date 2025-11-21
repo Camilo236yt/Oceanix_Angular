@@ -3,21 +3,21 @@
   <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
        (click)="handleBackdropClick($event)">
     <!-- Modal Container -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden border border-gray-200 dark:border-gray-700 animate-scale-in">
+    <div class="bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden border border-[var(--card-border)] animate-scale-in">
 
       <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-[var(--border-primary)]">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-            <app-icon name="user" class="w-6 h-6 text-purple-600 dark:text-purple-400"></app-icon>
+            <app-icon name="user" class="w-6 h-6 text-purple-600"></app-icon>
           </div>
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Información del Usuario</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Detalles del perfil</p>
+            <h2 class="text-xl font-bold text-[var(--text-primary)]">Información del Usuario</h2>
+            <p class="text-sm text-[var(--text-tertiary)]">Detalles del perfil</p>
           </div>
         </div>
         <button (click)="closeModal()"
-                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -31,62 +31,62 @@
 
             <!-- Información Personal -->
             <div class="mb-8">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide mb-4">
                 Información Personal
               </h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Nombre</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200">{{ userData.name || 'N/A' }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Nombre</label>
+                  <p class="text-base text-[var(--text-primary)]">{{ userData.name || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Apellido</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200">{{ userData.lastName || 'N/A' }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Apellido</label>
+                  <p class="text-base text-[var(--text-primary)]">{{ userData.lastName || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Correo Electrónico</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200 break-all">{{ userData.email || 'N/A' }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Correo Electrónico</label>
+                  <p class="text-base text-[var(--text-primary)] break-all">{{ userData.email || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Teléfono</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200">{{ userData.phoneNumber || 'N/A' }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Teléfono</label>
+                  <p class="text-base text-[var(--text-primary)]">{{ userData.phoneNumber || 'N/A' }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Estado y Perfil -->
             <div class="mb-8">
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide mb-4">
                 Estado y Perfil
               </h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Tipo de Usuario</label>
-                  <p class="text-base text-purple-600 dark:text-purple-400">{{ userTypeLabel }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Tipo de Usuario</label>
+                  <p class="text-base text-purple-600">{{ userTypeLabel }}</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Estado</label>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Estado</label>
                   @if (userData.isActive) {
-                    <span class="inline-flex items-center gap-1.5 text-sm text-green-700 dark:text-green-400">
+                    <span class="inline-flex items-center gap-1.5 text-sm text-green-600">
                       <span class="w-2 h-2 rounded-full bg-green-500"></span>
                       Activo
                     </span>
                   } @else {
-                    <span class="inline-flex items-center gap-1.5 text-sm text-red-700 dark:text-red-400">
+                    <span class="inline-flex items-center gap-1.5 text-sm text-red-600">
                       <span class="w-2 h-2 rounded-full bg-red-500"></span>
                       Inactivo
                     </span>
                   }
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Email Verificado</label>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Email Verificado</label>
                   @if (userData.isEmailVerified) {
-                    <span class="inline-flex items-center gap-1.5 text-sm text-blue-700 dark:text-blue-400">
+                    <span class="inline-flex items-center gap-1.5 text-sm text-blue-600">
                       <app-icon name="shield" class="w-4 h-4"></app-icon>
                       Verificado
                     </span>
                   } @else {
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Pendiente</span>
+                    <span class="text-sm text-[var(--text-tertiary)]">Pendiente</span>
                   }
                 </div>
               </div>
@@ -95,7 +95,7 @@
             <!-- Roles Asignados -->
             @if (userData.roles && userData.roles.length > 0) {
               <div class="mb-8">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+                <h3 class="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide mb-4">
                   Roles Asignados
                 </h3>
                 <div class="flex flex-wrap gap-3">
@@ -103,7 +103,7 @@
                     <div class="inline-flex flex-col px-4 py-2.5 rounded-lg bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700">
                       <span class="text-sm font-semibold text-purple-700 dark:text-purple-300">{{ userRole.role.name }}</span>
                       @if (userRole.role.description) {
-                        <span class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{{ userRole.role.description }}</span>
+                        <span class="text-xs text-[var(--text-tertiary)] mt-0.5">{{ userRole.role.description }}</span>
                       }
                     </div>
                   }
@@ -113,17 +113,17 @@
 
             <!-- Fechas -->
             <div>
-              <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide mb-4">
                 Información de Registro
               </h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Fecha de Creación</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200">{{ formatDateTime(userData.createdAt) }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Fecha de Creación</label>
+                  <p class="text-base text-[var(--text-primary)]">{{ formatDateTime(userData.createdAt) }}</p>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-gray-900 dark:text-gray-300 uppercase mb-1.5">Última Actualización</label>
-                  <p class="text-base text-gray-700 dark:text-gray-200">{{ formatDateTime(userData.updatedAt) }}</p>
+                  <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase mb-1.5">Última Actualización</label>
+                  <p class="text-base text-[var(--text-primary)]">{{ formatDateTime(userData.updatedAt) }}</p>
                 </div>
               </div>
             </div>
@@ -131,18 +131,18 @@
           </div>
         } @else {
           <div class="flex flex-col items-center justify-center py-16 text-center">
-            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
-              <app-icon name="user" class="w-8 h-8 text-gray-400"></app-icon>
+            <div class="w-16 h-16 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
+              <app-icon name="user" class="w-8 h-8 text-[var(--text-tertiary)]"></app-icon>
             </div>
-            <p class="text-gray-500 dark:text-gray-400">No hay información disponible</p>
+            <p class="text-[var(--text-tertiary)]">No hay información disponible</p>
           </div>
         }
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div class="flex items-center justify-end px-6 py-4 border-t border-[var(--border-primary)] bg-[var(--card-bg)]">
         <button (click)="closeModal()"
-                class="px-6 py-2.5 rounded-lg font-medium text-sm bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white transition-colors">
+                class="px-6 py-2.5 rounded-lg font-medium text-sm bg-gray-900 hover:bg-gray-800 text-white transition-colors">
           Cerrar
         </button>
       </div>
