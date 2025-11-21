@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../interface/auth.interface';
 import { SubdomainService } from '../../core/services/subdomain.service';
 import Swal from 'sweetalert2';
+import { switchMap, map } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -75,14 +76,28 @@ export class Login implements OnInit {
       password: this.loginForm.value.password
     };
 
-    this.authService.login(credentials).subscribe({
-      next: (response: LoginResponse) => {
+    this.authService.login(credentials).pipe(
+      // Después del login exitoso, obtener configuración del usuario ANTES de redirigir
+      switchMap((loginResponse: LoginResponse) => {
+        if (loginResponse.success) {
+          // Llamar a /auth/me para obtener configuración completa
+          return this.authService.getMe().pipe(
+            map(meResponse => ({ loginResponse, meResponse }))
+          );
+        }
+        throw new Error('Login failed');
+      })
+    ).subscribe({
+      next: ({ loginResponse, meResponse }) => {
         this.isLoading = false;
-        if (response.success) {
-          // Verificar si hay empresa y subdomain en la respuesta
-          if (response.data?.enterprise?.subdomain) {
+
+        if (meResponse.success) {
+          // Datos de configuración ya cargados, ahora redirigir
+          const subdomain = meResponse.data?.enterprise?.subdomain;
+
+          if (subdomain) {
             // Si tenemos subdomain, redirigir con el subdomain
-            this.authService.redirectToSubdomain(response.data.enterprise.subdomain);
+            this.authService.redirectToSubdomain(subdomain);
           } else {
             // Si no hay subdomain, redirigir directamente al dashboard
             this.router.navigate(['/crm/dashboard']);

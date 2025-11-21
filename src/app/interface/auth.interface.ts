@@ -117,3 +117,72 @@ export interface ActivateAccountResponse {
   };
   statusCode: number;
 }
+
+/**
+ * Interface for user data from /auth/me endpoint
+ */
+export interface MeUser {
+  id: string;
+  email: string;
+  name: string;
+  lastName: string;
+  phoneNumber: string;
+  userType: string;
+  isEmailVerified: boolean;
+  isActive: boolean;
+}
+
+/**
+ * Interface for enterprise data from /auth/me endpoint
+ */
+export interface MeEnterprise {
+  id: string;
+  name: string;
+  subdomain: string;
+  email: string;
+  phone: string;
+}
+
+/**
+ * Interface for enterprise configuration from /auth/me endpoint
+ */
+export interface EnterpriseConfig {
+  isVerified: boolean;
+  verificationStatus: string;
+  primaryColor: string | null;
+  secondaryColor: string | null;
+  accentColor: string | null;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  bannerUrl: string | null;
+  requireCorporateEmail: boolean;
+}
+
+/**
+ * Interface for user role from /auth/me endpoint
+ */
+export interface UserRole {
+  id: string;
+  name: string;
+  description: string;
+}
+
+/**
+ * Interface for /auth/me response data
+ */
+export interface MeResponseData {
+  user: MeUser;
+  enterprise: MeEnterprise;
+  config: EnterpriseConfig;
+  roles: UserRole[];
+  permissions: string[];
+}
+
+/**
+ * Interface for /auth/me response
+ */
+export interface MeResponse {
+  success: boolean;
+  data: MeResponseData;
+  statusCode: number;
+}

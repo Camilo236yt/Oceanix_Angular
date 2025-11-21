@@ -7,6 +7,7 @@ import { Empresas } from './components/empresas/empresas';
 import { RolesPermisos } from './components/roles-permisos/roles-permisos';
 import { Reportes } from './components/reportes/reportes';
 import { VerificarCuenta } from './components/verificar-cuenta/verificar-cuenta';
+import { permissionGuard, anyPermissionGuard } from '../../core/guards/permission.guard';
 
 export const CRM_ROUTES: Routes = [
   {
@@ -20,27 +21,33 @@ export const CRM_ROUTES: Routes = [
       },
       {
         path: 'dashboard',
-        component: Dashboard
+        component: Dashboard,
+        canActivate: [permissionGuard('read_dashboard')]
       },
       {
         path: 'incidencias',
-        component: Incidencias
+        component: Incidencias,
+        canActivate: [anyPermissionGuard(['view_incidents', 'view_own_incidents'])]
       },
       {
         path: 'usuarios',
-        component: Usuarios
+        component: Usuarios,
+        canActivate: [permissionGuard('view_users')]
       },
       {
         path: 'empresas',
-        component: Empresas
+        component: Empresas,
+        canActivate: [permissionGuard('manage_system')]
       },
       {
         path: 'roles-permisos',
-        component: RolesPermisos
+        component: RolesPermisos,
+        canActivate: [anyPermissionGuard(['manage_roles', 'manage_permissions'])]
       },
       {
         path: 'reportes',
-        component: Reportes
+        component: Reportes,
+        canActivate: [permissionGuard('view_reports')]
       },
       {
         path: 'verificar-cuenta',

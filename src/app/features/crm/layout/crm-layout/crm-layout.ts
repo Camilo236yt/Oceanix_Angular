@@ -9,6 +9,7 @@ interface MenuItem {
   path: string;
   label: string;
   icon: string;
+  permissions: string[]; // Array de permisos requeridos (OR logic)
 }
 
 type MobileViewMode = 'icons-only' | 'icons-with-names';
@@ -32,14 +33,16 @@ export class CrmLayout implements OnInit, OnDestroy {
   authService = inject(AuthService);
   router = inject(Router);
 
-  menuItems: MenuItem[] = [
-    { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { path: '/crm/incidencias', label: 'Incidencias', icon: 'incidencias' },
-    { path: '/crm/usuarios', label: 'Usuarios', icon: 'usuarios' },
-    { path: '/crm/empresas', label: 'Empresas', icon: 'empresas' },
-    { path: '/crm/roles-permisos', label: 'Roles y Permisos', icon: 'roles' },
-    { path: '/crm/reportes', label: 'Reportes', icon: 'reportes' }
+  private allMenuItems: MenuItem[] = [
+    { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard', permissions: ['read_dashboard'] },
+    { path: '/crm/incidencias', label: 'Incidencias', icon: 'incidencias', permissions: ['view_incidents', 'view_own_incidents'] },
+    { path: '/crm/usuarios', label: 'Usuarios', icon: 'usuarios', permissions: ['view_users'] },
+    { path: '/crm/empresas', label: 'Empresas', icon: 'empresas', permissions: ['manage_system'] },
+    { path: '/crm/roles-permisos', label: 'Roles y Permisos', icon: 'roles', permissions: ['manage_roles', 'manage_permissions'] },
+    { path: '/crm/reportes', label: 'Reportes', icon: 'reportes', permissions: ['view_reports'] }
   ];
+
+  menuItems: MenuItem[] = [];
 
   ngOnInit() {
     // Cargar el estado del sidebar desde localStorage
@@ -54,9 +57,28 @@ export class CrmLayout implements OnInit, OnDestroy {
       this.mobileViewMode = savedViewMode;
     }
 
+    // Filtrar menu items según permisos del usuario
+    this.filterMenuItemsByPermissions();
+
+    // Suscribirse a cambios en permisos para actualizar el menú dinámicamente
+    this.authService.permissions$.subscribe(() => {
+      this.filterMenuItemsByPermissions();
+    });
+
     // Inicializar la fecha actual
     this.updateCurrentDate();
     this.scheduleMidnightUpdate();
+  }
+
+  /**
+   * Filtra los items del menú según los permisos del usuario
+   * Si el usuario tiene al menos uno de los permisos requeridos, muestra el item
+   */
+  private filterMenuItemsByPermissions(): void {
+    this.menuItems = this.allMenuItems.filter(item => {
+      // Si el item requiere permisos, verificar que el usuario tenga al menos uno
+      return this.authService.hasAnyPermission(item.permissions);
+    });
   }
 
   ngOnDestroy() {

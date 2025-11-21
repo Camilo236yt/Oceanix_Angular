@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   RegisterEnterpriseRequest,
@@ -10,7 +10,13 @@ import {
   AdminUser,
   Enterprise,
   ActivateAccountRequest,
-  ActivateAccountResponse
+  ActivateAccountResponse,
+  MeResponse,
+  MeResponseData,
+  MeUser,
+  MeEnterprise,
+  EnterpriseConfig,
+  UserRole
 } from '../interface/auth.interface';
 
 /**
@@ -25,9 +31,33 @@ export class AuthService {
   private readonly USER_KEY = 'auth_user';
   private readonly ENTERPRISE_KEY = 'auth_enterprise';
 
+  // Session storage keys para datos de configuración de /auth/me
+  private readonly ME_DATA_KEY = 'user_config_data';
+  private readonly ME_USER_KEY = 'user_config_user';
+  private readonly ME_ENTERPRISE_KEY = 'user_config_enterprise';
+  private readonly ME_CONFIG_KEY = 'user_config_config';
+  private readonly ME_ROLES_KEY = 'user_config_roles';
+  private readonly ME_PERMISSIONS_KEY = 'user_config_permissions';
+
   // Observable para el estado de autenticación
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  // BehaviorSubjects para datos de configuración del usuario (desde /auth/me)
+  private meUserSubject = new BehaviorSubject<MeUser | null>(this.getStoredMeUser());
+  public meUser$ = this.meUserSubject.asObservable();
+
+  private meEnterpriseSubject = new BehaviorSubject<MeEnterprise | null>(this.getStoredMeEnterprise());
+  public meEnterprise$ = this.meEnterpriseSubject.asObservable();
+
+  private configSubject = new BehaviorSubject<EnterpriseConfig | null>(this.getStoredConfig());
+  public config$ = this.configSubject.asObservable();
+
+  private rolesSubject = new BehaviorSubject<UserRole[]>(this.getStoredRoles());
+  public roles$ = this.rolesSubject.asObservable();
+
+  private permissionsSubject = new BehaviorSubject<string[]>(this.getStoredPermissions());
+  public permissions$ = this.permissionsSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -72,7 +102,8 @@ export class AuthService {
         withCredentials: true // Permite enviar y recibir cookies cross-origin
       }
     ).pipe(
-      tap(response => {
+      map(response => {
+        // Guardar token SINCRÓNICAMENTE antes de retornar
         if (response.success && response.data.token) {
           this.setAuthData(
             response.data.token,
@@ -80,6 +111,7 @@ export class AuthService {
             response.data.enterprise
           );
         }
+        return response;
       })
     );
   }
@@ -212,6 +244,167 @@ export class AuthService {
   }
 
   /**
+   * Get user configuration data from /auth/me endpoint
+   * @returns Observable with user configuration data
+   */
+  getMe(): Observable<MeResponse> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.get<MeResponse>(
+      `${this.API_URL}/auth/me`,
+      {
+        headers,
+        withCredentials: true
+      }
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setMeData(response.data);
+        }
+      })
+    );
+  }
+
+  /**
+   * Save user configuration data to BehaviorSubjects and sessionStorage
+   * @param data User configuration data from /auth/me
+   */
+  private setMeData(data: MeResponseData): void {
+    // Actualizar BehaviorSubjects (estado reactivo en memoria)
+    this.meUserSubject.next(data.user);
+    this.meEnterpriseSubject.next(data.enterprise);
+    this.configSubject.next(data.config);
+    this.rolesSubject.next(data.roles);
+    this.permissionsSubject.next(data.permissions);
+
+    // Guardar en sessionStorage como backup (se limpia al cerrar pestaña)
+    sessionStorage.setItem(this.ME_USER_KEY, JSON.stringify(data.user));
+    sessionStorage.setItem(this.ME_ENTERPRISE_KEY, JSON.stringify(data.enterprise));
+    sessionStorage.setItem(this.ME_CONFIG_KEY, JSON.stringify(data.config));
+    sessionStorage.setItem(this.ME_ROLES_KEY, JSON.stringify(data.roles));
+    sessionStorage.setItem(this.ME_PERMISSIONS_KEY, JSON.stringify(data.permissions));
+  }
+
+  /**
+   * Get stored user data from sessionStorage
+   * @returns MeUser object or null
+   */
+  private getStoredMeUser(): MeUser | null {
+    const stored = sessionStorage.getItem(this.ME_USER_KEY);
+    return stored ? JSON.parse(stored) : null;
+  }
+
+  /**
+   * Get stored enterprise data from sessionStorage
+   * @returns MeEnterprise object or null
+   */
+  private getStoredMeEnterprise(): MeEnterprise | null {
+    const stored = sessionStorage.getItem(this.ME_ENTERPRISE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  }
+
+  /**
+   * Get stored config data from sessionStorage
+   * @returns EnterpriseConfig object or null
+   */
+  private getStoredConfig(): EnterpriseConfig | null {
+    const stored = sessionStorage.getItem(this.ME_CONFIG_KEY);
+    return stored ? JSON.parse(stored) : null;
+  }
+
+  /**
+   * Get stored roles from sessionStorage
+   * @returns Array of UserRole objects
+   */
+  private getStoredRoles(): UserRole[] {
+    const stored = sessionStorage.getItem(this.ME_ROLES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  /**
+   * Get stored permissions from sessionStorage
+   * @returns Array of permission strings
+   */
+  private getStoredPermissions(): string[] {
+    const stored = sessionStorage.getItem(this.ME_PERMISSIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  /**
+   * Clear all user configuration data from memory and sessionStorage
+   */
+  private clearMeData(): void {
+    // Limpiar BehaviorSubjects
+    this.meUserSubject.next(null);
+    this.meEnterpriseSubject.next(null);
+    this.configSubject.next(null);
+    this.rolesSubject.next([]);
+    this.permissionsSubject.next([]);
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem(this.ME_USER_KEY);
+    sessionStorage.removeItem(this.ME_ENTERPRISE_KEY);
+    sessionStorage.removeItem(this.ME_CONFIG_KEY);
+    sessionStorage.removeItem(this.ME_ROLES_KEY);
+    sessionStorage.removeItem(this.ME_PERMISSIONS_KEY);
+  }
+
+  /**
+   * Get current user data (synchronous)
+   * @returns Current MeUser or null
+   */
+  getCurrentMeUser(): MeUser | null {
+    return this.meUserSubject.value;
+  }
+
+  /**
+   * Get current permissions (synchronous)
+   * @returns Array of permission strings
+   */
+  getCurrentPermissions(): string[] {
+    return this.permissionsSubject.value;
+  }
+
+  /**
+   * Get current roles (synchronous)
+   * @returns Array of UserRole objects
+   */
+  getCurrentRoles(): UserRole[] {
+    return this.rolesSubject.value;
+  }
+
+  /**
+   * Check if user has a specific permission
+   * @param permission Permission to check
+   * @returns true if user has the permission
+   */
+  hasPermission(permission: string): boolean {
+    return this.permissionsSubject.value.includes(permission);
+  }
+
+  /**
+   * Check if user has any of the specified permissions
+   * @param permissions Array of permissions to check
+   * @returns true if user has at least one permission
+   */
+  hasAnyPermission(permissions: string[]): boolean {
+    const userPermissions = this.permissionsSubject.value;
+    return permissions.some(p => userPermissions.includes(p));
+  }
+
+  /**
+   * Check if user has all of the specified permissions
+   * @param permissions Array of permissions to check
+   * @returns true if user has all permissions
+   */
+  hasAllPermissions(permissions: string[]): boolean {
+    const userPermissions = this.permissionsSubject.value;
+    return permissions.every(p => userPermissions.includes(p));
+  }
+
+  /**
    * Limpia la cookie de autenticación haciendo una petición al backend
    * @returns Observable que se completa cuando la cookie se limpia
    */
@@ -234,6 +427,9 @@ export class AuthService {
     localStorage.removeItem(this.ENTERPRISE_KEY);
     localStorage.removeItem('subdomain');
     localStorage.removeItem('dev_subdomain');
+
+    // Limpiar datos de configuración de usuario
+    this.clearMeData();
 
     // Actualizar estado de autenticación
     this.isAuthenticatedSubject.next(false);

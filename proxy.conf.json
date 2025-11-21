@@ -3,6 +3,8 @@
     "target": "https://backend-dev.oceanix.space",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "cookieDomainRewrite": "localhost",
+    "cookiePathRewrite": "/"
   }
 }
