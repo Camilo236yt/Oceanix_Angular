@@ -7,7 +7,7 @@ import { Empresas } from './components/empresas/empresas';
 import { RolesPermisos } from './components/roles-permisos/roles-permisos';
 import { Reportes } from './components/reportes/reportes';
 import { VerificarCuenta } from './components/verificar-cuenta/verificar-cuenta';
-import { permissionGuard, anyPermissionGuard } from '../../core/guards/permission.guard';
+import { permissionGuard, anyPermissionGuard, roleGuard } from '../../core/guards/permission.guard';
 
 export const CRM_ROUTES: Routes = [
   {
@@ -37,7 +37,7 @@ export const CRM_ROUTES: Routes = [
       {
         path: 'empresas',
         component: Empresas,
-        canActivate: [permissionGuard('manage_system')]
+        canActivate: [roleGuard('SUPER_ADMIN')]
       },
       {
         path: 'roles-permisos',

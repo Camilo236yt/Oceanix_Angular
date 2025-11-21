@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map, of, catchError } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, of, catchError, switchMap } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   RegisterEnterpriseRequest,
@@ -269,6 +269,7 @@ export class AuthService {
 
   /**
    * Check if current session is valid by calling /auth/check endpoint
+   * Also loads user data if session is valid but permissions are not in memory
    * @returns Observable<boolean> - true if session is valid, false otherwise
    */
   checkSession(): Observable<boolean> {
@@ -276,7 +277,19 @@ export class AuthService {
       `${this.API_URL}/auth/check`,
       { withCredentials: true }
     ).pipe(
-      map(response => response.success === true),
+      switchMap(response => {
+        if (response.success === true) {
+          // Si la sesión es válida pero no hay permisos en memoria, cargarlos
+          if (this.permissionsSubject.value.length === 0) {
+            return this.getMe().pipe(
+              map(() => true),
+              catchError(() => of(true)) // Aún así retornar true si falla cargar permisos
+            );
+          }
+          return of(true);
+        }
+        return of(false);
+      }),
       catchError(() => of(false))
     );
   }
@@ -416,6 +429,46 @@ export class AuthService {
   hasAllPermissions(permissions: string[]): boolean {
     const userPermissions = this.permissionsSubject.value;
     return permissions.every(p => userPermissions.includes(p));
+  }
+
+  /**
+   * Check if user has a specific role
+   * @param roleName Role name to check (e.g., 'SUPER_ADMIN')
+   * @returns true if user has the role
+   */
+  hasRole(roleName: string): boolean {
+    const userRoles = this.rolesSubject.value;
+    return userRoles.some(role => role.name === roleName);
+  }
+
+  /**
+   * Check if user has any of the specified roles
+   * @param roleNames Array of role names to check
+   * @returns true if user has at least one role
+   */
+  hasAnyRole(roleNames: string[]): boolean {
+    const userRoles = this.rolesSubject.value;
+    return roleNames.some(roleName => userRoles.some(role => role.name === roleName));
+  }
+
+  /**
+   * Check if user has a specific userType
+   * @param userType UserType to check (e.g., 'SUPER_ADMIN', 'EMPLOYEE')
+   * @returns true if user has the userType
+   */
+  hasUserType(userType: string): boolean {
+    const currentUser = this.meUserSubject.value;
+    return currentUser?.userType === userType;
+  }
+
+  /**
+   * Check if user has any of the specified userTypes
+   * @param userTypes Array of userTypes to check
+   * @returns true if user has at least one userType
+   */
+  hasAnyUserType(userTypes: string[]): boolean {
+    const currentUser = this.meUserSubject.value;
+    return userTypes.includes(currentUser?.userType || '');
   }
 
   /**

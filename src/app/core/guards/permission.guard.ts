@@ -135,3 +135,47 @@ export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateF
     );
   };
 };
+
+/**
+ * Guard que verifica si el usuario tiene un userType específico
+ * Primero verifica la sesión con el backend
+ * Si NO está autenticado, redirige al login
+ * Si NO tiene el userType, redirige al dashboard
+ *
+ * Uso en rutas:
+ * {
+ *   path: 'empresas',
+ *   component: EmpresasComponent,
+ *   canActivate: [roleGuard('SUPER_ADMIN')]
+ * }
+ */
+export const roleGuard = (requiredUserType: string): CanActivateFn => {
+  return () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+
+    // Verificar sesión con el backend
+    return authService.checkSession().pipe(
+      map(isValid => {
+        if (!isValid) {
+          router.navigate(['/login']);
+          return false;
+        }
+
+        // Si el usuario tiene el userType, permitir acceso
+        if (authService.hasUserType(requiredUserType)) {
+          return true;
+        }
+
+        // Si no tiene el userType, redirigir al dashboard
+        console.warn(`[RoleGuard] Acceso denegado. UserType requerido: ${requiredUserType}`);
+        router.navigate(['/crm/dashboard']);
+        return false;
+      }),
+      catchError(() => {
+        router.navigate(['/login']);
+        return of(false);
+      })
+    );
+  };
+};
