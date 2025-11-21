@@ -15,8 +15,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: Login,
-    canActivate: [authRedirectGuard] // Redirige al dashboard si ya está autenticado
+    component: Login
+    // Sin guard - accesible siempre (el landing tiene authRedirectGuard para bloquear usuarios autenticados)
   },
   {
     path: 'register',
