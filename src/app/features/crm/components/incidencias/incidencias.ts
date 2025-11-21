@@ -57,20 +57,20 @@ export class Incidencias implements OnInit {
       type: 'badge',
       sortable: true,
       badgeConfig: {
-        'RESOLVED': {
-          color: 'text-green-600 dark:text-green-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-green-600 dark:bg-green-400'
+        'Resuelto': {
+          color: 'text-emerald-500',
+          bgColor: 'bg-transparent',
+          dotColor: 'bg-emerald-400'
         },
-        'IN_PROGRESS': {
-          color: 'text-orange-600 dark:text-orange-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-orange-600 dark:bg-orange-400'
+        'En Progreso': {
+          color: 'text-amber-500',
+          bgColor: 'bg-transparent',
+          dotColor: 'bg-amber-400'
         },
-        'PENDING': {
-          color: 'text-red-600 dark:text-red-400',
-          bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-red-600 dark:bg-red-400'
+        'Pendiente': {
+          color: 'text-rose-500',
+          bgColor: 'bg-transparent',
+          dotColor: 'bg-rose-400'
         }
       }
     },

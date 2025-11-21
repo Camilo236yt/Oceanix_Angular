@@ -81,9 +81,9 @@ export class IncidenciasService {
   // Mapear estado del backend a texto para el DataTable
   private mapEstado(status: string): string {
     const estadoMap: { [key: string]: string } = {
-      'RESOLVED': 'RESOLVED',
-      'PENDING': 'PENDING',
-      'IN_PROGRESS': 'IN_PROGRESS'
+      'RESOLVED': 'Resuelto',
+      'PENDING': 'Pendiente',
+      'IN_PROGRESS': 'En Progreso'
     };
     return estadoMap[status] || status;
   }
