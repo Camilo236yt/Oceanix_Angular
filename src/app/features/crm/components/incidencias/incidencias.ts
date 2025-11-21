@@ -178,7 +178,59 @@ export class Incidencias implements OnInit {
   }
 
   deleteIncident(incident: Incident) {
-    console.log('Eliminar incidencia:', incident);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar la incidencia "${incident.name}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#9333ea',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Eliminando incidencia...',
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        this.incidenciasService.deleteIncidencia(incident.id).subscribe({
+          next: () => {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Incidencia eliminada correctamente',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+            // Reload incidents list
+            this.loadIncidencias();
+          },
+          error: (error: any) => {
+            console.error('Error al eliminar incidencia:', error);
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Error al eliminar',
+              text: 'No se pudo eliminar la incidencia',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+          }
+        });
+      }
+    });
   }
 
   createNewIncident() {

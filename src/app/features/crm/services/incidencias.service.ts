@@ -33,6 +33,13 @@ export class IncidenciasService {
     );
   }
 
+  // DELETE - Eliminar una incidencia
+  deleteIncidencia(incidenciaId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${incidenciaId}`, {
+      withCredentials: true
+    });
+  }
+
   // Transformar datos del backend al modelo del DataTable
   private transformIncidencias(incidenciasData: IncidentData[]): Incident[] {
     if (!incidenciasData || !Array.isArray(incidenciasData)) {
