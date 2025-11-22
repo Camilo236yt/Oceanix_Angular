@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { PortalLoginComponent } from './components/login/login.component';
 import { RegistroClienteIncidenciaComponent } from './components/registro-cliente-incidencia/registro-cliente-incidencia.component';
+import { authClienteGuard } from './guards/auth-cliente.guard';
 
 export const PORTAL_ROUTES: Routes = [
   {
@@ -9,7 +10,8 @@ export const PORTAL_ROUTES: Routes = [
   },
   {
     path: 'registro-incidencia',
-    component: RegistroClienteIncidenciaComponent
+    component: RegistroClienteIncidenciaComponent,
+    canActivate: [authClienteGuard]
   },
   {
     path: '',

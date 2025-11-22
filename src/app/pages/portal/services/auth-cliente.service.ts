@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { Cliente, LoginClienteRequest, LoginClienteResponse } from '../models/cliente.model';
+import { Observable, tap } from 'rxjs';
+import { Cliente, LoginClienteResponse } from '../models/cliente.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,29 +12,25 @@ export class AuthClienteService {
   private readonly TOKEN_KEY = 'portal_cliente_token';
   private readonly CLIENTE_KEY = 'portal_cliente_data';
 
-  constructor(private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   /**
-   * Login con Google (Mock)
+   * Login con Google - Envía el idToken al backend
    */
-  loginConGoogle(request: LoginClienteRequest): Observable<LoginClienteResponse> {
-    // Mock: Simula login exitoso
-    const mockResponse: LoginClienteResponse = {
-      token: 'mock-jwt-token-123456',
-      cliente: {
-        id: 'CLI-001',
-        nombre: 'Usuario Demo',
-        email: 'demo@example.com',
-        telefono: '+57 300 123 4567',
-        empresa: 'Empresa Demo'
-      }
-    };
-
-    // Guardar en localStorage
-    localStorage.setItem(this.TOKEN_KEY, mockResponse.token);
-    localStorage.setItem(this.CLIENTE_KEY, JSON.stringify(mockResponse.cliente));
-
-    return of(mockResponse);
+  loginConGoogle(idToken: string): Observable<LoginClienteResponse> {
+    return this.http.post<LoginClienteResponse>(
+      `${environment.apiUrl}/auth/google/client`,
+      { idToken }
+    ).pipe(
+      tap(response => {
+        // Guardar token y datos del cliente en localStorage
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.CLIENTE_KEY, JSON.stringify(response.cliente));
+      })
+    );
   }
 
   /**

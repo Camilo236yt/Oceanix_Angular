@@ -3,7 +3,6 @@ import { provideRouter, withNavigationErrorHandler } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { catchError, of, tap } from 'rxjs';
-
 import { routes } from './app.routes';
 import { httpInterceptor } from './interceptors/http.interceptor';
 import { AuthService } from './services/auth.service';
@@ -74,6 +73,6 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeUserConfig,
       deps: [AuthService],
       multi: true
-    }
+    },
   ]
 };
