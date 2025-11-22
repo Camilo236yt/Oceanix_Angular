@@ -23,7 +23,8 @@ export class AuthClienteService {
   loginConGoogle(idToken: string): Observable<LoginClienteResponse> {
     return this.http.post<LoginClienteResponse>(
       `${environment.apiUrl}/auth/google/client`,
-      { idToken }
+      { idToken },
+      { withCredentials: true }
     ).pipe(
       tap(response => {
         // Guardar token y datos del cliente en localStorage
