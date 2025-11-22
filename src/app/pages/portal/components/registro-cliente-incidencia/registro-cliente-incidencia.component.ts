@@ -1,14 +1,16 @@
 import { Component, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Incidencia } from '../../models/incidencia.model';
 import { IncidenciasService } from '../../services/incidencias.service';
+import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -18,11 +20,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   panelHistorialMobileVisible = signal(false);
   panelClosing = signal(false);
 
-  // Datos del formulario
-  nombreIncidencia = '';
-  numeroGuia = '';
-  tipoIncidencia = '';
-  descripcion = '';
+  // Formulario reactivo
+  incidenciaForm!: FormGroup;
   archivoSeleccionado: File | null = null;
 
   // Datos del historial
@@ -35,11 +34,31 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   constructor(
     private router: Router,
     private incidenciasService: IncidenciasService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private formBuilder: FormBuilder
   ) {}
 
   ngOnInit(): void {
+    this.initializeForm();
     this.cargarIncidencias();
+  }
+
+  private initializeForm(): void {
+    this.incidenciaForm = this.formBuilder.group({
+      nombreIncidencia: ['', [Validators.required, Validators.minLength(3)]],
+      numeroGuia: ['', [Validators.required, Validators.minLength(3)]],
+      tipoIncidencia: ['', Validators.required],
+      descripcion: ['', [Validators.required, Validators.minLength(10)]]
+    });
+  }
+
+  // Métodos helper para validaciones
+  isFieldInvalid(fieldName: string): boolean {
+    return isFieldInvalid(this.incidenciaForm, fieldName);
+  }
+
+  getFieldError(fieldName: string): string {
+    return getFieldError(this.incidenciaForm, fieldName);
   }
 
   cargarIncidencias(): void {
@@ -81,35 +100,46 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   }
 
   enviarIncidencia(): void {
-    if (!this.nombreIncidencia || !this.numeroGuia || !this.tipoIncidencia || !this.descripcion) {
-      alert('Por favor completa todos los campos obligatorios');
+    if (this.incidenciaForm.invalid) {
+      markFormGroupTouched(this.incidenciaForm);
       return;
     }
 
+    const formData = this.incidenciaForm.value;
+
     this.incidenciasService.crearIncidencia({
-      nombre: this.nombreIncidencia,
-      numeroGuia: this.numeroGuia,
-      tipoIncidencia: this.tipoIncidencia,
-      descripcion: this.descripcion,
-      archivo: this.archivoSeleccionado || undefined
+      name: formData.nombreIncidencia,
+      description: formData.descripcion,
+      ProducReferenceId: formData.numeroGuia,
+      tipo: formData.tipoIncidencia
     }).subscribe({
       next: (nuevaIncidencia) => {
         console.log('Incidencia creada:', nuevaIncidencia);
-        alert('Incidencia enviada correctamente');
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Incidencia registrada',
+          text: 'Tu incidencia ha sido registrada exitosamente. Nuestro equipo la revisará a la brevedad.',
+          confirmButtonColor: '#7c3aed'
+        });
 
         // Limpiar formulario
-        this.nombreIncidencia = '';
-        this.numeroGuia = '';
-        this.tipoIncidencia = '';
-        this.descripcion = '';
+        this.incidenciaForm.reset();
         this.archivoSeleccionado = null;
 
-        // Recargar incidencias
+        // Recargar incidencias para mostrar en el historial
         this.cargarIncidencias();
       },
       error: (error) => {
         console.error('Error al crear incidencia:', error);
-        alert('Error al enviar la incidencia');
+        const errorMsg = error.error?.message || 'No se pudo registrar la incidencia. Por favor intenta nuevamente.';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al registrar',
+          text: errorMsg,
+          confirmButtonColor: '#7c3aed'
+        });
       }
     });
   }

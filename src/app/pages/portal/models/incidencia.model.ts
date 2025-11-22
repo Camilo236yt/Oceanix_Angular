@@ -15,9 +15,9 @@ export interface Incidencia {
 }
 
 export interface CrearIncidenciaRequest {
-  nombre: string;
-  numeroGuia: string;
-  tipoIncidencia: string;
-  descripcion: string;
-  archivo?: File;
+  name: string;
+  description: string;
+  ProducReferenceId: string;
+  tipo: string;
+  images?: string[];
 }

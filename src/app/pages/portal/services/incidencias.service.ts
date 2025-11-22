@@ -47,7 +47,7 @@ export class IncidenciasService {
    */
   crearIncidencia(request: CrearIncidenciaRequest): Observable<Incidencia> {
     return this.http.post<Incidencia>(
-      `${environment.apiUrl}/incidencias`,
+      `${environment.apiUrl}/incidencias/client`,
       request,
       { withCredentials: true }
     );
