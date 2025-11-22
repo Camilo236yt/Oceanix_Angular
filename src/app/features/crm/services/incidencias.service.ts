@@ -40,9 +40,9 @@ export class IncidenciasService {
     });
   }
 
-  // PUT - Actualizar estado de una incidencia
+  // PATCH - Actualizar estado de una incidencia
   updateIncidenciaStatus(incidenciaId: string, status: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${incidenciaId}`, { status }, {
+    return this.http.patch(`${this.apiUrl}/${incidenciaId}`, { status }, {
       withCredentials: true
     });
   }
