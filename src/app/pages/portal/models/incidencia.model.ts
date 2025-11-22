@@ -15,7 +15,7 @@ export interface Incidencia {
 }
 
 export interface CrearIncidenciaRequest {
-  empresa: string;
+  nombre: string;
   numeroGuia: string;
   tipoIncidencia: string;
   descripcion: string;

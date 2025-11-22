@@ -19,7 +19,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   panelClosing = signal(false);
 
   // Datos del formulario
-  empresaSeleccionada = '';
+  nombreIncidencia = '';
   numeroGuia = '';
   tipoIncidencia = '';
   descripcion = '';
@@ -81,13 +81,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   }
 
   enviarIncidencia(): void {
-    if (!this.empresaSeleccionada || !this.numeroGuia || !this.tipoIncidencia || !this.descripcion) {
+    if (!this.nombreIncidencia || !this.numeroGuia || !this.tipoIncidencia || !this.descripcion) {
       alert('Por favor completa todos los campos obligatorios');
       return;
     }
 
     this.incidenciasService.crearIncidencia({
-      empresa: this.empresaSeleccionada,
+      nombre: this.nombreIncidencia,
       numeroGuia: this.numeroGuia,
       tipoIncidencia: this.tipoIncidencia,
       descripcion: this.descripcion,
@@ -98,7 +98,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
         alert('Incidencia enviada correctamente');
 
         // Limpiar formulario
-        this.empresaSeleccionada = '';
+        this.nombreIncidencia = '';
         this.numeroGuia = '';
         this.tipoIncidencia = '';
         this.descripcion = '';
