@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, AfterViewInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthClienteService } from '../../services/auth-cliente.service';
@@ -12,8 +12,7 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class PortalLoginComponent implements OnInit, AfterViewInit {
-  isLoading = false;
+export class PortalLoginComponent implements OnInit {
   errorMessage = '';
   private googleInitialized = false;
 
@@ -25,11 +24,6 @@ export class PortalLoginComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.initializeGoogle();
-  }
-
-  ngAfterViewInit(): void {
-    // Renderizar botón oculto de Google después de que la vista esté lista
-    this.renderHiddenGoogleButton();
   }
 
   private initializeGoogle(): void {
@@ -50,9 +44,6 @@ export class PortalLoginComponent implements OnInit, AfterViewInit {
 
         this.googleInitialized = true;
         console.log('Google Identity Services initialized');
-
-        // Renderizar el botón oculto una vez inicializado
-        this.renderHiddenGoogleButton();
       }
     }, 100);
 
@@ -64,62 +55,136 @@ export class PortalLoginComponent implements OnInit, AfterViewInit {
     }, 10000);
   }
 
-  private renderHiddenGoogleButton(): void {
-    if (!this.googleInitialized) return;
-
-    // Verificar si ya existe
-    if (document.getElementById('hidden-google-btn')) return;
-
-    // Crear contenedor oculto para el botón de Google
-    const hiddenDiv = document.createElement('div');
-    hiddenDiv.id = 'hidden-google-btn';
-    hiddenDiv.style.position = 'absolute';
-    hiddenDiv.style.left = '-9999px';
-    hiddenDiv.style.top = '-9999px';
-    document.body.appendChild(hiddenDiv);
-
-    // Renderizar el botón de Google
-    google.accounts.id.renderButton(hiddenDiv, {
-      theme: 'outline',
-      size: 'large',
-      type: 'standard',
-      text: 'signin_with',
-      shape: 'rectangular',
-      width: 280
-    });
-  }
-
   continueWithGoogle(): void {
     if (!this.googleInitialized) {
       this.errorMessage = 'Google no está disponible. Por favor, recarga la página.';
       return;
     }
 
-    this.isLoading = true;
     this.errorMessage = '';
 
-    // Buscar y hacer clic en el botón oculto de Google
-    const hiddenBtn = document.getElementById('hidden-google-btn');
-    if (hiddenBtn) {
-      const googleBtn = hiddenBtn.querySelector('div[role="button"]') as HTMLElement;
-      if (googleBtn) {
-        googleBtn.click();
-        return;
-      }
-    }
+    // Usar prompt de Google que funciona en desktop y mobile
+    google.accounts.id.prompt((notification: any) => {
+      this.ngZone.run(() => {
+        if (notification.isNotDisplayed()) {
+          console.log('Prompt not displayed:', notification.getNotDisplayedReason());
+          // Si el prompt no se muestra, mostrar el botón de Google en un modal
+          this.showGoogleButtonModal();
+        } else if (notification.isSkippedMoment()) {
+          console.log('Prompt skipped:', notification.getSkippedReason());
+          this.showGoogleButtonModal();
+        }
+      });
+    });
+  }
 
-    // Fallback: si no encuentra el botón, mostrar error
-    this.errorMessage = 'Error al iniciar Google Sign-In. Recarga la página.';
-    this.isLoading = false;
+  private showGoogleButtonModal(): void {
+    // Verificar si ya existe el modal
+    if (document.getElementById('google-modal-overlay')) return;
+
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'google-modal-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.id = 'google-modal-content';
+    modal.style.cssText = `
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    `;
+
+    // Título
+    const title = document.createElement('p');
+    title.textContent = 'Selecciona tu cuenta';
+    title.style.cssText = `
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #374151;
+    `;
+    modal.appendChild(title);
+
+    // Contenedor del botón de Google
+    const buttonContainer = document.createElement('div');
+    buttonContainer.id = 'google-btn-container';
+    buttonContainer.style.cssText = `
+      display: flex;
+      justify-content: center;
+    `;
+    modal.appendChild(buttonContainer);
+
+    // Botón cancelar
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancelar';
+    cancelBtn.style.cssText = `
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      color: #6b7280;
+      font-size: 14px;
+      cursor: pointer;
+    `;
+    cancelBtn.onclick = () => this.closeGoogleModal();
+    modal.appendChild(cancelBtn);
+
+    overlay.appendChild(modal);
+
+    // Click en overlay para cerrar
+    overlay.onclick = (e) => {
+      if (e.target === overlay) {
+        this.closeGoogleModal();
+      }
+    };
+
+    document.body.appendChild(overlay);
+
+    // Renderizar el botón de Google
+    google.accounts.id.renderButton(buttonContainer, {
+      theme: 'outline',
+      size: 'large',
+      type: 'standard',
+      text: 'signin_with',
+      shape: 'rectangular',
+      logo_alignment: 'center',
+      width: 250
+    });
+  }
+
+  private closeGoogleModal(): void {
+    const overlay = document.getElementById('google-modal-overlay');
+    if (overlay) {
+      overlay.remove();
+    }
   }
 
   private handleCredentialResponse(response: any): void {
+    this.closeGoogleModal();
+
     if (response.credential) {
       console.log('Got credential (idToken)');
       this.loginWithToken(response.credential);
     } else {
       this.errorMessage = 'Error al obtener credenciales de Google';
-      this.isLoading = false;
     }
   }
 
@@ -128,13 +193,11 @@ export class PortalLoginComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           console.log('Login exitoso:', response);
-          this.isLoading = false;
           this.router.navigate(['/portal/registro-incidencia']);
         },
         error: (error) => {
           console.error('Error en login:', error);
           this.errorMessage = error.error?.message || 'Error al iniciar sesión. Por favor, intenta nuevamente.';
-          this.isLoading = false;
         }
       });
   }
