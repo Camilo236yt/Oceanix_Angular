@@ -215,31 +215,24 @@
             <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:shadow-md transition-all">
               <!-- Header de la card -->
               <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-gray-900">{{ incidencia.id }}</span>
-                  <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                    [ngClass]="getEstadoClass(incidencia.estado)"
-                  >
-                    {{ incidencia.estado }}
-                  </span>
-                </div>
-                <span class="text-[10px] text-gray-500">{{ incidencia.fecha }}</span>
+                <span class="text-sm font-bold text-gray-900 truncate flex-1 mr-2">{{ incidencia.name }}</span>
+                <span class="text-[10px] text-gray-500 flex-shrink-0">{{ formatDate(incidencia.createdAt) }}</span>
               </div>
 
-              <!-- Empresa -->
-              <div class="text-xs text-gray-600 mb-2">{{ incidencia.empresa }}</div>
+              <!-- Estado -->
+              <div class="mb-2">
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  [ngClass]="getEstadoClass(incidencia.status)"
+                >
+                  {{ getStatusLabel(incidencia.status) }}
+                </span>
+              </div>
 
-              <!-- Detalles en 2 columnas -->
-              <div class="space-y-1 mb-2">
-                <div class="flex items-start gap-1.5">
-                  <span class="text-[11px] font-medium text-gray-600 w-10">Guía:</span>
-                  <span class="text-[11px] text-gray-900 font-mono">{{ incidencia.guia }}</span>
-                </div>
-                <div class="flex items-start gap-1.5">
-                  <span class="text-[11px] font-medium text-gray-600 w-10">Tipo:</span>
-                  <span class="text-[11px] text-gray-900">{{ incidencia.tipo }}</span>
-                </div>
+              <!-- Tipo -->
+              <div class="flex items-start gap-1.5 mb-2">
+                <span class="text-[11px] font-medium text-gray-600">Tipo:</span>
+                <span class="text-[11px] text-gray-900">{{ getTipoLabel(incidencia.tipo) }}</span>
               </div>
 
               <!-- Botón ver detalles -->
@@ -302,31 +295,24 @@
             <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 active:bg-gray-100 transition-all">
               <!-- Header de la card -->
               <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-gray-900">{{ incidencia.id }}</span>
-                  <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                    [ngClass]="getEstadoClass(incidencia.estado)"
-                  >
-                    {{ incidencia.estado }}
-                  </span>
-                </div>
-                <span class="text-[10px] text-gray-500">{{ incidencia.fecha }}</span>
+                <span class="text-sm font-bold text-gray-900 truncate flex-1 mr-2">{{ incidencia.name }}</span>
+                <span class="text-[10px] text-gray-500 flex-shrink-0">{{ formatDate(incidencia.createdAt) }}</span>
               </div>
 
-              <!-- Empresa -->
-              <div class="text-xs text-gray-600 mb-2">{{ incidencia.empresa }}</div>
+              <!-- Estado -->
+              <div class="mb-2">
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  [ngClass]="getEstadoClass(incidencia.status)"
+                >
+                  {{ getStatusLabel(incidencia.status) }}
+                </span>
+              </div>
 
-              <!-- Detalles -->
-              <div class="space-y-1 mb-2">
-                <div class="flex items-start gap-1.5">
-                  <span class="text-[11px] font-medium text-gray-600 w-10">Guía:</span>
-                  <span class="text-[11px] text-gray-900 font-mono">{{ incidencia.guia }}</span>
-                </div>
-                <div class="flex items-start gap-1.5">
-                  <span class="text-[11px] font-medium text-gray-600 w-10">Tipo:</span>
-                  <span class="text-[11px] text-gray-900">{{ incidencia.tipo }}</span>
-                </div>
+              <!-- Tipo -->
+              <div class="flex items-start gap-1.5 mb-2">
+                <span class="text-[11px] font-medium text-gray-600">Tipo:</span>
+                <span class="text-[11px] text-gray-900">{{ getTipoLabel(incidencia.tipo) }}</span>
               </div>
 
               <!-- Botón ver detalles -->
@@ -350,6 +336,106 @@
             <p class="text-xs text-gray-500">Cuando reportes una incidencia aparecerá aquí</p>
           </div>
         }
+      </div>
+    </div>
+  }
+
+  <!-- Modal Ver Detalles -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
+         (click)="handleBackdropClick($event)">
+      <!-- Modal Container -->
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
+
+        @if (selectedIncidencia) {
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900">Detalle de Incidencia</h2>
+            <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="px-6 py-8">
+            <!-- Nombre y Nivel de Alerta -->
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">{{ selectedIncidencia.name }}</h3>
+                <span class="text-sm text-purple-600 font-medium">{{ getTipoLabel(selectedIncidencia.tipo) }}</span>
+              </div>
+              <!-- Semáforo -->
+              <div class="flex flex-col items-center">
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Nivel de Alerta</label>
+                <div class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5">
+                  <div class="w-3 h-3 rounded-full"
+                       [style.background-color]="selectedIncidencia.alertLevel === 'RED' ? '#ef4444' : '#d1d5db'"></div>
+                  <div class="w-3 h-3 rounded-full"
+                       [style.background-color]="selectedIncidencia.alertLevel === 'YELLOW' ? '#facc15' : '#d1d5db'"></div>
+                  <div class="w-3 h-3 rounded-full"
+                       [style.background-color]="selectedIncidencia.alertLevel === 'GREEN' ? '#22c55e' : '#d1d5db'"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="mb-6">
+              <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium"
+                    [ngClass]="{
+                      'bg-green-50 text-green-700': selectedIncidencia.status === 'RESOLVED',
+                      'bg-orange-50 text-orange-700': selectedIncidencia.status === 'IN_PROGRESS',
+                      'bg-red-50 text-red-700': selectedIncidencia.status === 'PENDING',
+                      'bg-blue-50 text-blue-700': selectedIncidencia.status === 'CLOSED'
+                    }">
+                <span class="w-1.5 h-1.5 rounded-full"
+                      [ngClass]="{
+                        'bg-green-500': selectedIncidencia.status === 'RESOLVED',
+                        'bg-orange-500': selectedIncidencia.status === 'IN_PROGRESS',
+                        'bg-red-500': selectedIncidencia.status === 'PENDING',
+                        'bg-blue-500': selectedIncidencia.status === 'CLOSED'
+                      }"></span>
+                {{ getStatusLabel(selectedIncidencia.status) }}
+              </span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-6">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Descripción</label>
+              <p class="mt-1 text-sm text-gray-700 leading-relaxed">{{ selectedIncidencia.description || 'Sin descripción' }}</p>
+            </div>
+
+            <!-- Grid de información -->
+            <div class="grid grid-cols-2 gap-6">
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Referencia</label>
+                <p class="mt-1 text-sm text-gray-900 font-mono">{{ selectedIncidencia.ProducReferenceId || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Puede subir imágenes</label>
+                <p class="mt-1 text-sm text-gray-900">{{ selectedIncidencia.canClientUploadImages ? 'Sí' : 'No' }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Fecha de creación</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(selectedIncidencia.createdAt) }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Última actualización</label>
+                <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(selectedIncidencia.updatedAt) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
+            <button (click)="closeModal()"
+                    class="px-4 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors">
+              Cerrar
+            </button>
+          </div>
+        }
+
       </div>
     </div>
   }

@@ -1,12 +1,17 @@
 export interface Incidencia {
-  id: string;
-  empresa: string;
-  guia: string;
+  id: number;
   tipo: string;
-  estado: 'En proceso' | 'Resuelto' | 'Pendiente';
-  fecha: string;
-  descripcion?: string;
-  archivoAdjunto?: string;
+  name: string;
+  description: string;
+  status: 'IN_PROGRESS' | 'PENDING' | 'RESOLVED' | 'CLOSED';
+  alertLevel: 'GREEN' | 'YELLOW' | 'RED';
+  ProducReferenceId: string;
+  canClientUploadImages: boolean;
+  createdAt: string;
+  updatedAt: string;
+  clientId?: number;
+  assignedEmployeeId?: number;
+  createdByUserId?: number;
 }
 
 export interface CrearIncidenciaRequest {

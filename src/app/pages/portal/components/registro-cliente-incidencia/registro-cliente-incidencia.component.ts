@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -28,9 +28,14 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   // Datos del historial
   incidencias: Incidencia[] = [];
 
+  // Modal de detalles
+  isModalOpen = signal(false);
+  selectedIncidencia: Incidencia | null = null;
+
   constructor(
     private router: Router,
-    private incidenciasService: IncidenciasService
+    private incidenciasService: IncidenciasService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -40,7 +45,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   cargarIncidencias(): void {
     this.incidenciasService.getIncidencias().subscribe({
       next: (incidencias) => {
-        this.incidencias = incidencias;
+        console.log('Incidencias cargadas:', incidencias);
+        this.incidencias = [...incidencias];
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar incidencias:', error);
@@ -114,21 +121,77 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   }
 
   verDetalles(incidencia: Incidencia): void {
-    // Mock: Solo visual
-    console.log('Ver detalles de:', incidencia);
-    alert(`Detalles de ${incidencia.id}\n\nEmpresa: ${incidencia.empresa}\nGuía: ${incidencia.guia}\nTipo: ${incidencia.tipo}\nEstado: ${incidencia.estado}`);
+    console.log('Ver detalles - alertLevel:', incidencia.alertLevel);
+    this.selectedIncidencia = incidencia;
+    this.isModalOpen.set(true);
+    document.body.style.overflow = 'hidden';
+    this.cdr.detectChanges();
   }
 
-  getEstadoClass(estado: string): string {
-    switch (estado) {
-      case 'En proceso':
-        return 'bg-blue-100 text-blue-800';
-      case 'Resuelto':
+  closeModal(): void {
+    this.isModalOpen.set(false);
+    this.selectedIncidencia = null;
+    document.body.style.overflow = '';
+  }
+
+  handleBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closeModal();
+    }
+  }
+
+  getEstadoClass(status: string): string {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'bg-orange-100 text-orange-800';
+      case 'RESOLVED':
         return 'bg-green-100 text-green-800';
-      case 'Pendiente':
-        return 'bg-yellow-100 text-yellow-800';
+      case 'PENDING':
+        return 'bg-red-100 text-red-800';
+      case 'CLOSED':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  getStatusLabel(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'RESOLVED': 'Resuelto',
+      'PENDING': 'Pendiente',
+      'IN_PROGRESS': 'En Progreso',
+      'CLOSED': 'Cerrado'
+    };
+    return statusMap[status] || status;
+  }
+
+  getTipoLabel(tipo: string): string {
+    const tipoMap: { [key: string]: string } = {
+      'por_perdida': 'Pérdida',
+      'por_dano': 'Daño',
+      'por_error_humano': 'Error Humano',
+      'por_mantenimiento': 'Mantenimiento',
+      'por_falla_tecnica': 'Falla Técnica',
+      'otro': 'Otro'
+    };
+    return tipoMap[tipo] || tipo;
+  }
+
+  formatDate(isoDate: string): string {
+    const date = new Date(isoDate);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  formatDateTime(isoDate: string): string {
+    const date = new Date(isoDate);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 }
