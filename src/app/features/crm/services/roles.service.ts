@@ -52,9 +52,15 @@ export class RolesService {
     return rolesData.map(role => ({
       id: role.id,
       rol: role.name,
-      descripcion: role.description,
+      descripcion: this.truncateText(role.description, 25),
       permisos: role.permissions.map(p => p.permission.title),
       estado: role.isActive ? 'Activo' : 'Inactivo'
     }));
+  }
+
+  private truncateText(text: string, maxLength: number): string {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
   }
 }

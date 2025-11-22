@@ -5,16 +5,18 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
 import { PermissionsModalComponent } from '../../../../shared/components/permissions-modal/permissions-modal.component';
 import { DynamicFormModalComponent } from '../../../../shared/components/dynamic-form-modal/dynamic-form-modal.component';
+import { ViewRoleModalComponent } from '../../../../shared/components/view-role-modal/view-role-modal';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { CreateRoleRequest } from '../../../../shared/models/permission.model';
 import { RolesService } from '../../services/roles.service';
+import { RoleData } from '../../../../interface/roles-api.interface';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, DynamicFormModalComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, DynamicFormModalComponent, ViewRoleModalComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
@@ -72,6 +74,11 @@ export class RolesPermisos implements OnInit {
 
   tableActions: TableAction[] = [
     {
+      icon: 'eye',
+      label: 'Ver',
+      action: (row) => this.viewRole(row)
+    },
+    {
       icon: 'pencil',
       label: 'Editar',
       action: (row) => this.editRole(row)
@@ -94,6 +101,10 @@ export class RolesPermisos implements OnInit {
   isEditRoleModalOpen = false;
   editingRoleId: string | null = null;
   editingRoleData: { name: string; description: string; permissionIds: string[] } | null = null;
+
+  // View role modal state
+  isViewRoleModalOpen = false;
+  viewingRoleData: RoleData | null = null;
 
   // Computed stats
   get totalRoles(): number {
@@ -140,6 +151,49 @@ export class RolesPermisos implements OnInit {
 
   handleTableAction(event: { action: TableAction; row: any }) {
     event.action.action(event.row);
+  }
+
+  viewRole(role: Role) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos del rol...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get full role data from backend
+    this.rolesService.getRoleById(role.id).subscribe({
+      next: (roleData) => {
+        Swal.close();
+        this.viewingRoleData = roleData;
+        this.isViewRoleModalOpen = true;
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar rol:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar el rol',
+          text: 'No se pudo cargar la información del rol',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  closeViewRoleModal() {
+    this.isViewRoleModalOpen = false;
+    this.viewingRoleData = null;
   }
 
   editRole(role: Role) {

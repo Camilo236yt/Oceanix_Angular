@@ -31,7 +31,9 @@
       "Bash(mkdir:*)",
       "Bash(ren create-role-modal dynamic-form-modal)",
       "Bash(move create-role-modal dynamic-form-modal)",
-      "Bash(if exist \"src\\app\\auth\\validacion\" rmdir /s /q \"src\\app\\auth\\validacion\")"
+      "Bash(if exist \"src\\app\\auth\\validacion\" rmdir /s /q \"src\\app\\auth\\validacion\")",
+      "Bash(npx ng build)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

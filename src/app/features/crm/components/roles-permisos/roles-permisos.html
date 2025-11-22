@@ -113,4 +113,11 @@
     (onClose)="closeEditRoleModal()"
     (onSubmit)="handleEditRole($event)">
   </app-dynamic-form-modal>
+
+  <!-- Modal de ver rol -->
+  <app-view-role-modal
+    [isOpen]="isViewRoleModalOpen"
+    [roleData]="viewingRoleData"
+    (close)="closeViewRoleModal()">
+  </app-view-role-modal>
 </div>
