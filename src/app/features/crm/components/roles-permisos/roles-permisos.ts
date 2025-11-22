@@ -100,7 +100,7 @@ export class RolesPermisos implements OnInit {
   isCreateRoleModalOpen = false;
   isEditRoleModalOpen = false;
   editingRoleId: string | null = null;
-  editingRoleData: { name: string; description: string; permissionIds: string[] } | null = null;
+  editingRoleData: { name: string; description: string; canReceiveIncidents: boolean; permissionIds: string[] } | null = null;
 
   // View role modal state
   isViewRoleModalOpen = false;
@@ -223,6 +223,7 @@ export class RolesPermisos implements OnInit {
         this.editingRoleData = {
           name: roleData.name,
           description: roleData.description,
+          canReceiveIncidents: roleData.canReceiveIncidents ?? false,
           permissionIds: roleData.permissions.map(p => p.permission.id)
         };
         // Abrir el modal inmediatamente después de cargar los datos
@@ -361,10 +362,10 @@ export class RolesPermisos implements OnInit {
   }
 
   handleEditRole(data: any) {
-    const { roleId, name, description, permissionIds } = data;
+    const { roleId, name, description, canReceiveIncidents, permissionIds } = data;
     console.log('Actualizar rol con datos:', data);
 
-    this.rolesService.updateRole(roleId, { name, description, permissionIds }).subscribe({
+    this.rolesService.updateRole(roleId, { name, description, canReceiveIncidents, permissionIds }).subscribe({
       next: (response: any) => {
         console.log('Rol actualizado exitosamente:', response);
         this.closeEditRoleModal();

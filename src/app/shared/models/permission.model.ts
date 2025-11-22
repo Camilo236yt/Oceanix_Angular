@@ -18,5 +18,6 @@ export interface PermissionCategory {
 export interface CreateRoleRequest {
   name: string;
   description: string;
+  canReceiveIncidents: boolean;
   permissionIds: string[];
 }

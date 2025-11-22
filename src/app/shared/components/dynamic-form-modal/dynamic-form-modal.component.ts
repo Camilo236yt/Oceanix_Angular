@@ -19,13 +19,14 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
   @Input() mode: 'role' | 'generic' = 'role'; // Modo de compatibilidad
   @Input() editMode = false; // Indica si está en modo edición
   @Input() roleId: string | null = null; // ID del rol a editar
-  @Input() initialData: { name?: string; description?: string; permissionIds?: string[] } | null = null;
+  @Input() initialData: { name?: string; description?: string; canReceiveIncidents?: boolean; permissionIds?: string[] } | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<any>();
 
   // Modo role (compatibilidad con implementación anterior)
   roleName = '';
   roleDescription = '';
+  canReceiveIncidents = false;
   categories: PermissionCategory[] = [];
   selectedPermissions: Set<string> = new Set();
   isLoading = false;
@@ -59,6 +60,7 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     if (changes['initialData'] && this.initialData && this.editMode) {
       this.roleName = this.initialData.name || '';
       this.roleDescription = this.initialData.description || '';
+      this.canReceiveIncidents = this.initialData.canReceiveIncidents ?? false;
       if (this.initialData.permissionIds) {
         this.selectedPermissions = new Set(this.initialData.permissionIds);
       }
@@ -319,6 +321,7 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     const request: CreateRoleRequest = {
       name: this.roleName.trim(),
       description: this.roleDescription.trim(),
+      canReceiveIncidents: this.canReceiveIncidents,
       permissionIds: Array.from(this.selectedPermissions)
     };
 
@@ -333,6 +336,7 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
   resetFormFields() {
     this.roleName = '';
     this.roleDescription = '';
+    this.canReceiveIncidents = false;
     this.selectedPermissions.clear();
     this.nameError = '';
     this.descriptionError = '';

@@ -18,6 +18,7 @@ export interface RoleData {
   enterpriseId: string;
   name: string;
   description: string;
+  canReceiveIncidents: boolean;
   isSystemRole: boolean;
   isActive: boolean;
   createdAt: string;
