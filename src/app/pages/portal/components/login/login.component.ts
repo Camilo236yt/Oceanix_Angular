@@ -1,25 +1,28 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthClienteService } from '../../services/auth-cliente.service';
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 
 declare const google: any;
 
 @Component({
   selector: 'app-portal-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSpinner],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class PortalLoginComponent implements OnInit {
   errorMessage = '';
+  isLoading = false;
   private googleInitialized = false;
 
   constructor(
     private router: Router,
     private authClienteService: AuthClienteService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -97,14 +100,23 @@ export class PortalLoginComponent implements OnInit {
   }
 
   private loginWithIdToken(idToken: string): void {
+    // Mostrar animación de carga
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
     this.authClienteService.loginConGoogle(idToken)
       .subscribe({
         next: (response) => {
           console.log('Login exitoso:', response);
-          this.router.navigate(['/portal/registro-incidencia']);
+          // Mantener la animación mientras redirige
+          setTimeout(() => {
+            this.router.navigate(['/portal/registro-incidencia']);
+          }, 1000);
         },
         error: (error) => {
           console.error('Error en login:', error);
+          this.isLoading = false;
+          this.cdr.detectChanges();
           this.errorMessage = error.error?.message || 'Error al iniciar sesión. Por favor, intenta nuevamente.';
         }
       });

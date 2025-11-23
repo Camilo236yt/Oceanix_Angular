@@ -1,4 +1,9 @@
 <div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
+  <!-- Loading Spinner -->
+  @if (isLoading) {
+    <app-loading-spinner></app-loading-spinner>
+  }
+
   <div class="flex flex-col lg:flex-row min-h-screen max-w-7xl mx-auto">
 
     <!-- Lado Izquierdo - Información (Solo visible en desktop) -->
