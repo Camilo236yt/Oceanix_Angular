@@ -1,4 +1,9 @@
 <div class="flex h-screen overflow-hidden bg-[var(--bg-primary)]">
+  <!-- Loading Spinner para logout -->
+  @if (isLoggingOut) {
+    <app-loading-spinner></app-loading-spinner>
+  }
+
   <!-- Mobile Header (visible only on mobile, hidden when sidebar is open) -->
   <header [class.hidden]="isMobileMenuOpen" class="lg:hidden fixed top-0 left-0 right-0 bg-[var(--bg-secondary)] shadow-md z-50 px-4 py-3 dark:shadow-slate-900/50">
     <div class="flex items-center justify-between">

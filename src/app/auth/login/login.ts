@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -7,15 +7,16 @@ import { emailValidator } from '../../utils/validators';
 import { AuthService } from '../../services/auth.service';
 import { LoginResponse } from '../../interface/auth.interface';
 import { SubdomainService } from '../../core/services/subdomain.service';
+import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 import Swal from 'sweetalert2';
 import { switchMap, map } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, LoadingSpinner],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
+  styleUrls: ['./login.scss'],
 })
 export class Login implements OnInit {
   loginForm!: FormGroup;
@@ -28,7 +29,8 @@ export class Login implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private subdomainService: SubdomainService
+    private subdomainService: SubdomainService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -68,8 +70,8 @@ export class Login implements OnInit {
       return;
     }
 
-    this.isLoading = true;
     this.errorMessage = '';
+    this.isLoading = true;
 
     const credentials = {
       email: this.loginForm.value.email,
@@ -89,33 +91,38 @@ export class Login implements OnInit {
       })
     ).subscribe({
       next: ({ loginResponse, meResponse }) => {
-        this.isLoading = false;
-
         if (meResponse.success) {
-          // Datos de configuración ya cargados, ahora redirigir
+          // Datos de configuración ya cargados, esperar un momento y redirigir
           const subdomain = meResponse.data?.enterprise?.subdomain;
 
-          if (subdomain) {
-            // Si tenemos subdomain, redirigir con el subdomain
-            this.authService.redirectToSubdomain(subdomain);
-          } else {
-            // Si no hay subdomain, redirigir directamente al dashboard
-            this.router.navigate(['/crm/dashboard']);
-          }
+          setTimeout(() => {
+            if (subdomain) {
+              // Si tenemos subdomain, redirigir con el subdomain
+              this.authService.redirectToSubdomain(subdomain);
+            } else {
+              // Si no hay subdomain, redirigir directamente al dashboard
+              this.router.navigate(['/crm/dashboard']);
+            }
+          }, 1000);
         }
       },
       error: (error: HttpErrorResponse) => {
+        // Ocultar animación de carga
         this.isLoading = false;
+        this.cdr.detectChanges();
         console.error('Error en login:', error);
 
-        // Mostrar Sweet Alert según el tipo de error
-        if (error.status === 401) {
-          this.showLoginErrorAlert();
-        } else if (error.status === 0) {
-          this.showConnectionErrorAlert();
-        } else {
-          this.showGenericErrorAlert(error.error?.message);
-        }
+        // Delay para que la animación desaparezca completamente antes de mostrar el alert
+        setTimeout(() => {
+          // Mostrar Sweet Alert según el tipo de error
+          if (error.status === 401) {
+            this.showLoginErrorAlert();
+          } else if (error.status === 0) {
+            this.showConnectionErrorAlert();
+          } else {
+            this.showGenericErrorAlert(error.error?.message);
+          }
+        }, 400);
       }
     });
   }

@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../services/auth.service';
 import { VerificationBannerComponent } from '../../../../shared/components/verification-banner/verification-banner.component';
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import Swal from 'sweetalert2';
 
 interface MenuItem {
   path: string;
@@ -17,7 +19,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -25,6 +27,7 @@ export class CrmLayout implements OnInit, OnDestroy {
   isCollapsed: boolean = false;
   isMobileMenuOpen: boolean = false;
   isViewOptionsModalOpen: boolean = false;
+  isLoggingOut: boolean = false;
   mobileViewMode: MobileViewMode = 'icons-with-names';
   currentDate: string = '';
   private midnightTimer: any;
@@ -33,6 +36,7 @@ export class CrmLayout implements OnInit, OnDestroy {
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   private allMenuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard', permissions: ['read_dashboard'] },
@@ -176,21 +180,55 @@ export class CrmLayout implements OnInit, OnDestroy {
   }
 
   /**
-   * Cierra la sesión del usuario y redirige al login
+   * Muestra modal de confirmación para cerrar sesión
    */
   logout() {
-    console.log('Logout button clicked!');
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Se cerrará tu sesión actual',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#9333ea',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      focusCancel: true,
+      customClass: {
+        popup: 'rounded-2xl',
+        title: 'text-gray-900',
+        htmlContainer: 'text-gray-600'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.performLogout();
+      }
+    });
+  }
+
+  /**
+   * Ejecuta el cierre de sesión
+   */
+  private performLogout() {
+    // Mostrar animación de carga
+    this.isLoggingOut = true;
+    this.cdr.detectChanges();
 
     // Limpiar datos de autenticación y esperar a que la cookie del backend se limpie
     this.authService.logout().subscribe({
       next: () => {
         console.log('Backend logout completed successfully');
-        this.performLogoutRedirect();
+        // Delay para mostrar la animación antes de redirigir
+        setTimeout(() => {
+          this.performLogoutRedirect();
+        }, 1000);
       },
       error: (error) => {
         console.error('Error during backend logout:', error);
         // Incluso si falla el backend, redirigir al login
-        this.performLogoutRedirect();
+        setTimeout(() => {
+          this.performLogoutRedirect();
+        }, 1000);
       }
     });
   }
