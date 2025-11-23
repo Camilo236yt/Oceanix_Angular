@@ -52,4 +52,14 @@ export class IncidenciasService {
       { withCredentials: true }
     );
   }
+
+  /**
+   * Eliminar (cancelar) una incidencia por ID
+   */
+  eliminarIncidencia(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/incidencias/${id}`,
+      { withCredentials: true }
+    );
+  }
 }

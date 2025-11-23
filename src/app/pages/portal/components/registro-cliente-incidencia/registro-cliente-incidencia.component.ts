@@ -30,6 +30,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   // Modal de detalles
   isModalOpen = signal(false);
   selectedIncidencia: Incidencia | null = null;
+  removingIncidenciaId: number | null = null;
 
   constructor(
     private router: Router,
@@ -223,5 +224,61 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+
+  cancelarIncidencia(): void {
+    if (!this.selectedIncidencia) return;
+
+    Swal.fire({
+      title: '¿Cancelar incidencia?',
+      text: 'Esta acción no se puede deshacer. La incidencia será eliminada permanentemente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No, mantener'
+    }).then((result) => {
+      if (result.isConfirmed && this.selectedIncidencia) {
+        const incidenciaId = this.selectedIncidencia.id;
+
+        this.incidenciasService.eliminarIncidencia(incidenciaId).subscribe({
+          next: () => {
+            // Cerrar modal
+            this.closeModal();
+
+            // Iniciar animación de eliminación
+            this.removingIncidenciaId = incidenciaId;
+            this.cdr.detectChanges();
+
+            // Esperar a que termine la animación y eliminar del array
+            setTimeout(() => {
+              this.incidencias = this.incidencias.filter(inc => inc.id !== incidenciaId);
+              this.removingIncidenciaId = null;
+              this.cdr.detectChanges();
+
+              // Mostrar mensaje de éxito
+              Swal.fire({
+                icon: 'success',
+                title: 'Incidencia cancelada',
+                text: 'La incidencia ha sido eliminada correctamente.',
+                confirmButtonColor: '#7c3aed',
+                timer: 3000,
+                timerProgressBar: true
+              });
+            }, 400);
+          },
+          error: (error) => {
+            console.error('Error al cancelar incidencia:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.error?.message || 'No se pudo cancelar la incidencia. Por favor intenta nuevamente.',
+              confirmButtonColor: '#7c3aed'
+            });
+          }
+        });
+      }
+    });
   }
 }
