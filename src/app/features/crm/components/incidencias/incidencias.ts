@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Incident, IncidentData } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
@@ -12,11 +13,14 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewIncidentModalComponent, EditIncidentStatusModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, ViewIncidentModalComponent, EditIncidentStatusModalComponent],
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
 export class Incidencias implements OnInit {
+  // Loading state
+  isLoading = true;
+
   // View incident modal state
   isViewIncidentModalOpen = false;
   viewingIncidentData: IncidentData | null = null;
@@ -112,14 +116,18 @@ export class Incidencias implements OnInit {
   }
 
   loadIncidencias(): void {
+    this.isLoading = true;
     this.incidenciasService.getIncidencias().subscribe({
       next: (data) => {
         console.log('Incidencias cargadas:', data);
         this.incidents = [...data];
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar incidencias:', error);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

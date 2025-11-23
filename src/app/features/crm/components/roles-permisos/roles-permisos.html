@@ -78,13 +78,17 @@
   </div>
 
   <!-- Tabla de roles -->
-  <app-data-table
-    [columns]="tableColumns"
-    [data]="roles"
-    [actions]="tableActions"
-    (onActionClick)="handleTableAction($event)"
-    (onViewMorePermissions)="handleViewMorePermissions($event)">
-  </app-data-table>
+  @if (isLoading) {
+    <app-skeleton-loader type="table" [rows]="5" [columns]="4"></app-skeleton-loader>
+  } @else {
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="roles"
+      [actions]="tableActions"
+      (onActionClick)="handleTableAction($event)"
+      (onViewMorePermissions)="handleViewMorePermissions($event)">
+    </app-data-table>
+  }
 
   <!-- Modal de permisos -->
   <app-permissions-modal

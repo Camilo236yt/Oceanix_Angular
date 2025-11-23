@@ -23,12 +23,16 @@
   </div>
 
   <!-- Tabla de empresas -->
-  <app-data-table
-    [columns]="tableColumns"
-    [data]="companies"
-    [actions]="tableActions"
-    (onActionClick)="handleTableAction($event)">
-  </app-data-table>
+  @if (isLoading) {
+    <app-skeleton-loader type="table" [rows]="5" [columns]="5"></app-skeleton-loader>
+  } @else {
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="companies"
+      [actions]="tableActions"
+      (onActionClick)="handleTableAction($event)">
+    </app-data-table>
+  }
 </div>
 
 <!-- View Company Modal -->

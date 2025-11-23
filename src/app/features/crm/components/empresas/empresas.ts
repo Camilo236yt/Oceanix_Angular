@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Company } from '../../models/company.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
@@ -13,11 +14,14 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-empresas',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, ViewCompanyModalComponent, CreateCompanyModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, ViewCompanyModalComponent, CreateCompanyModalComponent],
   templateUrl: './empresas.html',
   styleUrl: './empresas.scss',
 })
 export class Empresas implements OnInit {
+  // Loading state
+  isLoading = true;
+
   constructor(
     private empresaService: EmpresaService,
     private cdr: ChangeDetectorRef
@@ -96,14 +100,18 @@ export class Empresas implements OnInit {
   }
 
   loadEmpresas() {
+    this.isLoading = true;
     this.empresaService.getEmpresas().subscribe({
       next: (data) => {
         console.log('Empresas cargadas:', data);
         this.companies = [...data]; // Create new array reference
+        this.isLoading = false;
         this.cdr.detectChanges(); // Force change detection
       },
       error: (error) => {
         console.error('Error al cargar empresas:', error);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

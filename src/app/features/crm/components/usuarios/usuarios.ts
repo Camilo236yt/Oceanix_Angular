@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
@@ -19,11 +20,14 @@ import { of } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, CreateUserModalComponent, ViewUserModalComponent, HasPermissionDirective],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, CreateUserModalComponent, ViewUserModalComponent, HasPermissionDirective],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
 export class Usuarios implements OnInit {
+  // Loading state
+  isLoading = true;
+
   // Modal state
   isCreateUserModalOpen = false;
   isEditMode = false;
@@ -183,14 +187,18 @@ export class Usuarios implements OnInit {
   }
 
   loadUsuarios() {
+    this.isLoading = true;
     this.usuariosService.getUsuarios().subscribe({
       next: (usuarios) => {
         console.log('Usuarios cargados:', usuarios);
         this.users = [...usuarios]; // Create new array reference
+        this.isLoading = false;
         this.cdr.detectChanges(); // Force change detection
       },
       error: (error) => {
         console.error('Error al cargar usuarios:', error);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

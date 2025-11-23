@@ -4,6 +4,7 @@ import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { IncidenciasService } from '../../services/incidencias';
 import { DashboardData } from '../../models/incidencia.interface';
 import { ThemeService } from '../../../../core/services/theme.service';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -40,7 +41,7 @@ export type PieChartOptions = {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, NgApexchartsModule],
+  imports: [CommonModule, NgApexchartsModule, SkeletonLoader],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

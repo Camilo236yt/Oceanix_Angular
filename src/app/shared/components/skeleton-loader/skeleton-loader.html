@@ -1,0 +1,78 @@
+<!-- Skeleton para Tabla -->
+@if (type === 'table') {
+  <div class="skeleton-table">
+    <!-- Header de la tabla -->
+    @if (showHeader) {
+      <div class="skeleton-table-header">
+        @for (col of columnsArray; track $index) {
+          <div class="skeleton-cell skeleton-header-cell"></div>
+        }
+      </div>
+    }
+    <!-- Filas de la tabla -->
+    @for (row of rowsArray; track $index) {
+      <div class="skeleton-table-row">
+        @for (col of columnsArray; track $index) {
+          <div class="skeleton-cell">
+            <div class="skeleton-line" [style.width]="(60 + ($index * 10)) + '%'"></div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Skeleton para Cards -->
+@if (type === 'card') {
+  <div class="skeleton-cards">
+    @for (card of cardsArray; track $index) {
+      <div class="skeleton-card">
+        <div class="skeleton-card-header">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-card-title">
+            <div class="skeleton-line" style="width: 70%"></div>
+            <div class="skeleton-line skeleton-line-sm" style="width: 50%"></div>
+          </div>
+        </div>
+        <div class="skeleton-card-body">
+          <div class="skeleton-line" style="width: 100%"></div>
+          <div class="skeleton-line" style="width: 90%"></div>
+          <div class="skeleton-line" style="width: 75%"></div>
+        </div>
+        <div class="skeleton-card-footer">
+          <div class="skeleton-button"></div>
+          <div class="skeleton-button skeleton-button-sm"></div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- Skeleton para Texto -->
+@if (type === 'text') {
+  <div class="skeleton-text">
+    @for (line of linesArray; track $index) {
+      <div
+        class="skeleton-line"
+        [style.width]="$index === linesArray.length - 1 ? '60%' : '100%'"
+        [class.skeleton-line-lg]="$index === 0"
+      ></div>
+    }
+  </div>
+}
+
+<!-- Skeleton para Avatar -->
+@if (type === 'avatar') {
+  <div class="skeleton-avatar-group">
+    <div class="skeleton-avatar skeleton-avatar-lg"></div>
+    <div class="skeleton-avatar-info">
+      <div class="skeleton-line" style="width: 150px"></div>
+      <div class="skeleton-line skeleton-line-sm" style="width: 100px"></div>
+    </div>
+  </div>
+}
+
+<!-- Skeleton para Button -->
+@if (type === 'button') {
+  <div class="skeleton-button skeleton-button-lg"></div>
+}

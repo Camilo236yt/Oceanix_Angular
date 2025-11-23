@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule, ChartComponent } from 'ng-apexcharts';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { PdfReportModalComponent } from '../pdf-report-modal/pdf-report-modal.component';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { IncidenciasService } from '../../services/incidencias';
 import { ReportesService } from '../../services/reportes.service';
@@ -45,7 +46,7 @@ export type PieChartOptions = {
 
 @Component({
   selector: 'app-reportes',
-  imports: [CommonModule, FormsModule, NgApexchartsModule, IconComponent, PdfReportModalComponent],
+  imports: [CommonModule, FormsModule, NgApexchartsModule, IconComponent, PdfReportModalComponent, SkeletonLoader],
   templateUrl: './reportes.html',
   styleUrl: './reportes.scss',
 })

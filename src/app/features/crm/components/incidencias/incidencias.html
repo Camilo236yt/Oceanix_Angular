@@ -17,12 +17,16 @@
   </div>
 
   <!-- Tabla de incidencias -->
-  <app-data-table
-    [columns]="tableColumns"
-    [data]="incidents"
-    [actions]="tableActions"
-    (onActionClick)="handleTableAction($event)">
-  </app-data-table>
+  @if (isLoading) {
+    <app-skeleton-loader type="table" [rows]="5" [columns]="6"></app-skeleton-loader>
+  } @else {
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="incidents"
+      [actions]="tableActions"
+      (onActionClick)="handleTableAction($event)">
+    </app-data-table>
+  }
 </div>
 
 <!-- View Incident Modal -->

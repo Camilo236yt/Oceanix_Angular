@@ -24,12 +24,16 @@
   </div>
 
   <!-- Tabla de usuarios -->
-  <app-data-table
-    [columns]="tableColumns"
-    [data]="users"
-    [actions]="tableActions"
-    (onActionClick)="handleTableAction($event)">
-  </app-data-table>
+  @if (isLoading) {
+    <app-skeleton-loader type="table" [rows]="5" [columns]="5"></app-skeleton-loader>
+  } @else {
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="users"
+      [actions]="tableActions"
+      (onActionClick)="handleTableAction($event)">
+    </app-data-table>
+  }
 </div>
 
 <!-- Modal para crear/editar usuario -->

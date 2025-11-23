@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
+import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/skeleton-loader';
 import { PermissionsModalComponent } from '../../../../shared/components/permissions-modal/permissions-modal.component';
 import { DynamicFormModalComponent } from '../../../../shared/components/dynamic-form-modal/dynamic-form-modal.component';
 import { ViewRoleModalComponent } from '../../../../shared/components/view-role-modal/view-role-modal';
@@ -16,11 +17,14 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-roles-permisos',
-  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, PermissionsModalComponent, DynamicFormModalComponent, ViewRoleModalComponent],
+  imports: [CommonModule, DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, PermissionsModalComponent, DynamicFormModalComponent, ViewRoleModalComponent],
   templateUrl: './roles-permisos.html',
   styleUrl: './roles-permisos.scss',
 })
 export class RolesPermisos implements OnInit {
+  // Loading state
+  isLoading = true;
+
   constructor(
     private rolesService: RolesService,
     private cdr: ChangeDetectorRef
@@ -137,14 +141,18 @@ export class RolesPermisos implements OnInit {
   }
 
   loadRoles() {
+    this.isLoading = true;
     this.rolesService.getRoles().subscribe({
       next: (roles) => {
         console.log('Roles cargados:', roles);
         this.roles = [...roles]; // Crear una nueva referencia del array
+        this.isLoading = false;
         this.cdr.detectChanges(); // Forzar la detección de cambios
       },
       error: (error) => {
         console.error('Error al cargar roles:', error);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
