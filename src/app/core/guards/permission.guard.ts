@@ -22,16 +22,26 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
+    console.log(`[PermissionGuard] Verificando permiso: ${requiredPermission}`);
+
     // Verificar sesión con el backend
     return authService.checkSession().pipe(
       map(isValid => {
+        console.log(`[PermissionGuard] Sesión válida: ${isValid}`);
+
         if (!isValid) {
+          console.log('[PermissionGuard] Sesión inválida, redirigiendo a login');
           router.navigate(['/login']);
           return false;
         }
 
+        // Obtener permisos actuales del usuario para debugging
+        const hasRequiredPermission = authService.hasPermission(requiredPermission);
+        console.log(`[PermissionGuard] ¿Tiene permiso '${requiredPermission}'?`, hasRequiredPermission);
+
         // Si el usuario tiene el permiso, permitir acceso
         if (authService.hasPermission(requiredPermission)) {
+          console.log(`[PermissionGuard] Acceso permitido a ruta con permiso: ${requiredPermission}`);
           return true;
         }
 
@@ -40,7 +50,8 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
         router.navigate(['/crm/dashboard']);
         return false;
       }),
-      catchError(() => {
+      catchError((error) => {
+        console.error('[PermissionGuard] Error al verificar sesión:', error);
         router.navigate(['/login']);
         return of(false);
       })

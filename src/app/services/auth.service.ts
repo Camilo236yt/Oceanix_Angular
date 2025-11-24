@@ -282,24 +282,43 @@ export class AuthService {
    * @returns Observable<boolean> - true if session is valid, false otherwise
    */
   checkSession(): Observable<boolean> {
+    console.log('[AuthService] checkSession: Iniciando verificación de sesión');
+
     return this.http.get<{ success: boolean }>(
       `${this.API_URL}/auth/check`,
       { withCredentials: true }
     ).pipe(
       switchMap(response => {
+        console.log('[AuthService] checkSession: Respuesta recibida:', response);
+
         if (response.success === true) {
+          console.log('[AuthService] checkSession: Sesión válida');
+          console.log('[AuthService] checkSession: Permisos en memoria:', this.permissionsSubject.value.length);
+
           // Si la sesión es válida pero no hay permisos en memoria, cargarlos
           if (this.permissionsSubject.value.length === 0) {
+            console.log('[AuthService] checkSession: No hay permisos en memoria, cargando con getMe()');
             return this.getMe().pipe(
-              map(() => true),
-              catchError(() => of(true)) // Aún así retornar true si falla cargar permisos
+              map(() => {
+                console.log('[AuthService] checkSession: Permisos cargados exitosamente');
+                return true;
+              }),
+              catchError((error) => {
+                console.error('[AuthService] checkSession: Error al cargar permisos:', error);
+                return of(true); // Aún así retornar true si falla cargar permisos
+              })
             );
           }
           return of(true);
         }
+
+        console.log('[AuthService] checkSession: Sesión inválida (response.success !== true)');
         return of(false);
       }),
-      catchError(() => of(false))
+      catchError((error) => {
+        console.error('[AuthService] checkSession: Error en la petición /auth/check:', error);
+        return of(false);
+      })
     );
   }
 

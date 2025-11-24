@@ -34,7 +34,8 @@
       "Bash(if exist \"src\\app\\auth\\validacion\" rmdir /s /q \"src\\app\\auth\\validacion\")",
       "Bash(npx ng build)",
       "Bash(npx tsc:*)",
-      "Bash(npm run start)"
+      "Bash(npm run start)",
+      "Bash(npm ls:*)"
     ],
     "deny": [],
     "ask": []

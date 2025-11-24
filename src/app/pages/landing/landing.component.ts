@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FeatureComponent } from './feature/feature.component';
 import { StepsComponent } from './steps/steps.component';
 import { CompaniesComponent } from './companies/companies.component';
-import * as AOS from 'aos';
+import AOS from 'aos';
 
 @Component({
   selector: 'app-landing',

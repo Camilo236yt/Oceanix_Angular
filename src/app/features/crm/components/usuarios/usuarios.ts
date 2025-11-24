@@ -88,20 +88,50 @@ export class Usuarios implements OnInit {
       type: 'badge',
       sortable: true,
       badgeConfig: {
-        'Admin': {
+        'Admin Empresarial': {
           color: 'text-purple-600 dark:text-purple-400',
           bgColor: 'bg-transparent dark:bg-transparent',
           dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
         'Empleado': {
-          color: 'text-gray-900 dark:text-gray-300',
+          color: 'text-purple-600 dark:text-purple-400',
           bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-gray-900 dark:bg-gray-300'
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
-        'Supervisor': {
-          color: 'text-orange-600 dark:text-orange-400',
+        'Cliente': {
+          color: 'text-purple-600 dark:text-purple-400',
           bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-orange-600 dark:bg-orange-400'
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Super Admin': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Administrador techcorp': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Gestor de Usuarios techcorp': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Agente de Soporte techcorp': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Visualizador Limitado techcorp': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
+        },
+        'Gestor de Incidencias techcorp': {
+          color: 'text-purple-600 dark:text-purple-400',
+          bgColor: 'bg-transparent dark:bg-transparent',
+          dotColor: 'bg-purple-600 dark:bg-purple-400'
         }
       }
     },
