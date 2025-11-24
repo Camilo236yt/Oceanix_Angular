@@ -1,16 +1,16 @@
 import { Component, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Incidencia } from '../../models/incidencia.model';
-import { IncidenciasService } from '../../services/incidencias.service';
+import { IncidenciasService, Message } from '../../services/incidencias.service';
 import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -33,6 +33,17 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   isModalOpen = signal(false);
   selectedIncidencia: Incidencia | null = null;
   removingIncidenciaId: number | null = null;
+
+  // Chat en modal
+  messages: Message[] = [];
+  newMessage = '';
+  isLoadingMessages = false;
+  isSendingMessage = false;
+
+  // Upload de imágenes en modal
+  modalArchivos: File[] = [];
+  modalPreviews: string[] = [];
+  isUploadingImages = false;
 
   constructor(
     private router: Router,
@@ -214,13 +225,150 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
     document.body.style.overflow = 'hidden';
+    this.loadMessages();
     this.cdr.detectChanges();
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
     this.selectedIncidencia = null;
+    this.messages = [];
+    this.newMessage = '';
+    this.modalArchivos = [];
+    this.modalPreviews = [];
     document.body.style.overflow = '';
+  }
+
+  loadMessages(): void {
+    if (!this.selectedIncidencia) return;
+
+    this.isLoadingMessages = true;
+    this.incidenciasService.getMessages(this.selectedIncidencia.id.toString()).subscribe({
+      next: (messages) => {
+        this.messages = messages;
+        this.isLoadingMessages = false;
+        this.cdr.detectChanges();
+        this.scrollToBottom();
+      },
+      error: (error) => {
+        console.error('Error loading messages:', error);
+        this.isLoadingMessages = false;
+      }
+    });
+  }
+
+  sendMessage(): void {
+    if (!this.newMessage.trim() || !this.selectedIncidencia || this.isSendingMessage) return;
+
+    this.isSendingMessage = true;
+    this.incidenciasService.sendMessage(this.selectedIncidencia.id.toString(), this.newMessage).subscribe({
+      next: (message) => {
+        this.messages = [...this.messages, message];
+        this.newMessage = '';
+        this.isSendingMessage = false;
+        this.cdr.detectChanges();
+        this.scrollToBottom();
+      },
+      error: (error) => {
+        console.error('Error sending message:', error);
+        this.isSendingMessage = false;
+      }
+    });
+  }
+
+  onModalFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivosNuevos = Array.from(input.files);
+    input.value = '';
+
+    for (const archivo of archivosNuevos) {
+      if (this.modalArchivos.length >= this.MAX_IMAGENES) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Límite alcanzado',
+          text: `Solo puedes subir un máximo de ${this.MAX_IMAGENES} imágenes.`,
+          confirmButtonColor: '#7c3aed'
+        });
+        break;
+      }
+
+      if (!archivo.type.match(/image\/(jpeg|jpg|png|webp)/)) continue;
+      if (archivo.size > 5 * 1024 * 1024) continue;
+
+      this.modalArchivos.push(archivo);
+      this.modalPreviews.push('');
+      const currentIndex = this.modalPreviews.length - 1;
+
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          this.modalPreviews[currentIndex] = e.target.result as string;
+          this.cdr.detectChanges();
+        }
+      };
+      reader.readAsDataURL(archivo);
+    }
+    this.cdr.detectChanges();
+  }
+
+  eliminarModalImagen(index: number): void {
+    this.modalArchivos.splice(index, 1);
+    this.modalPreviews.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
+  uploadModalImages(): void {
+    if (!this.selectedIncidencia || this.modalArchivos.length === 0 || this.isUploadingImages) return;
+
+    this.isUploadingImages = true;
+    this.incidenciasService.uploadImages(this.selectedIncidencia.id.toString(), this.modalArchivos).subscribe({
+      next: (response) => {
+        this.modalArchivos = [];
+        this.modalPreviews = [];
+        this.isUploadingImages = false;
+        this.cdr.detectChanges();
+
+        // Recargar mensajes para ver el mensaje con las imágenes
+        this.loadMessages();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Imágenes enviadas',
+          text: 'Las imágenes se han subido correctamente.',
+          confirmButtonColor: '#7c3aed',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      },
+      error: (error) => {
+        console.error('Error uploading images:', error);
+        this.isUploadingImages = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.error?.message || 'No se pudieron subir las imágenes.',
+          confirmButtonColor: '#7c3aed'
+        });
+      }
+    });
+  }
+
+  formatMessageTime(isoDate: string): string {
+    const date = new Date(isoDate);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const chatContainer = document.getElementById('client-chat-messages');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
   }
 
   handleBackdropClick(event: MouseEvent): void {

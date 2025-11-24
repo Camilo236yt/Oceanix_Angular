@@ -10,6 +10,25 @@ interface IncidenciasApiResponse {
   data: Incidencia[];
 }
 
+export interface Message {
+  id: string;
+  content: string;
+  senderType: 'EMPLOYEE' | 'CLIENT';
+  messageType: string;
+  createdAt: string;
+  sender?: {
+    id: string;
+    name: string;
+    lastName: string;
+  };
+}
+
+interface MessagesResponse {
+  messages: Message[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -84,6 +103,49 @@ export class IncidenciasService {
     return this.http.delete<void>(
       `${environment.apiUrl}/incidencias/${id}`,
       { withCredentials: true }
+    );
+  }
+
+  /**
+   * Obtener mensajes de una incidencia del cliente
+   */
+  getMessages(incidenciaId: string): Observable<Message[]> {
+    return this.http.get<{ data: MessagesResponse; statusCode: number }>(
+      `${environment.apiUrl}/incidencias/client/me/${incidenciaId}/messages`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data?.messages || [])
+    );
+  }
+
+  /**
+   * Enviar mensaje como cliente
+   */
+  sendMessage(incidenciaId: string, content: string): Observable<Message> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/incidencias/client/me${incidenciaId}/messages`,
+      { content },
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || response)
+    );
+  }
+
+  /**
+   * Subir imágenes adicionales como cliente
+   */
+  uploadImages(incidenciaId: string, images: File[]): Observable<any> {
+    const formData = new FormData();
+    images.forEach((image) => {
+      formData.append('images', image);
+    });
+
+    return this.http.post<any>(
+      `${environment.apiUrl}/incidencias/client/me${incidenciaId}/messages/upload-image`,
+      formData,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || response)
     );
   }
 }

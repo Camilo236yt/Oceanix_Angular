@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
@@ -48,9 +48,17 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
   isSendingMessage = false;
   selectedStatus = '';
 
+  // Request images
+  isRequestingImages = false;
+  showRequestImagesOptions = false;
+  requestImagesHours = 24;
+
   private apiUrl = `${environment.apiUrl}/incidencias`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     if (this.incidentData) {
@@ -78,13 +86,21 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
     if (!this.incidentData) return;
 
     this.isLoadingMessages = true;
-    this.http.get<{ success: boolean; data: MessagesResponse }>(
+    this.http.get<{ data: MessagesResponse; statusCode: number }>(
       `${this.apiUrl}/${this.incidentData.id}/messages`,
       { withCredentials: true }
     ).subscribe({
       next: (response) => {
-        this.messages = response.data.messages || [];
+        this.messages = response.data?.messages || [];
         this.isLoadingMessages = false;
+        this.cdr.detectChanges();
+        // Scroll to bottom after loading
+        setTimeout(() => {
+          const chatContainer = document.getElementById('chat-messages');
+          if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }
+        }, 100);
       },
       error: (error) => {
         console.error('Error loading messages:', error);
@@ -103,9 +119,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
       { withCredentials: true }
     ).subscribe({
       next: (response) => {
-        this.messages.push(response.data || response);
+        const newMsg = response.data || response;
+        this.messages = [...this.messages, newMsg];
         this.newMessage = '';
         this.isSendingMessage = false;
+        this.cdr.detectChanges();
         // Scroll to bottom
         setTimeout(() => {
           const chatContainer = document.getElementById('chat-messages');
@@ -190,5 +208,42 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
       return `${assignedEmployee.name} ${assignedEmployee.lastName || ''}`.trim();
     }
     return 'Sin asignar';
+  }
+
+  toggleRequestImagesOptions() {
+    this.showRequestImagesOptions = !this.showRequestImagesOptions;
+  }
+
+  requestImages() {
+    if (!this.incidentData || this.isRequestingImages) return;
+
+    this.isRequestingImages = true;
+    this.http.post<any>(
+      `${this.apiUrl}/${this.incidentData.id}/request-images`,
+      {
+        message: 'Por favor, sube imágenes adicionales de evidencia para poder procesar tu incidencia.',
+        hoursAllowed: this.requestImagesHours
+      },
+      { withCredentials: true }
+    ).subscribe({
+      next: (response) => {
+        const newMsg = response.data || response;
+        this.messages = [...this.messages, newMsg];
+        this.isRequestingImages = false;
+        this.showRequestImagesOptions = false;
+        this.cdr.detectChanges();
+        // Scroll to bottom
+        setTimeout(() => {
+          const chatContainer = document.getElementById('chat-messages');
+          if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Error requesting images:', error);
+        this.isRequestingImages = false;
+      }
+    });
   }
 }
