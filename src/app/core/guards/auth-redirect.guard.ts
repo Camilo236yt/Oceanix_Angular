@@ -18,7 +18,7 @@ export const authRedirectGuard: CanActivateFn = () => {
   return authService.checkSession().pipe(
     tap(isValid => console.log('[authRedirectGuard] Sesión válida:', isValid)),
     map(isValid => {
-      if (isValid) {
+      if (isValid) { 
         // Si está autenticado, redirigir al CRM
         console.log('[authRedirectGuard] Usuario autenticado, redirigiendo a /crm/dashboard');
         router.navigate(['/crm/dashboard']);

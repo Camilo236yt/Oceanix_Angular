@@ -175,8 +175,8 @@ export class AuthService {
    * @returns User object or null
    */
   getUser(): AdminUser | null {
-    const user = localStorage.getItem(this.USER_KEY);
-    return user ? JSON.parse(user) : null;
+    const userData = localStorage.getItem(this.USER_KEY);
+    return userData ? JSON.parse(userData) : null;
   }
 
   /**
@@ -184,102 +184,46 @@ export class AuthService {
    * @returns Enterprise object or null
    */
   getEnterprise(): Enterprise | null {
-    const enterprise = localStorage.getItem(this.ENTERPRISE_KEY);
-    return enterprise ? JSON.parse(enterprise) : null;
+    const enterpriseData = localStorage.getItem(this.ENTERPRISE_KEY);
+    return enterpriseData ? JSON.parse(enterpriseData) : null;
   }
 
   /**
-   * Check if user has authentication token
-   * @returns true if token exists
+   * Check if token exists
+   * @returns True if token exists
    */
   private hasToken(): boolean {
-    return !!this.getToken();
+    return !!localStorage.getItem(this.TOKEN_KEY);
   }
 
   /**
    * Check if user is authenticated
-   * @returns true if authenticated
+   * @returns Observable with boolean
    */
-  isAuthenticated(): boolean {
-    return this.hasToken();
+  checkAuth(): Observable<boolean> {
+    return this.isAuthenticated$;
   }
 
   /**
-   * Extrae el subdomain actual de la URL
-   * @returns subdomain string o null si no está en un subdomain
+   * Fetch user configuration data from /auth/me
+   * This includes user details, enterprise info, config, roles, and permissions
+   * @returns Observable with user config data
    */
-  private getCurrentSubdomain(): string | null {
-    const hostname = window.location.hostname;
-
-    // Si es localhost, retornar null
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return null;
-    }
-
-    // Ejemplo: techsol-abc.oceanix.space -> techsol-abc
-    const parts = hostname.split('.');
-    if (parts.length >= 3) {
-      return parts[0];
-    }
-
-    return null;
-  }
-
-  /**
-   * Valida que el usuario esté en el subdomain correcto
-   * Si no coincide, limpia la sesión y retorna false
-   * @returns true si está en el subdomain correcto
-   */
-  validateSubdomain(): boolean {
-    const enterprise = this.getEnterprise();
-    const currentSubdomain = this.getCurrentSubdomain();
-
-    // Si no hay empresa guardada o no estamos en un subdomain, no validar
-    if (!enterprise || !currentSubdomain) {
-      return true;
-    }
-
-    // Si el subdomain no coincide con la empresa del usuario
-    if (enterprise.subdomain !== currentSubdomain) {
-      // Limpiar la sesión local y la cookie del backend
-      this.logout().subscribe({
-        error: (err) => console.error('Error clearing auth cookie:', err)
-      });
-
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Get user configuration data from /auth/me endpoint
-   * @returns Observable with user configuration data
-   */
-  getMe(): Observable<MeResponse> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.get<MeResponse>(
-      `${this.API_URL}/auth/me`,
-      {
-        headers,
-        withCredentials: true
-      }
-    ).pipe(
+  fetchMeData(): Observable<MeResponse> {
+    return this.http.get<MeResponse>(`${this.API_URL}/auth/me`, {
+      withCredentials: true
+    }).pipe(
       tap(response => {
         if (response.success && response.data) {
-          this.setMeData(response.data);
+          this.storeMeData(response.data);
         }
       })
     );
   }
 
   /**
-   * Check if current session is valid by calling /auth/check endpoint
-   * Also loads user data if session is valid but permissions are not in memory
-   * @returns Observable<boolean> - true if session is valid, false otherwise
+   * Check if the current session is valid
+   * @returns Observable with boolean indicating if session is valid
    */
   checkSession(): Observable<boolean> {
     console.log('[AuthService] checkSession: Iniciando verificación de sesión');
@@ -297,8 +241,8 @@ export class AuthService {
 
           // Si la sesión es válida pero no hay permisos en memoria, cargarlos
           if (this.permissionsSubject.value.length === 0) {
-            console.log('[AuthService] checkSession: No hay permisos en memoria, cargando con getMe()');
-            return this.getMe().pipe(
+            console.log('[AuthService] checkSession: No hay permisos en memoria, cargando con fetchMeData()');
+            return this.fetchMeData().pipe(
               map(() => {
                 console.log('[AuthService] checkSession: Permisos cargados exitosamente');
                 return true;
@@ -323,214 +267,205 @@ export class AuthService {
   }
 
   /**
-   * Save user configuration data to BehaviorSubjects and sessionStorage
-   * @param data User configuration data from /auth/me
+   * Store user config data to session storage
+   * @param data User config data from /auth/me
    */
-  private setMeData(data: MeResponseData): void {
-    // Actualizar BehaviorSubjects (estado reactivo en memoria)
-    this.meUserSubject.next(data.user);
-    this.meEnterpriseSubject.next(data.enterprise);
-    this.configSubject.next(data.config);
-    this.rolesSubject.next(data.roles);
-    this.permissionsSubject.next(data.permissions);
-
-    // Guardar en sessionStorage como backup (se limpia al cerrar pestaña)
+  private storeMeData(data: MeResponseData): void {
+    sessionStorage.setItem(this.ME_DATA_KEY, JSON.stringify(data));
     sessionStorage.setItem(this.ME_USER_KEY, JSON.stringify(data.user));
     sessionStorage.setItem(this.ME_ENTERPRISE_KEY, JSON.stringify(data.enterprise));
     sessionStorage.setItem(this.ME_CONFIG_KEY, JSON.stringify(data.config));
     sessionStorage.setItem(this.ME_ROLES_KEY, JSON.stringify(data.roles));
     sessionStorage.setItem(this.ME_PERMISSIONS_KEY, JSON.stringify(data.permissions));
+
+    // Update BehaviorSubjects
+    this.meUserSubject.next(data.user);
+    this.meEnterpriseSubject.next(data.enterprise);
+    this.configSubject.next(data.config);
+    this.rolesSubject.next(data.roles);
+    this.permissionsSubject.next(data.permissions);
   }
 
   /**
-   * Get stored user data from sessionStorage
-   * @returns MeUser object or null
+   * Get stored user config data from session storage
+   * @returns User config data or null
+   */
+  private getStoredMeData(): MeResponseData | null {
+    const data = sessionStorage.getItem(this.ME_DATA_KEY);
+    return data ? JSON.parse(data) : null;
+  }
+
+  /**
+   * Get stored user data from /auth/me
+   * @returns User data or null
    */
   private getStoredMeUser(): MeUser | null {
-    const stored = sessionStorage.getItem(this.ME_USER_KEY);
-    return stored ? JSON.parse(stored) : null;
+    const data = sessionStorage.getItem(this.ME_USER_KEY);
+    return data ? JSON.parse(data) : null;
   }
 
   /**
-   * Get stored enterprise data from sessionStorage
-   * @returns MeEnterprise object or null
+   * Get stored enterprise data from /auth/me
+   * @returns Enterprise data or null
    */
   private getStoredMeEnterprise(): MeEnterprise | null {
-    const stored = sessionStorage.getItem(this.ME_ENTERPRISE_KEY);
-    return stored ? JSON.parse(stored) : null;
+    const data = sessionStorage.getItem(this.ME_ENTERPRISE_KEY);
+    return data ? JSON.parse(data) : null;
   }
 
   /**
-   * Get stored config data from sessionStorage
-   * @returns EnterpriseConfig object or null
+   * Get stored config data from /auth/me
+   * @returns Config data or null
    */
   private getStoredConfig(): EnterpriseConfig | null {
-    const stored = sessionStorage.getItem(this.ME_CONFIG_KEY);
-    return stored ? JSON.parse(stored) : null;
+    const data = sessionStorage.getItem(this.ME_CONFIG_KEY);
+    return data ? JSON.parse(data) : null;
   }
 
   /**
-   * Get stored roles from sessionStorage
-   * @returns Array of UserRole objects
+   * Get stored roles from /auth/me
+   * @returns Roles array
    */
   private getStoredRoles(): UserRole[] {
-    const stored = sessionStorage.getItem(this.ME_ROLES_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const data = sessionStorage.getItem(this.ME_ROLES_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
   /**
-   * Get stored permissions from sessionStorage
-   * @returns Array of permission strings
+   * Get stored permissions from /auth/me
+   * @returns Permissions array
    */
   private getStoredPermissions(): string[] {
-    const stored = sessionStorage.getItem(this.ME_PERMISSIONS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const data = sessionStorage.getItem(this.ME_PERMISSIONS_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
   /**
-   * Clear all user configuration data from memory and sessionStorage
+   * Get current user data (from /auth/me)
+   * @returns Observable with current user data
+   */
+  getCurrentUser(): Observable<MeUser | null> {
+    const storedData = this.getStoredMeUser();
+    if (storedData) {
+      return of(storedData);
+    }
+    return this.fetchMeData().pipe(
+      map(response => response.success ? response.data.user : null),
+      catchError(() => of(null))
+    );
+  }
+
+  /**
+   * Get current enterprise data (from /auth/me)
+   * @returns Observable with current enterprise data
+   */
+  getCurrentEnterprise(): Observable<MeEnterprise | null> {
+    const storedData = this.getStoredMeEnterprise();
+    if (storedData) {
+      return of(storedData);
+    }
+    return this.fetchMeData().pipe(
+      map(response => response.success ? response.data.enterprise : null),
+      catchError(() => of(null))
+    );
+  }
+
+  /**
+   * Get current config data (from /auth/me)
+   * @returns Observable with current config data
+   */
+  getCurrentConfig(): Observable<EnterpriseConfig | null> {
+    const storedData = this.getStoredConfig();
+    if (storedData) {
+      return of(storedData);
+    }
+    return this.fetchMeData().pipe(
+      map(response => response.success ? response.data.config : null),
+      catchError(() => of(null))
+    );
+  }
+
+  /**
+   * Get current roles (from /auth/me)
+   * @returns Observable with current roles
+   */
+  getCurrentRoles(): Observable<UserRole[]> {
+    const storedData = this.getStoredRoles();
+    if (storedData.length > 0) {
+      return of(storedData);
+    }
+    return this.fetchMeData().pipe(
+      map(response => response.success ? response.data.roles : []),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+   * Get current permissions (from /auth/me)
+   * @returns Observable with current permissions
+   */
+  getCurrentPermissions(): Observable<string[]> {
+    const storedData = this.getStoredPermissions();
+    if (storedData.length > 0) {
+      return of(storedData);
+    }
+    return this.fetchMeData().pipe(
+      map(response => response.success ? response.data.permissions : []),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+   * Clear stored user config data
    */
   private clearMeData(): void {
-    // Limpiar BehaviorSubjects
-    this.meUserSubject.next(null);
-    this.meEnterpriseSubject.next(null);
-    this.configSubject.next(null);
-    this.rolesSubject.next([]);
-    this.permissionsSubject.next([]);
-
-    // Limpiar sessionStorage
+    sessionStorage.removeItem(this.ME_DATA_KEY);
     sessionStorage.removeItem(this.ME_USER_KEY);
     sessionStorage.removeItem(this.ME_ENTERPRISE_KEY);
     sessionStorage.removeItem(this.ME_CONFIG_KEY);
     sessionStorage.removeItem(this.ME_ROLES_KEY);
     sessionStorage.removeItem(this.ME_PERMISSIONS_KEY);
+
+    // Reset BehaviorSubjects
+    this.meUserSubject.next(null);
+    this.meEnterpriseSubject.next(null);
+    this.configSubject.next(null);
+    this.rolesSubject.next([]);
+    this.permissionsSubject.next([]);
   }
 
   /**
-   * Get current user data (synchronous)
-   * @returns Current MeUser or null
+   * Logout user
+   * Clear authentication data from localStorage and session storage
    */
-  getCurrentMeUser(): MeUser | null {
-    return this.meUserSubject.value;
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.ENTERPRISE_KEY);
+    this.clearMeData();
+    this.isAuthenticatedSubject.next(false);
   }
 
   /**
-   * Get current permissions (synchronous)
-   * @returns Array of permission strings
+   * Check if user has specific permission
+   * @param permission Permission name to check
+   * @returns Observable with boolean
    */
-  getCurrentPermissions(): string[] {
-    return this.permissionsSubject.value;
-  }
-
-  /**
-   * Get current roles (synchronous)
-   * @returns Array of UserRole objects
-   */
-  getCurrentRoles(): UserRole[] {
-    return this.rolesSubject.value;
-  }
-
-  /**
-   * Check if user has a specific permission
-   * @param permission Permission to check
-   * @returns true if user has the permission
-   */
-  hasPermission(permission: string): boolean {
-    return this.permissionsSubject.value.includes(permission);
-  }
-
-  /**
-   * Check if user has any of the specified permissions
-   * @param permissions Array of permissions to check
-   * @returns true if user has at least one permission
-   */
-  hasAnyPermission(permissions: string[]): boolean {
-    const userPermissions = this.permissionsSubject.value;
-    return permissions.some(p => userPermissions.includes(p));
-  }
-
-  /**
-   * Check if user has all of the specified permissions
-   * @param permissions Array of permissions to check
-   * @returns true if user has all permissions
-   */
-  hasAllPermissions(permissions: string[]): boolean {
-    const userPermissions = this.permissionsSubject.value;
-    return permissions.every(p => userPermissions.includes(p));
-  }
-
-  /**
-   * Check if user has a specific role
-   * @param roleName Role name to check (e.g., 'SUPER_ADMIN')
-   * @returns true if user has the role
-   */
-  hasRole(roleName: string): boolean {
-    const userRoles = this.rolesSubject.value;
-    return userRoles.some(role => role.name === roleName);
-  }
-
-  /**
-   * Check if user has any of the specified roles
-   * @param roleNames Array of role names to check
-   * @returns true if user has at least one role
-   */
-  hasAnyRole(roleNames: string[]): boolean {
-    const userRoles = this.rolesSubject.value;
-    return roleNames.some(roleName => userRoles.some(role => role.name === roleName));
-  }
-
-  /**
-   * Check if user has a specific userType
-   * @param userType UserType to check (e.g., 'SUPER_ADMIN', 'EMPLOYEE')
-   * @returns true if user has the userType
-   */
-  hasUserType(userType: string): boolean {
-    const currentUser = this.meUserSubject.value;
-    return currentUser?.userType === userType;
-  }
-
-  /**
-   * Check if user has any of the specified userTypes
-   * @param userTypes Array of userTypes to check
-   * @returns true if user has at least one userType
-   */
-  hasAnyUserType(userTypes: string[]): boolean {
-    const currentUser = this.meUserSubject.value;
-    return userTypes.includes(currentUser?.userType || '');
-  }
-
-  /**
-   * Limpia la cookie de autenticación haciendo una petición al backend
-   * @returns Observable que se completa cuando la cookie se limpia
-   */
-  clearAuthCookie(): Observable<any> {
-    return this.http.post(
-      `${this.API_URL}/auth/logout`,
-      {},
-      { withCredentials: true }
+  hasPermission(permission: string): Observable<boolean> {
+    return this.permissions$.pipe(
+      map(permissions => permissions.includes(permission))
     );
   }
 
   /**
-   * Logout user and clear stored data
-   * @returns Observable que se completa cuando el logout finaliza
+   * Check if user has specific role
+   * @param roleName Role name to check
+   * @returns Observable with boolean
    */
-  logout(): Observable<any> {
-    // Limpiar localStorage
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    localStorage.removeItem(this.ENTERPRISE_KEY);
-    localStorage.removeItem('subdomain');
-    localStorage.removeItem('dev_subdomain');
-
-    // Limpiar datos de configuración de usuario
-    this.clearMeData();
-
-    // Actualizar estado de autenticación
-    this.isAuthenticatedSubject.next(false);
-
-    // Limpiar cookie del backend y retornar el observable
-    return this.clearAuthCookie();
+  hasRole(roleName: string): Observable<boolean> {
+    return this.roles$.pipe(
+      map(roles => roles.some(role => role.name === roleName))
+    );
   }
 
   /**
@@ -542,14 +477,12 @@ export class AuthService {
     const domain = environment.appDomain; // oceanix.space
     const newUrl = `${protocol}//${subdomain}.${domain}/crm/dashboard`;
 
-    // Guardar el subdominio
-    localStorage.setItem('subdomain', subdomain);
-
     // En localhost, guardar subdomain para desarrollo y navegar al dashboard
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       console.log(`[DEV MODE - localhost] Simulando subdominio: ${subdomain}`);
 
-      // Guardar subdomain para modo desarrollo (usado por HTTP Interceptor)
+      // Guardar subdomain SOLO para modo desarrollo (usado por HTTP Interceptor)
+      localStorage.setItem('subdomain', subdomain);
       localStorage.setItem('dev_subdomain', subdomain);
 
       // Navegar al dashboard sin cambiar de dominio
@@ -566,6 +499,7 @@ export class AuthService {
     }
 
     // En producción, redirigir al subdominio real
+    // NO guardamos en localStorage porque el subdomain ya está en la URL
     console.log(`Redirigiendo a: ${newUrl}`);
     window.location.href = newUrl;
   }
