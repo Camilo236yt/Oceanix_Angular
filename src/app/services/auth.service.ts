@@ -147,9 +147,14 @@ export class AuthService {
    * @param enterprise Enterprise data
    */
   private setAuthData(token: string, user: AdminUser, enterprise: Enterprise): void {
+    console.log('🔑 [AuthService] setAuthData called with token:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
+    console.log('🔑 [AuthService] Saving to TOKEN_KEY:', this.TOKEN_KEY);
+
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     localStorage.setItem(this.ENTERPRISE_KEY, JSON.stringify(enterprise));
+
+    console.log('✅ [AuthService] Token saved. Verification:', localStorage.getItem(this.TOKEN_KEY)?.substring(0, 30) + '...');
     this.isAuthenticatedSubject.next(true);
   }
 
@@ -158,7 +163,11 @@ export class AuthService {
    * @returns Token string or null
    */
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    console.log('🔐 [AuthService] getToken called, token:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
+    console.log('🔐 [AuthService] TOKEN_KEY:', this.TOKEN_KEY);
+    console.log('🔐 [AuthService] localStorage keys:', Object.keys(localStorage));
+    return token;
   }
 
   /**
