@@ -30,30 +30,37 @@ export class PortalLoginComponent implements OnInit {
   }
 
   private initializeGoogle(): void {
+    let attempts = 0;
+    const maxAttempts = 100; // 10 segundos (100ms * 100)
+
     const checkGoogle = setInterval(() => {
+      attempts++;
+
       if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
         clearInterval(checkGoogle);
 
-        google.accounts.id.initialize({
-          client_id: '72886373796-tpm8lsidvdrkv19t1qf8467a20ihec1d.apps.googleusercontent.com',
-          callback: (response: any) => {
-            this.ngZone.run(() => {
-              this.handleCredentialResponse(response);
-            });
-          }
-        });
+        try {
+          google.accounts.id.initialize({
+            client_id: '72886373796-tpm8lsidvdrkv19t1qf8467a20ihec1d.apps.googleusercontent.com',
+            callback: (response: any) => {
+              this.ngZone.run(() => {
+                this.handleCredentialResponse(response);
+              });
+            }
+          });
 
-        this.googleInitialized = true;
-        console.log('Google Identity Services initialized');
+          this.googleInitialized = true;
+          console.log('✅ Google Identity Services initialized successfully');
+        } catch (error) {
+          console.error('❌ Error initializing Google Identity Services:', error);
+          this.errorMessage = 'Error al inicializar Google. Por favor, recarga la página.';
+        }
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkGoogle);
+        console.error('❌ Google Identity Services failed to load after 10 seconds');
+        console.error('Script de Google no cargado. Verifica tu conexión a internet.');
       }
     }, 100);
-
-    setTimeout(() => {
-      clearInterval(checkGoogle);
-      if (!this.googleInitialized) {
-        console.error('Google Identity Services failed to load');
-      }
-    }, 10000);
   }
 
   continueWithGoogle(): void {
