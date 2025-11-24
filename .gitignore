@@ -51,3 +51,9 @@ Thumbs.db
 
 # SSL certificates
 /ssl
+
+# Manual de usuario
+/manual-usuario/
+Manual_Usuario_OCEANIX_v*.docx
+~$nual_Usuario_OCEANIX_v*.docx
+generar_manual_usuario.py

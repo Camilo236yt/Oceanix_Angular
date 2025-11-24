@@ -35,7 +35,15 @@
       "Bash(npx ng build)",
       "Bash(npx tsc:*)",
       "Bash(npm run start)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(winget install:*)",
+      "Bash(\"C:\\Users\\oseanix\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" --version)",
+      "Bash(\"C:\\Users\\oseanix\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -m pip install python-docx)",
+      "Bash(\"C:\\Users\\oseanix\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" generar_manual_usuario.py)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []
