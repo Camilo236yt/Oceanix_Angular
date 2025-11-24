@@ -1,10 +1,13 @@
-import { Component, signal, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Incidencia } from '../../models/incidencia.model';
 import { IncidenciasService, Message } from '../../services/incidencias.service';
 import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
+import { IncidenciaChatService, ChatMessage } from '../../../../shared/services/incidencia-chat.service';
+import { AuthClienteService } from '../../services/auth-cliente.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -14,7 +17,7 @@ import Swal from 'sweetalert2';
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
-export class RegistroClienteIncidenciaComponent implements OnInit {
+export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   // Estado del panel de historial
   historialVisible = signal(true);
   panelHistorialMobileVisible = signal(false);
@@ -45,16 +48,46 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
   modalPreviews: string[] = [];
   isUploadingImages = false;
 
+  // WebSocket
+  isConnected = false;
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private router: Router,
     private incidenciasService: IncidenciasService,
     private cdr: ChangeDetectorRef,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private chatService: IncidenciaChatService,
+    private authClienteService: AuthClienteService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.cargarIncidencias();
+
+    // Suscribirse a eventos del WebSocket
+    this.subscriptions.push(
+      this.chatService.newMessage$.subscribe((message: ChatMessage) => {
+        // Evitar duplicados
+        if (!this.messages.find(m => m.id === message.id)) {
+          this.messages = [...this.messages, message as Message];
+          this.cdr.detectChanges();
+          this.scrollToBottom();
+        }
+      }),
+      this.chatService.connectionStatus$.subscribe((connected: boolean) => {
+        this.isConnected = connected;
+        this.cdr.detectChanges();
+      }),
+      this.chatService.error$.subscribe((error: string) => {
+        console.error('Chat error:', error);
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.chatService.disconnect();
   }
 
   private initializeForm(): void {
@@ -226,6 +259,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     this.isModalOpen.set(true);
     document.body.style.overflow = 'hidden';
     this.loadMessages();
+    this.connectToChat();
     this.cdr.detectChanges();
   }
 
@@ -236,7 +270,29 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     this.newMessage = '';
     this.modalArchivos = [];
     this.modalPreviews = [];
+    this.chatService.leaveRoom();
     document.body.style.overflow = '';
+  }
+
+  private connectToChat(): void {
+    const token = this.authClienteService.getToken();
+    if (!token || !this.selectedIncidencia) return;
+
+    // Conectar si no está conectado
+    if (!this.chatService.isConnected()) {
+      this.chatService.connect(token);
+    }
+
+    // Esperar a que se conecte y unirse a la sala
+    const checkConnection = setInterval(() => {
+      if (this.chatService.isConnected()) {
+        clearInterval(checkConnection);
+        this.chatService.joinRoom(this.selectedIncidencia!.id.toString());
+      }
+    }, 100);
+
+    // Timeout después de 5 segundos
+    setTimeout(() => clearInterval(checkConnection), 5000);
   }
 
   loadMessages(): void {
@@ -257,13 +313,36 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     });
   }
 
-  sendMessage(): void {
+  async sendMessage(): Promise<void> {
     if (!this.newMessage.trim() || !this.selectedIncidencia || this.isSendingMessage) return;
 
+    const messageContent = this.newMessage;
     this.isSendingMessage = true;
-    this.incidenciasService.sendMessage(this.selectedIncidencia.id.toString(), this.newMessage).subscribe({
+
+    // Intentar enviar por WebSocket si está conectado
+    if (this.chatService.isConnected()) {
+      try {
+        await this.chatService.sendMessage(messageContent);
+        this.newMessage = '';
+        this.isSendingMessage = false;
+        this.cdr.detectChanges();
+      } catch (error) {
+        console.error('WebSocket send failed, falling back to HTTP:', error);
+        this.sendMessageViaHttp(messageContent);
+      }
+    } else {
+      // Fallback a HTTP si no hay WebSocket
+      this.sendMessageViaHttp(messageContent);
+    }
+  }
+
+  private sendMessageViaHttp(content: string): void {
+    this.incidenciasService.sendMessage(this.selectedIncidencia!.id.toString(), content).subscribe({
       next: (message) => {
-        this.messages = [...this.messages, message];
+        // Solo agregar si no viene por WebSocket
+        if (!this.messages.find(m => m.id === message.id)) {
+          this.messages = [...this.messages, message];
+        }
         this.newMessage = '';
         this.isSendingMessage = false;
         this.cdr.detectChanges();

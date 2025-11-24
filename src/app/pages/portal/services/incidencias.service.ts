@@ -123,7 +123,7 @@ export class IncidenciasService {
    */
   sendMessage(incidenciaId: string, content: string): Observable<Message> {
     return this.http.post<any>(
-      `${environment.apiUrl}/incidencias/client/me${incidenciaId}/messages`,
+      `${environment.apiUrl}/incidencias/client/me/${incidenciaId}/messages`,
       { content },
       { withCredentials: true }
     ).pipe(
@@ -132,7 +132,7 @@ export class IncidenciasService {
   }
 
   /**
-   * Subir imágenes adicionales como cliente
+   * Subir imágenes adicionales como cliente (re-subir evidencia solicitada)
    */
   uploadImages(incidenciaId: string, images: File[]): Observable<any> {
     const formData = new FormData();
@@ -141,7 +141,7 @@ export class IncidenciasService {
     });
 
     return this.http.post<any>(
-      `${environment.apiUrl}/incidencias/client/me${incidenciaId}/messages/upload-image`,
+      `${environment.apiUrl}/incidencias/client/me/${incidenciaId}/reupload-images`,
       formData,
       { withCredentials: true }
     ).pipe(

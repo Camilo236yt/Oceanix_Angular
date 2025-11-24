@@ -1,10 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { IconComponent } from '../icon/icon.component';
 import { IncidentData } from '../../../features/crm/models/incident.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { IncidenciaChatService, ChatMessage } from '../../services/incidencia-chat.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface Message {
   id: string;
@@ -36,7 +39,7 @@ interface MessagesResponse {
   templateUrl: './attend-incident-modal.html',
   styleUrls: ['./attend-incident-modal.scss']
 })
-export class AttendIncidentModalComponent implements OnChanges, OnInit {
+export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestroy {
   @Input() isOpen = false;
   @Input() incidentData: IncidentData | null = null;
   @Output() onClose = new EventEmitter<void>();
@@ -53,17 +56,56 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
   showRequestImagesOptions = false;
   requestImagesHours = 24;
 
+  // WebSocket
+  isConnected = false;
+  private subscriptions: Subscription[] = [];
+
   private apiUrl = `${environment.apiUrl}/incidencias`;
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private chatService: IncidenciaChatService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     if (this.incidentData) {
       this.selectedStatus = this.incidentData.status;
     }
+
+    // Suscribirse a eventos del WebSocket
+    this.subscriptions.push(
+      this.chatService.newMessage$.subscribe((message: ChatMessage) => {
+        // Evitar duplicados
+        if (!this.messages.find(m => m.id === message.id)) {
+          this.messages = [...this.messages, message as Message];
+          this.cdr.detectChanges();
+          this.scrollToBottom();
+        }
+      }),
+      this.chatService.connectionStatus$.subscribe((connected: boolean) => {
+        this.isConnected = connected;
+        this.cdr.detectChanges();
+      }),
+      this.chatService.error$.subscribe((error: string) => {
+        console.error('Chat error:', error);
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.chatService.disconnect();
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const chatContainer = document.getElementById('chat-messages');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -73,13 +115,36 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
         if (this.incidentData) {
           this.selectedStatus = this.incidentData.status;
           this.loadMessages();
+          this.connectToChat();
         }
       } else {
         document.body.style.overflow = '';
         this.messages = [];
         this.newMessage = '';
+        this.chatService.leaveRoom();
       }
     }
+  }
+
+  private connectToChat(): void {
+    const token = this.authService.getToken();
+    if (!token || !this.incidentData) return;
+
+    // Conectar si no está conectado
+    if (!this.chatService.isConnected()) {
+      this.chatService.connect(token);
+    }
+
+    // Esperar a que se conecte y unirse a la sala
+    const checkConnection = setInterval(() => {
+      if (this.chatService.isConnected()) {
+        clearInterval(checkConnection);
+        this.chatService.joinRoom(this.incidentData!.id);
+      }
+    }, 100);
+
+    // Timeout después de 5 segundos
+    setTimeout(() => clearInterval(checkConnection), 5000);
   }
 
   loadMessages() {
@@ -94,13 +159,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
         this.messages = response.data?.messages || [];
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
-        // Scroll to bottom after loading
-        setTimeout(() => {
-          const chatContainer = document.getElementById('chat-messages');
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-          }
-        }, 100);
+        this.scrollToBottom();
       },
       error: (error) => {
         console.error('Error loading messages:', error);
@@ -109,28 +168,45 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
     });
   }
 
-  sendMessage() {
+  async sendMessage() {
     if (!this.newMessage.trim() || !this.incidentData || this.isSendingMessage) return;
 
+    const messageContent = this.newMessage;
     this.isSendingMessage = true;
+
+    // Intentar enviar por WebSocket si está conectado
+    if (this.chatService.isConnected()) {
+      try {
+        await this.chatService.sendMessage(messageContent);
+        this.newMessage = '';
+        this.isSendingMessage = false;
+        this.cdr.detectChanges();
+      } catch (error) {
+        console.error('WebSocket send failed, falling back to HTTP:', error);
+        this.sendMessageViaHttp(messageContent);
+      }
+    } else {
+      // Fallback a HTTP si no hay WebSocket
+      this.sendMessageViaHttp(messageContent);
+    }
+  }
+
+  private sendMessageViaHttp(content: string): void {
     this.http.post<any>(
-      `${this.apiUrl}/${this.incidentData.id}/messages`,
-      { content: this.newMessage },
+      `${this.apiUrl}/${this.incidentData!.id}/messages`,
+      { content },
       { withCredentials: true }
     ).subscribe({
       next: (response) => {
         const newMsg = response.data || response;
-        this.messages = [...this.messages, newMsg];
+        // Solo agregar si no viene por WebSocket
+        if (!this.messages.find(m => m.id === newMsg.id)) {
+          this.messages = [...this.messages, newMsg];
+        }
         this.newMessage = '';
         this.isSendingMessage = false;
         this.cdr.detectChanges();
-        // Scroll to bottom
-        setTimeout(() => {
-          const chatContainer = document.getElementById('chat-messages');
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-          }
-        }, 100);
+        this.scrollToBottom();
       },
       error: (error) => {
         console.error('Error sending message:', error);
@@ -232,13 +308,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit {
         this.isRequestingImages = false;
         this.showRequestImagesOptions = false;
         this.cdr.detectChanges();
-        // Scroll to bottom
-        setTimeout(() => {
-          const chatContainer = document.getElementById('chat-messages');
-          if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-          }
-        }, 100);
+        this.scrollToBottom();
       },
       error: (error) => {
         console.error('Error requesting images:', error);
