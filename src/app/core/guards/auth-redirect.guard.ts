@@ -15,7 +15,7 @@ export const authRedirectGuard: CanActivateFn = () => {
   // Verificar sesión con el backend
   return authService.checkSession().pipe(
     map(isValid => {
-      if (isValid) {
+      if (isValid) { 
         // Si está autenticado, redirigir al CRM
         router.navigate(['/crm/dashboard']);
         return false;
