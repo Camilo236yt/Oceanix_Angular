@@ -22,7 +22,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
 
   // Formulario reactivo
   incidenciaForm!: FormGroup;
-  archivoSeleccionado: File | null = null;
+  archivosSeleccionados: File[] = [];
+  imagenesPreview: string[] = [];
+  readonly MAX_IMAGENES = 5;
 
   // Datos del historial
   incidencias: Incidencia[] = [];
@@ -95,9 +97,58 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.archivoSeleccionado = input.files[0];
+    if (!input.files || input.files.length === 0) return;
+
+    const archivosNuevos = Array.from(input.files);
+
+    // Limpiar el input inmediatamente
+    input.value = '';
+
+    for (const archivo of archivosNuevos) {
+      if (this.archivosSeleccionados.length >= this.MAX_IMAGENES) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Límite alcanzado',
+          text: `Solo puedes subir un máximo de ${this.MAX_IMAGENES} imágenes.`,
+          confirmButtonColor: '#7c3aed'
+        });
+        break;
+      }
+
+      // Validar tipo de archivo
+      if (!archivo.type.match(/image\/(jpeg|jpg|png|webp)/)) {
+        continue;
+      }
+
+      // Validar tamaño (5MB)
+      if (archivo.size > 5 * 1024 * 1024) {
+        continue;
+      }
+
+      // Agregar archivo y placeholder para preview
+      this.archivosSeleccionados.push(archivo);
+      this.imagenesPreview.push(''); // Placeholder
+      const currentIndex = this.imagenesPreview.length - 1;
+
+      // Forzar detección de cambios para mostrar el grid
+      this.cdr.detectChanges();
+
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          this.imagenesPreview[currentIndex] = e.target.result as string;
+          this.cdr.detectChanges();
+        }
+      };
+      reader.readAsDataURL(archivo);
     }
+  }
+
+  eliminarImagen(index: number): void {
+    this.archivosSeleccionados.splice(index, 1);
+    this.imagenesPreview.splice(index, 1);
+    this.cdr.detectChanges();
   }
 
   enviarIncidencia(): void {
@@ -107,13 +158,19 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
     }
 
     const formData = this.incidenciaForm.value;
-
-    this.incidenciasService.crearIncidencia({
+    const request = {
       name: formData.nombreIncidencia,
       description: formData.descripcion,
       ProducReferenceId: formData.numeroGuia,
       tipo: formData.tipoIncidencia
-    }).subscribe({
+    };
+
+    // Usar método con imágenes si hay archivos seleccionados
+    const peticion = this.archivosSeleccionados.length > 0
+      ? this.incidenciasService.crearIncidenciaConImagenes(request, this.archivosSeleccionados)
+      : this.incidenciasService.crearIncidencia(request);
+
+    peticion.subscribe({
       next: (nuevaIncidencia) => {
         console.log('Incidencia creada:', nuevaIncidencia);
 
@@ -126,7 +183,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit {
 
         // Limpiar formulario
         this.incidenciaForm.reset();
-        this.archivoSeleccionado = null;
+        this.archivosSeleccionados = [];
+        this.imagenesPreview = [];
 
         // Recargar incidencias para mostrar en el historial
         this.cargarIncidencias();

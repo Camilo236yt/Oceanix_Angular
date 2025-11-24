@@ -54,6 +54,30 @@ export class IncidenciasService {
   }
 
   /**
+   * Crear una nueva incidencia con imágenes
+   */
+  crearIncidenciaConImagenes(request: CrearIncidenciaRequest, imagenes: File[]): Observable<Incidencia> {
+    const formData = new FormData();
+
+    // Agregar campos del request
+    formData.append('name', request.name);
+    formData.append('description', request.description);
+    formData.append('ProducReferenceId', request.ProducReferenceId);
+    formData.append('tipo', request.tipo);
+
+    // Agregar imágenes
+    imagenes.forEach((imagen) => {
+      formData.append('images', imagen);
+    });
+
+    return this.http.post<Incidencia>(
+      `${environment.apiUrl}/incidencias/client`,
+      formData,
+      { withCredentials: true }
+    );
+  }
+
+  /**
    * Eliminar (cancelar) una incidencia por ID
    */
   eliminarIncidencia(id: number): Observable<void> {

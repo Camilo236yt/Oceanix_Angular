@@ -48,10 +48,10 @@ button {
   }
 }
 
-// Scrollbar personalizado
+// Scrollbar personalizado - minimalista
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -59,11 +59,11 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-oceanix-purple-400, #a78bfa);
-  border-radius: 4px;
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 2px;
 
   &:hover {
-    background: var(--color-oceanix-purple-600, #7c3aed);
+    background: rgba(156, 163, 175, 0.6);
   }
 }
 

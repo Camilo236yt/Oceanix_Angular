@@ -130,23 +130,68 @@
           </div>
 
           <div class="space-y-2 sm:space-y-3">
-            <!-- Upload de imagen compacto -->
+            <!-- Upload de imágenes múltiples -->
             <div>
               <label class="block text-[11px] sm:text-xs font-medium text-gray-700 mb-1 sm:mb-1.5">
-                Foto de Compra (Opcional)
+                Fotos de Evidencia (Opcional - Máx. 5)
               </label>
-              <label class="flex flex-col items-center justify-center w-full h-16 sm:h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
-                <div class="flex flex-col items-center justify-center">
-                  <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-0.5 sm:mb-1 text-oceanix-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                  </svg>
-                  <p class="text-[10px] sm:text-xs text-gray-500"><span class="font-semibold">Subir imagen</span></p>
-                  <p class="text-[9px] sm:text-[10px] text-gray-400">PNG, JPG hasta 5MB</p>
+
+              <!-- Grid de imágenes seleccionadas -->
+              @if (imagenesPreview.length > 0) {
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-2">
+                  @for (preview of imagenesPreview; track $index) {
+                    <div class="relative group aspect-square">
+                      @if (preview) {
+                        <img
+                          [src]="preview"
+                          alt="Preview"
+                          class="w-full h-full object-cover rounded-lg border border-gray-200"
+                        />
+                      } @else {
+                        <!-- Indicador de carga mientras se procesa la imagen -->
+                        <div class="w-full h-full rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center">
+                          <svg class="w-5 h-5 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                      }
+                      <!-- Botón eliminar -->
+                      <button
+                        type="button"
+                        (click)="eliminarImagen($index)"
+                        class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
+                      >
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+
+                  <!-- Botón agregar más (si no se alcanzó el límite) -->
+                  @if (archivosSeleccionados.length < MAX_IMAGENES) {
+                    <label class="aspect-square flex flex-col items-center justify-center border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      <input type="file" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp" multiple (change)="onFileSelected($event)" />
+                    </label>
+                  }
                 </div>
-                <input type="file" class="hidden" accept="image/png,image/jpeg,image/jpg" (change)="onFileSelected($event)" />
-              </label>
-              @if (archivoSeleccionado) {
-                <p class="mt-1 text-[10px] sm:text-xs text-green-600">✓ {{ archivoSeleccionado.name }}</p>
+                <p class="text-[9px] sm:text-[10px] text-gray-500">{{ archivosSeleccionados.length }} de {{ MAX_IMAGENES }} imágenes</p>
+              } @else {
+                <!-- Estado inicial sin imágenes -->
+                <label class="flex flex-col items-center justify-center w-full h-16 sm:h-20 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                  <div class="flex flex-col items-center justify-center">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 mb-0.5 sm:mb-1 text-oceanix-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="text-[10px] sm:text-xs text-gray-500"><span class="font-semibold">Subir imágenes</span></p>
+                    <p class="text-[9px] sm:text-[10px] text-gray-400">PNG, JPG, WEBP hasta 5MB</p>
+                  </div>
+                  <input type="file" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp" multiple (change)="onFileSelected($event)" />
+                </label>
               }
             </div>
 
