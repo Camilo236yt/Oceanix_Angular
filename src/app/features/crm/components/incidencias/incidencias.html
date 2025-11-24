@@ -36,12 +36,10 @@
   (onClose)="closeViewIncidentModal()">
 </app-view-incident-modal>
 
-<!-- Edit Incident Status Modal -->
-<app-edit-incident-status-modal
-  [isOpen]="isEditStatusModalOpen"
-  [incidentId]="editingIncidentId"
-  [incidentName]="editingIncidentName"
-  [currentStatus]="editingIncidentStatus"
-  (onClose)="closeEditStatusModal()"
-  (onSave)="saveIncidentStatus($event)">
-</app-edit-incident-status-modal>
+<!-- Attend Incident Modal -->
+<app-attend-incident-modal
+  [isOpen]="isAttendModalOpen"
+  [incidentData]="attendingIncidentData"
+  (onClose)="closeAttendModal()"
+  (onStatusChange)="handleStatusChange($event)">
+</app-attend-incident-modal>

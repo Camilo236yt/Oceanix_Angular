@@ -8,12 +8,12 @@ import { Incident, IncidentData } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { IncidenciasService } from '../../services/incidencias.service';
 import { ViewIncidentModalComponent } from '../../../../shared/components/view-incident-modal/view-incident-modal';
-import { EditIncidentStatusModalComponent } from '../../../../shared/components/edit-incident-status-modal/edit-incident-status-modal';
+import { AttendIncidentModalComponent } from '../../../../shared/components/attend-incident-modal/attend-incident-modal';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-incidencias',
-  imports: [DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, ViewIncidentModalComponent, EditIncidentStatusModalComponent],
+  imports: [DataTable, IconComponent, SearchFiltersComponent, SkeletonLoader, ViewIncidentModalComponent, AttendIncidentModalComponent],
   templateUrl: './incidencias.html',
   styleUrl: './incidencias.scss',
 })
@@ -25,11 +25,9 @@ export class Incidencias implements OnInit {
   isViewIncidentModalOpen = false;
   viewingIncidentData: IncidentData | null = null;
 
-  // Edit incident status modal state
-  isEditStatusModalOpen = false;
-  editingIncidentId: string = '';
-  editingIncidentName: string = '';
-  editingIncidentStatus: string = '';
+  // Attend incident modal state
+  isAttendModalOpen = false;
+  attendingIncidentData: IncidentData | null = null;
 
   constructor(
     private incidenciasService: IncidenciasService,
@@ -183,13 +181,23 @@ export class Incidencias implements OnInit {
   }
 
   editIncident(incident: Incident) {
-    // Get full incident data to get current status
+    // Get full incident data and open attend modal
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos de la incidencia...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     this.incidenciasService.getIncidenciaById(incident.id).subscribe({
       next: (incidentData) => {
-        this.editingIncidentId = incident.id;
-        this.editingIncidentName = incident.name;
-        this.editingIncidentStatus = incidentData.status;
-        this.isEditStatusModalOpen = true;
+        Swal.close();
+        this.attendingIncidentData = incidentData;
+        this.isAttendModalOpen = true;
         this.cdr.markForCheck();
         this.cdr.detectChanges();
       },
@@ -208,14 +216,12 @@ export class Incidencias implements OnInit {
     });
   }
 
-  closeEditStatusModal() {
-    this.isEditStatusModalOpen = false;
-    this.editingIncidentId = '';
-    this.editingIncidentName = '';
-    this.editingIncidentStatus = '';
+  closeAttendModal() {
+    this.isAttendModalOpen = false;
+    this.attendingIncidentData = null;
   }
 
-  saveIncidentStatus(event: { id: string; status: string }) {
+  handleStatusChange(event: { id: string; status: string }) {
     Swal.fire({
       toast: true,
       position: 'top-end',
@@ -238,7 +244,6 @@ export class Incidencias implements OnInit {
           timer: 3000,
           timerProgressBar: true
         });
-        this.closeEditStatusModal();
         this.loadIncidencias();
       },
       error: (error: any) => {

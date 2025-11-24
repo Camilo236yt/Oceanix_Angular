@@ -20,8 +20,8 @@ export class IncidenciasService {
     }).pipe(
       map(response => {
         console.log('API Response incidencias:', response);
-        // El backend usa paginación, los datos están en response.data
-        const incidenciasData = response.data || [];
+        // El backend usa paginación: response.data contiene {data: [], meta: {}, links: {}}
+        const incidenciasData = response.data?.data || [];
         return this.transformIncidencias(incidenciasData);
       })
     );

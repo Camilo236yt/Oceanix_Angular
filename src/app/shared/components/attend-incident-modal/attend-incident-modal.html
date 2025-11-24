@@ -1,0 +1,196 @@
+<!-- Modal Backdrop -->
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+       (click)="handleBackdropClick($event)">
+    <!-- Modal Container - Full height and wider -->
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col animate-scale-in">
+
+      @if (incidentData) {
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 flex-shrink-0">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Atender Incidencia</h2>
+            <p class="text-sm text-gray-500">{{ incidentData.name }}</p>
+          </div>
+          <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body - Split into two columns -->
+        <div class="flex-1 overflow-hidden flex">
+
+          <!-- Left Column - Ticket Details -->
+          <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ticket Inicial</h3>
+
+            <!-- Type and Alert Level -->
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                {{ tipoLabel }}
+              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs text-gray-500 mr-2">Alerta:</span>
+                <div class="w-3 h-3 rounded-full"
+                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-gray-300'"></div>
+                <div class="w-3 h-3 rounded-full"
+                     [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-gray-300'"></div>
+                <div class="w-3 h-3 rounded-full"
+                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-gray-300'"></div>
+              </div>
+            </div>
+
+            <!-- Status Selector -->
+            <div class="mb-6">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Estado</label>
+              <div class="flex gap-2">
+                <select [(ngModel)]="selectedStatus"
+                        (change)="updateStatus()"
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="PENDING">Pendiente</option>
+                  <option value="IN_PROGRESS">En Progreso</option>
+                  <option value="RESOLVED">Resuelto</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Descripción</label>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <p class="text-sm text-gray-700 leading-relaxed">{{ incidentData.description || 'Sin descripción' }}</p>
+              </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Referencia</label>
+                <p class="text-sm text-gray-900 font-mono">{{ incidentData.ProducReferenceId }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Creado por</label>
+                <p class="text-sm text-gray-900">{{ createdByName }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Asignado a</label>
+                <p class="text-sm text-gray-900">{{ assignedEmployeeName }}</p>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-1">Fecha creación</label>
+                <p class="text-sm text-gray-900">{{ formatDateTime(incidentData.createdAt) }}</p>
+              </div>
+            </div>
+
+            <!-- Images -->
+            @if (incidentData.images && incidentData.images.length > 0) {
+              <div>
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">
+                  Imágenes de Evidencia ({{ incidentData.images.length }})
+                </label>
+                <div class="grid grid-cols-2 gap-2">
+                  @for (image of incidentData.images; track image.id) {
+                    <div class="relative group cursor-pointer rounded-lg overflow-hidden border border-gray-200 aspect-video">
+                      <img [src]="image.url" [alt]="image.originalName" class="w-full h-full object-cover">
+                      <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="text-white text-xs font-medium">Ver imagen</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500">No hay imágenes adjuntas</p>
+              </div>
+            }
+          </div>
+
+          <!-- Right Column - Chat -->
+          <div class="w-1/2 flex flex-col">
+            <div class="p-4 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">Conversación</h3>
+              <p class="text-xs text-gray-500">Chat con el cliente</p>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              @if (isLoadingMessages) {
+                <div class="flex items-center justify-center py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              } @else if (messages.length === 0) {
+                <div class="flex flex-col items-center justify-center py-8 text-gray-500">
+                  <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  <p class="text-sm">No hay mensajes aún</p>
+                  <p class="text-xs text-gray-400">Envía el primer mensaje al cliente</p>
+                </div>
+              } @else {
+                @for (message of messages; track message.id) {
+                  <div [class]="message.senderType === 'EMPLOYEE' ? 'flex justify-end' : 'flex justify-start'">
+                    <div [class]="message.senderType === 'EMPLOYEE'
+                      ? 'bg-purple-600 text-white rounded-2xl rounded-br-md px-4 py-2 max-w-[80%]'
+                      : 'bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-2 max-w-[80%] shadow-sm'">
+                      @if (message.senderType === 'CLIENT' && message.sender) {
+                        <p class="text-xs font-medium text-purple-600 mb-1">
+                          {{ message.sender.name }} {{ message.sender.lastName }}
+                        </p>
+                      }
+                      <p class="text-sm">{{ message.content }}</p>
+                      <p [class]="message.senderType === 'EMPLOYEE'
+                        ? 'text-xs text-purple-200 mt-1 text-right'
+                        : 'text-xs text-gray-400 mt-1'">
+                        {{ formatMessageTime(message.createdAt) }}
+                      </p>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-200 bg-white">
+              <div class="flex gap-2">
+                <input type="text"
+                       [(ngModel)]="newMessage"
+                       (keyup.enter)="sendMessage()"
+                       placeholder="Escribe un mensaje..."
+                       [disabled]="isSendingMessage"
+                       class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <button (click)="sendMessage()"
+                        [disabled]="!newMessage.trim() || isSendingMessage"
+                        class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors flex items-center gap-2">
+                  @if (isSendingMessage) {
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  } @else {
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                  }
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 flex-shrink-0">
+          <button (click)="closeModal()"
+                  class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
+            Cerrar
+          </button>
+        </div>
+      } @else {
+        <div class="flex items-center justify-center flex-1">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        </div>
+      }
+
+    </div>
+  </div>
+}
