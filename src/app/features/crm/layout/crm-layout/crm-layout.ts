@@ -28,6 +28,7 @@ export class CrmLayout implements OnInit, OnDestroy {
   isMobileMenuOpen: boolean = false;
   isViewOptionsModalOpen: boolean = false;
   isLoggingOut: boolean = false;
+  isUserMenuOpen: boolean = false;
   mobileViewMode: MobileViewMode = 'icons-with-names';
   currentDate: string = '';
   private midnightTimer: any;
@@ -154,6 +155,14 @@ export class CrmLayout implements OnInit, OnDestroy {
 
   closeViewOptionsModal() {
     this.isViewOptionsModalOpen = false;
+  }
+
+  toggleUserMenu() {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  closeUserMenu() {
+    this.isUserMenuOpen = false;
   }
 
   selectMobileViewMode(mode: MobileViewMode) {
