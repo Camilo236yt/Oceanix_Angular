@@ -1,9 +1,28 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Incident, IncidentApiResponse, IncidentData } from '../models/incident.model';
 import { environment } from '../../../environments/environment';
+
+export interface IncidentPaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  search?: string;
+  filter?: Record<string, any>;
+}
+
+export interface PaginatedIncidentsResult {
+  incidents: Incident[];
+  meta: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +43,48 @@ export class IncidenciasService {
         const incidenciasData = response.data?.data || [];
         return this.transformIncidencias(incidenciasData);
       })
+    );
+  }
+
+  // GET - Obtener incidencias paginadas
+  getIncidenciasPaginated(params: IncidentPaginationParams = {}): Observable<PaginatedIncidentsResult> {
+    let httpParams = new HttpParams();
+
+    if (params.page) {
+      httpParams = httpParams.set('page', params.page.toString());
+    }
+    if (params.limit) {
+      httpParams = httpParams.set('limit', params.limit.toString());
+    }
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+    if (params.sortBy) {
+      const sortOrder = params.sortOrder || 'ASC';
+      httpParams = httpParams.set('sortBy', `${params.sortBy}:${sortOrder}`);
+    }
+    if (params.filter) {
+      Object.keys(params.filter).forEach(key => {
+        if (params.filter![key] !== undefined && params.filter![key] !== null && params.filter![key] !== '') {
+          // Use $eq operator for exact match as expected by nestjs-paginate
+          httpParams = httpParams.set(`filter.${key}`, `$eq:${params.filter![key]}`);
+        }
+      });
+    }
+
+    return this.http.get<any>(this.apiUrl, {
+      params: httpParams,
+      withCredentials: true
+    }).pipe(
+      map(response => ({
+        incidents: this.transformIncidencias(response.data.data),
+        meta: {
+          currentPage: response.data.meta.currentPage,
+          itemsPerPage: response.data.meta.itemsPerPage,
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages
+        }
+      }))
     );
   }
 

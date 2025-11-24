@@ -45,15 +45,22 @@ export class IncidenciaChatService implements OnDestroy {
       return;
     }
 
-    // Construir URL del WebSocket (reemplazar http/https por ws/wss)
-    const wsUrl = environment.apiUrl
-      .replace('/api/v1', '')
-      .replace('http://', 'ws://')
-      .replace('https://', 'wss://');
+    // Construir URL del WebSocket
+    // En desarrollo apiUrl es relativo (/api/v1), necesitamos la URL completa del backend
+    let wsUrl: string;
+    if (environment.apiUrl.startsWith('/')) {
+      // Desarrollo: usar URL hardcodeada del backend
+      wsUrl = 'https://backend-dev.oceanix.space';
+    } else {
+      // Producción: extraer del apiUrl
+      wsUrl = environment.apiUrl.replace('/api/v1', '');
+    }
+
+    console.log('Connecting to WebSocket:', `${wsUrl}/chat`);
 
     this.socket = io(`${wsUrl}/chat`, {
       auth: { token },
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

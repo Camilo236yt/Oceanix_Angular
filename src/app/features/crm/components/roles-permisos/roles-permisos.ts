@@ -31,6 +31,7 @@ export class RolesPermisos implements OnInit {
   totalItems = 0;
   totalPages = 0;
   searchTerm = '';
+  activeFilters: Record<string, string> = {};
 
   constructor(
     private rolesService: RolesService,
@@ -39,21 +40,11 @@ export class RolesPermisos implements OnInit {
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
-      key: 'rol',
-      label: 'Todos los roles',
-      options: [
-        { label: 'SuperAdmin', value: 'superadmin' },
-        { label: 'Admin', value: 'admin' },
-        { label: 'Supervisor', value: 'supervisor' },
-        { label: 'Empleado', value: 'empleado' }
-      ]
-    },
-    {
-      key: 'estado',
+      key: 'isActive',
       label: 'Todos los estados',
       options: [
-        { label: 'Activo', value: 'activo' },
-        { label: 'Inactivo', value: 'inactivo' }
+        { label: 'Activo', value: 'true' },
+        { label: 'Inactivo', value: 'false' }
       ]
     }
   ];
@@ -159,6 +150,16 @@ export class RolesPermisos implements OnInit {
 
     if (this.searchTerm) {
       params.search = this.searchTerm;
+    }
+
+    // Add active filters to params
+    if (Object.keys(this.activeFilters).length > 0) {
+      params.filter = {};
+      Object.keys(this.activeFilters).forEach(key => {
+        if (this.activeFilters[key]) {
+          params.filter![key] = this.activeFilters[key];
+        }
+      });
     }
 
     this.rolesService.getRolesPaginated(params).subscribe({
@@ -457,6 +458,7 @@ export class RolesPermisos implements OnInit {
 
   onFilterChange(filterData: SearchFilterData) {
     this.searchTerm = filterData.searchTerm || '';
+    this.activeFilters = filterData.filters || {};
     this.currentPage = 1;
     this.loadRoles();
   }

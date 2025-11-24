@@ -24,7 +24,13 @@
       [columns]="tableColumns"
       [data]="incidents"
       [actions]="tableActions"
-      (onActionClick)="handleTableAction($event)">
+      [showPagination]="true"
+      [currentPage]="currentPage"
+      [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage"
+      (onActionClick)="handleTableAction($event)"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)">
     </app-data-table>
   }
 </div>

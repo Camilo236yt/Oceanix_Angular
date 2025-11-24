@@ -61,22 +61,23 @@ export class RolesService {
     if (params.filter) {
       Object.keys(params.filter).forEach(key => {
         if (params.filter![key] !== undefined && params.filter![key] !== null && params.filter![key] !== '') {
-          httpParams = httpParams.set(`filter.${key}`, params.filter![key]);
+          // Use $eq operator for exact match as expected by nestjs-paginate
+          httpParams = httpParams.set(`filter.${key}`, `$eq:${params.filter![key]}`);
         }
       });
     }
 
-    return this.http.get<PaginatedResponse<RoleData>>(this.apiUrl, {
+    return this.http.get<{ success: boolean; data: PaginatedResponse<RoleData>; statusCode: number }>(this.apiUrl, {
       params: httpParams,
       withCredentials: true
     }).pipe(
-      map((response: PaginatedResponse<RoleData>) => ({
-        roles: this.transformRoles(response.data),
+      map((response: { success: boolean; data: PaginatedResponse<RoleData>; statusCode: number }) => ({
+        roles: this.transformRoles(response.data.data),
         meta: {
-          currentPage: response.meta.currentPage,
-          itemsPerPage: response.meta.itemsPerPage,
-          totalItems: response.meta.totalItems,
-          totalPages: response.meta.totalPages
+          currentPage: response.data.meta.currentPage,
+          itemsPerPage: response.data.meta.itemsPerPage,
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages
         }
       }))
     );

@@ -6,7 +6,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { User } from '../../models/user.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
-import { UsuariosService } from '../../services/usuarios.service';
+import { UsuariosService, UserPaginationParams, PaginatedUsersResult } from '../../services/usuarios.service';
 import { RolesService } from '../../services/roles.service';
 import { AuthService } from '../../../../services/auth.service';
 import { CreateUserModalComponent } from '../../../../shared/components/create-user-modal/create-user-modal.component';
@@ -27,6 +27,14 @@ import { of } from 'rxjs';
 export class Usuarios implements OnInit {
   // Loading state
   isLoading = true;
+
+  // Pagination state
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+  totalPages = 0;
+  searchTerm = '';
+  activeFilters: Record<string, string> = {};
 
   // Modal state
   isCreateUserModalOpen = false;
@@ -53,20 +61,20 @@ export class Usuarios implements OnInit {
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
-      key: 'rol',
-      label: 'Todos los roles',
+      key: 'userType',
+      label: 'Todos los tipos',
       options: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'Empleado', value: 'empleado' },
-        { label: 'Supervisor', value: 'supervisor' }
+        { label: 'Admin Empresarial', value: 'ENTERPRISE_ADMIN' },
+        { label: 'Empleado', value: 'EMPLOYEE' },
+        { label: 'Cliente', value: 'CLIENT' }
       ]
     },
     {
-      key: 'estado',
+      key: 'isActive',
       label: 'Todos los estados',
       options: [
-        { label: 'Activo', value: 'activo' },
-        { label: 'Inactivo', value: 'inactivo' }
+        { label: 'Activo', value: 'true' },
+        { label: 'Inactivo', value: 'false' }
       ]
     }
   ];
@@ -188,12 +196,37 @@ export class Usuarios implements OnInit {
 
   loadUsuarios() {
     this.isLoading = true;
-    this.usuariosService.getUsuarios().subscribe({
-      next: (usuarios) => {
-        console.log('Usuarios cargados:', usuarios);
-        this.users = [...usuarios]; // Create new array reference
+
+    const params: UserPaginationParams = {
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      sortBy: 'name',
+      sortOrder: 'ASC'
+    };
+
+    if (this.searchTerm) {
+      params.search = this.searchTerm;
+    }
+
+    // Add active filters to params
+    if (Object.keys(this.activeFilters).length > 0) {
+      params.filter = {};
+      Object.keys(this.activeFilters).forEach(key => {
+        if (this.activeFilters[key]) {
+          params.filter![key] = this.activeFilters[key];
+        }
+      });
+    }
+
+    this.usuariosService.getUsuariosPaginated(params).subscribe({
+      next: (result: PaginatedUsersResult) => {
+        this.users = [...result.users];
+        this.totalItems = result.meta.totalItems;
+        this.totalPages = result.meta.totalPages;
+        this.currentPage = result.meta.currentPage;
+        this.itemsPerPage = result.meta.itemsPerPage;
         this.isLoading = false;
-        this.cdr.detectChanges(); // Force change detection
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar usuarios:', error);
@@ -201,6 +234,17 @@ export class Usuarios implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadUsuarios();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.loadUsuarios();
   }
 
   // Computed statistics
@@ -544,8 +588,9 @@ export class Usuarios implements OnInit {
   }
 
   onFilterChange(filterData: SearchFilterData) {
-    console.log('Filtros aplicados:', filterData);
-    // Aquí puedes implementar la lógica de filtrado
-    // Por ejemplo, filtrar el array de users basado en searchTerm y filters
+    this.searchTerm = filterData.searchTerm || '';
+    this.activeFilters = filterData.filters || {};
+    this.currentPage = 1;
+    this.loadUsuarios();
   }
 }

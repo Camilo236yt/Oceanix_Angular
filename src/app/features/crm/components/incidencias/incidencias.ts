@@ -6,7 +6,7 @@ import { SkeletonLoader } from '../../../../shared/components/skeleton-loader/sk
 import { TableColumn, TableAction } from '../../../../shared/models/table.model';
 import { Incident, IncidentData } from '../../models/incident.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
-import { IncidenciasService } from '../../services/incidencias.service';
+import { IncidenciasService, IncidentPaginationParams, PaginatedIncidentsResult } from '../../services/incidencias.service';
 import { ViewIncidentModalComponent } from '../../../../shared/components/view-incident-modal/view-incident-modal';
 import { AttendIncidentModalComponent } from '../../../../shared/components/attend-incident-modal/attend-incident-modal';
 import Swal from 'sweetalert2';
@@ -20,6 +20,14 @@ import Swal from 'sweetalert2';
 export class Incidencias implements OnInit {
   // Loading state
   isLoading = true;
+
+  // Pagination state
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+  totalPages = 0;
+  searchTerm = '';
+  activeFilters: Record<string, string> = {};
 
   // View incident modal state
   isViewIncidentModalOpen = false;
@@ -36,21 +44,23 @@ export class Incidencias implements OnInit {
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
-      key: 'estado',
+      key: 'status',
       label: 'Todos los estados',
       options: [
-        { label: 'En plazo', value: 'en-plazo' },
-        { label: 'En riesgo', value: 'en-riesgo' },
-        { label: 'Fuera de plazo', value: 'fuera-plazo' }
+        { label: 'Pendiente', value: 'PENDING' },
+        { label: 'En Progreso', value: 'IN_PROGRESS' },
+        { label: 'Resuelto', value: 'RESOLVED' }
       ]
     },
     {
       key: 'tipo',
       label: 'Todos los tipos',
       options: [
-        { label: 'Pérdida', value: 'perdida' },
-        { label: 'Retraso', value: 'retraso' },
-        { label: 'Daño', value: 'dano' },
+        { label: 'Pérdida', value: 'por_perdida' },
+        { label: 'Daño', value: 'por_dano' },
+        { label: 'Error Humano', value: 'por_error_humano' },
+        { label: 'Mantenimiento', value: 'por_mantenimiento' },
+        { label: 'Falla Técnica', value: 'por_falla_tecnica' },
         { label: 'Otro', value: 'otro' }
       ]
     }
@@ -115,10 +125,35 @@ export class Incidencias implements OnInit {
 
   loadIncidencias(): void {
     this.isLoading = true;
-    this.incidenciasService.getIncidencias().subscribe({
-      next: (data) => {
-        console.log('Incidencias cargadas:', data);
-        this.incidents = [...data];
+
+    const params: IncidentPaginationParams = {
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      sortBy: 'createdAt',
+      sortOrder: 'DESC'
+    };
+
+    if (this.searchTerm) {
+      params.search = this.searchTerm;
+    }
+
+    // Add active filters to params
+    if (Object.keys(this.activeFilters).length > 0) {
+      params.filter = {};
+      Object.keys(this.activeFilters).forEach(key => {
+        if (this.activeFilters[key]) {
+          params.filter![key] = this.activeFilters[key];
+        }
+      });
+    }
+
+    this.incidenciasService.getIncidenciasPaginated(params).subscribe({
+      next: (result: PaginatedIncidentsResult) => {
+        this.incidents = [...result.incidents];
+        this.totalItems = result.meta.totalItems;
+        this.totalPages = result.meta.totalPages;
+        this.currentPage = result.meta.currentPage;
+        this.itemsPerPage = result.meta.itemsPerPage;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -128,6 +163,17 @@ export class Incidencias implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadIncidencias();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.loadIncidencias();
   }
 
   handleTableAction(event: { action: TableAction; row: any }) {
@@ -323,8 +369,9 @@ export class Incidencias implements OnInit {
   }
 
   onFilterChange(filterData: SearchFilterData) {
-    console.log('Filtros aplicados:', filterData);
-    // Aquí puedes implementar la lógica de filtrado
-    // Por ejemplo, filtrar el array de incidents basado en searchTerm y filters
+    this.searchTerm = filterData.searchTerm || '';
+    this.activeFilters = filterData.filters || {};
+    this.currentPage = 1;
+    this.loadIncidencias();
   }
 }

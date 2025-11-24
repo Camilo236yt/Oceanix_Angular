@@ -216,6 +216,26 @@ export const ICONS: Record<string, IconConfig> = {
     fill: 'currentColor'
   },
 
+  'chevron-left': {
+    viewBox: '0 0 24 24',
+    path: 'M15 18l-6-6 6-6',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '2',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round'
+  },
+
+  'chevron-right': {
+    viewBox: '0 0 24 24',
+    path: 'M9 18l6-6-6-6',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: '2',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round'
+  },
+
   'x': {
     viewBox: '0 0 24 24',
     path: 'M18 6L6 18 M6 6l12 12',

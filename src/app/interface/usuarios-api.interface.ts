@@ -39,3 +39,29 @@ export interface UsuariosApiResponse {
   data: UsuariosApiDataResponse;
   statusCode: number;
 }
+
+// Paginated response structure
+export interface UsuariosPaginatedMeta {
+  itemsPerPage: number;
+  totalItems: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export interface UsuariosPaginatedResponse {
+  data: UsuarioData[];
+  meta: UsuariosPaginatedMeta;
+  links: {
+    first?: string;
+    previous?: string;
+    current: string;
+    next?: string;
+    last?: string;
+  };
+}
+
+export interface UsuariosPaginatedApiResponse {
+  success: boolean;
+  data: UsuariosPaginatedResponse;
+  statusCode: number;
+}
