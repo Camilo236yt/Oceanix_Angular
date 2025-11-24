@@ -437,13 +437,29 @@ export class AuthService {
   /**
    * Logout user
    * Clear authentication data from localStorage and session storage
+   * @returns Observable with logout response
    */
-  logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    localStorage.removeItem(this.ENTERPRISE_KEY);
-    this.clearMeData();
-    this.isAuthenticatedSubject.next(false);
+  logout(): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/logout`, {}, {
+      withCredentials: true
+    }).pipe(
+      tap(() => {
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem(this.ENTERPRISE_KEY);
+        this.clearMeData();
+        this.isAuthenticatedSubject.next(false);
+      }),
+      catchError((error) => {
+        // Even if backend logout fails, clear local data
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem(this.ENTERPRISE_KEY);
+        this.clearMeData();
+        this.isAuthenticatedSubject.next(false);
+        return of(null);
+      })
+    );
   }
 
   /**
@@ -466,6 +482,98 @@ export class AuthService {
     return this.roles$.pipe(
       map(roles => roles.some(role => role.name === roleName))
     );
+  }
+
+  /**
+   * Check if user has any of the specified permissions
+   * @param permissions Array of permission names to check
+   * @returns True if user has at least one permission
+   */
+  hasAnyPermission(permissions: string[]): boolean {
+    const userPermissions = this.permissionsSubject.value;
+    return permissions.some(permission => userPermissions.includes(permission));
+  }
+
+  /**
+   * Check if user has all specified permissions
+   * @param permissions Array of permission names to check
+   * @returns True if user has all permissions
+   */
+  hasAllPermissions(permissions: string[]): boolean {
+    const userPermissions = this.permissionsSubject.value;
+    return permissions.every(permission => userPermissions.includes(permission));
+  }
+
+  /**
+   * Check if user has specific user type
+   * @param userType User type to check
+   * @returns True if user has the user type
+   */
+  hasUserType(userType: string): boolean {
+    const user = this.meUserSubject.value;
+    return user?.userType === userType;
+  }
+
+  /**
+   * Check if user has any of the specified user types
+   * @param userTypes Array of user types to check
+   * @returns True if user has at least one user type
+   */
+  hasAnyUserType(userTypes: string[]): boolean {
+    const user = this.meUserSubject.value;
+    return userTypes.includes(user?.userType || '');
+  }
+
+  /**
+   * Check if user is authenticated (synchronous)
+   * @returns True if user has token
+   */
+  isAuthenticated(): boolean {
+    return this.hasToken();
+  }
+
+  /**
+   * Get user data from /auth/me endpoint
+   * @returns Observable with user config data
+   */
+  getMe(): Observable<MeResponseData> {
+    return this.fetchMeData().pipe(
+      map(response => {
+        if (!response.success || !response.data) {
+          throw new Error('Failed to fetch user data');
+        }
+        return response.data;
+      })
+    );
+  }
+
+  /**
+   * Get current user from /auth/me (synchronous from BehaviorSubject)
+   * @returns Current user or null
+   */
+  getCurrentMeUser(): MeUser | null {
+    return this.meUserSubject.value;
+  }
+
+  /**
+   * Validate subdomain on app initialization
+   */
+  validateSubdomain(): void {
+    // En localhost, no validar subdominio
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.log('[DEV MODE] Subdomain validation skipped in localhost');
+      return;
+    }
+
+    // Validar que estemos en un subdominio válido
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+
+    // Si no hay subdominio (ej: oceanix.space), redirigir al login
+    if (parts.length < 3) {
+      console.log('[AUTH] No subdomain detected, redirecting to main domain');
+      window.location.href = `${window.location.protocol}//${environment.appDomain}`;
+    }
   }
 
   /**

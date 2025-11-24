@@ -91,9 +91,10 @@ export class Login implements OnInit {
       })
     ).subscribe({
       next: ({ loginResponse, meResponse }) => {
-        if (meResponse.success) {
+        // meResponse is MeResponseData, not MeResponse
+        if (meResponse) {
           // Datos de configuración ya cargados, esperar un momento y redirigir
-          const subdomain = meResponse.data?.enterprise?.subdomain;
+          const subdomain = meResponse.enterprise?.subdomain;
 
           setTimeout(() => {
             if (subdomain) {

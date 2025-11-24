@@ -171,9 +171,9 @@ export class Usuarios implements OnInit {
    * Carga los permisos del usuario y configura las acciones de la tabla
    */
   private loadPermissions(): void {
-    this.canCreateUser = this.authService.hasPermission('create_users');
-    this.canEditUser = this.authService.hasPermission('edit_users');
-    this.canDeleteUser = this.authService.hasPermission('delete_users');
+    this.canCreateUser = this.authService.hasAnyPermission(['create_users']);
+    this.canEditUser = this.authService.hasAnyPermission(['edit_users']);
+    this.canDeleteUser = this.authService.hasAnyPermission(['delete_users']);
 
     // Configurar acciones de la tabla según permisos
     this.tableActions = [];

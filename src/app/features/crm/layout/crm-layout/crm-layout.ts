@@ -232,7 +232,7 @@ export class CrmLayout implements OnInit, OnDestroy {
           this.performLogoutRedirect();
         }, 1000);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error during backend logout:', error);
         // Incluso si falla el backend, redirigir al login
         setTimeout(() => {
