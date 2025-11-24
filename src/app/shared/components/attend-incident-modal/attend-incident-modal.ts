@@ -128,10 +128,18 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
   private connectToChat(): void {
     const token = this.authService.getToken();
-    if (!token || !this.incidentData) return;
+    console.log('🔐 [ADMIN] Token from authService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
+    console.log('🔐 [ADMIN] Token length:', token?.length);
+    console.log('🔐 [ADMIN] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
+
+    if (!token || !this.incidentData) {
+      console.error('❌ [ADMIN] Cannot connect to chat:', !token ? 'No token' : 'No incident data');
+      return;
+    }
 
     // Conectar si no está conectado
     if (!this.chatService.isConnected()) {
+      console.log('🔌 [ADMIN] Connecting to WebSocket...');
       this.chatService.connect(token);
     }
 

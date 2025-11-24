@@ -45,6 +45,10 @@ export class IncidenciaChatService implements OnDestroy {
       return;
     }
 
+    console.log('🔑 Token received for WebSocket:', token ? `${token.substring(0, 20)}...` : 'NULL');
+    console.log('🔑 Token length:', token?.length);
+    console.log('🔑 Token type:', typeof token);
+
     // Construir URL del WebSocket
     // En desarrollo apiUrl es relativo (/api/v1), necesitamos la URL completa del backend
     let wsUrl: string;
@@ -85,13 +89,22 @@ export class IncidenciaChatService implements OnDestroy {
       }
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+    this.socket.on('disconnect', (reason) => {
+      console.log('WebSocket disconnected. Reason:', reason);
+      console.log('Disconnect reasons: io server disconnect =', reason === 'io server disconnect',
+                  ', io client disconnect =', reason === 'io client disconnect',
+                  ', transport close =', reason === 'transport close');
       this.connectionStatusSubject.next(false);
     });
 
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', (error: any) => {
       console.error('WebSocket connection error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        description: error.description,
+        context: error.context,
+        type: error.type
+      });
       this.errorSubject.next('Error de conexión al chat');
       this.connectionStatusSubject.next(false);
     });

@@ -11,6 +11,11 @@ export interface LoginClienteRequest {
 }
 
 export interface LoginClienteResponse {
+  id: string;
+  email: string;
+  name: string;
+  lastName: string;
   token: string;
-  cliente: Cliente;
+  userType?: string;
+  message?: string;
 }

@@ -27,9 +27,21 @@ export class AuthClienteService {
       { withCredentials: true }
     ).pipe(
       tap(response => {
+        console.log('🔑 Login response received:', response);
+        console.log('🔑 Token in response:', response.token ? `${response.token.substring(0, 30)}...` : 'MISSING');
+
         // Guardar token y datos del cliente en localStorage
         localStorage.setItem(this.TOKEN_KEY, response.token);
-        localStorage.setItem(this.CLIENTE_KEY, JSON.stringify(response.cliente));
+
+        // Transform response to Cliente format
+        const clienteData: Cliente = {
+          id: response.id,
+          nombre: `${response.name} ${response.lastName}`,
+          email: response.email
+        };
+        localStorage.setItem(this.CLIENTE_KEY, JSON.stringify(clienteData));
+
+        console.log('✅ Token saved to localStorage:', localStorage.getItem(this.TOKEN_KEY)?.substring(0, 30) + '...');
       })
     );
   }

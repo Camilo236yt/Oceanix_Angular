@@ -276,10 +276,18 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   private connectToChat(): void {
     const token = this.authClienteService.getToken();
-    if (!token || !this.selectedIncidencia) return;
+    console.log('🔐 [CLIENTE] Token from authClienteService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
+    console.log('🔐 [CLIENTE] Token length:', token?.length);
+    console.log('🔐 [CLIENTE] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
+
+    if (!token || !this.selectedIncidencia) {
+      console.error('❌ [CLIENTE] Cannot connect to chat:', !token ? 'No token' : 'No incidencia selected');
+      return;
+    }
 
     // Conectar si no está conectado
     if (!this.chatService.isConnected()) {
+      console.log('🔌 [CLIENTE] Connecting to WebSocket...');
       this.chatService.connect(token);
     }
 
