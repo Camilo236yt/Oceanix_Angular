@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 import { IncidentData } from '../../../features/crm/models/incident.model';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 interface Message {
   id: string;
