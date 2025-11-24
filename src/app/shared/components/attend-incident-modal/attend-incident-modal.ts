@@ -109,6 +109,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    // Log para debug
+    if (changes['incidentData']) {
+      console.log('🔄 [ADMIN] incidentData changed:', this.incidentData ? `ID: ${this.incidentData.id}` : 'NULL');
+    }
+
     if (changes['isOpen']) {
       if (this.isOpen) {
         document.body.style.overflow = 'hidden';
@@ -116,6 +121,8 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
           this.selectedStatus = this.incidentData.status;
           this.loadMessages();
           this.connectToChat();
+        } else {
+          console.warn('⚠️ [ADMIN] Modal opened but incidentData is null');
         }
       } else {
         document.body.style.overflow = '';
@@ -123,6 +130,14 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.newMessage = '';
         this.chatService.leaveRoom();
       }
+    }
+
+    // Si incidentData cambia mientras el modal está abierto, reconectar
+    if (changes['incidentData'] && this.isOpen && this.incidentData) {
+      console.log('🔄 [ADMIN] Reconnecting due to incidentData change');
+      this.selectedStatus = this.incidentData.status;
+      this.loadMessages();
+      this.connectToChat();
     }
   }
 
