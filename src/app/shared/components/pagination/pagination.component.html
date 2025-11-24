@@ -1,0 +1,49 @@
+<div class="pagination-container" *ngIf="totalItems > 0">
+  <!-- Left side: Page size selector -->
+  <div class="page-size-selector" *ngIf="showPageSizeSelector">
+    <select
+      [ngModel]="itemsPerPage"
+      (ngModelChange)="onPageSizeChange($event)"
+      class="page-size-select"
+    >
+      <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+    </select>
+    <span class="page-size-label">entries per page</span>
+  </div>
+
+  <!-- Right side: Pagination controls -->
+  <div class="pagination-controls">
+    <!-- Previous button -->
+    <button
+      class="pagination-btn nav-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPrevious()"
+      aria-label="Previous page"
+    >
+      <app-icon name="chevron-left" [size]="16"></app-icon>
+    </button>
+
+    <!-- Page numbers -->
+    <ng-container *ngFor="let page of visiblePages">
+      <button
+        *ngIf="page !== '...'"
+        class="pagination-btn page-btn"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+      <span *ngIf="page === '...'" class="pagination-ellipsis">...</span>
+    </ng-container>
+
+    <!-- Next button -->
+    <button
+      class="pagination-btn nav-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToNext()"
+      aria-label="Next page"
+    >
+      <app-icon name="chevron-right" [size]="16"></app-icon>
+    </button>
+  </div>
+</div>

@@ -11,7 +11,7 @@ import { TableColumn, TableAction } from '../../../../shared/models/table.model'
 import { Role, RoleStats } from '../../models/role.model';
 import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter.model';
 import { CreateRoleRequest } from '../../../../shared/models/permission.model';
-import { RolesService } from '../../services/roles.service';
+import { RolesService, PaginationParams, PaginatedRolesResult } from '../../services/roles.service';
 import { RoleData } from '../../../../interface/roles-api.interface';
 import Swal from 'sweetalert2';
 
@@ -24,6 +24,13 @@ import Swal from 'sweetalert2';
 export class RolesPermisos implements OnInit {
   // Loading state
   isLoading = true;
+
+  // Pagination state
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+  totalPages = 0;
+  searchTerm = '';
 
   constructor(
     private rolesService: RolesService,
@@ -142,19 +149,44 @@ export class RolesPermisos implements OnInit {
 
   loadRoles() {
     this.isLoading = true;
-    this.rolesService.getRoles().subscribe({
-      next: (roles) => {
-        console.log('Roles cargados:', roles);
-        this.roles = [...roles]; // Crear una nueva referencia del array
+
+    const params: PaginationParams = {
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      sortBy: 'name',
+      sortOrder: 'ASC'
+    };
+
+    if (this.searchTerm) {
+      params.search = this.searchTerm;
+    }
+
+    this.rolesService.getRolesPaginated(params).subscribe({
+      next: (result: PaginatedRolesResult) => {
+        this.roles = [...result.roles];
+        this.totalItems = result.meta.totalItems;
+        this.totalPages = result.meta.totalPages;
+        this.currentPage = result.meta.currentPage;
+        this.itemsPerPage = result.meta.itemsPerPage;
         this.isLoading = false;
-        this.cdr.detectChanges(); // Forzar la detección de cambios
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.error('Error al cargar roles:', error);
+      error: () => {
         this.isLoading = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadRoles();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.loadRoles();
   }
 
   handleTableAction(event: { action: TableAction; row: any }) {
@@ -424,9 +456,9 @@ export class RolesPermisos implements OnInit {
   }
 
   onFilterChange(filterData: SearchFilterData) {
-    console.log('Filtros aplicados:', filterData);
-    // Aquí puedes implementar la lógica de filtrado
-    // Por ejemplo, filtrar el array de roles basado en searchTerm y filters
+    this.searchTerm = filterData.searchTerm || '';
+    this.currentPage = 1;
+    this.loadRoles();
   }
 
   trackByRoleId(index: number, role: Role): string {

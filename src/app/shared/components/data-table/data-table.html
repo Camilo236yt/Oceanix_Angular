@@ -177,4 +177,18 @@
       </div>
     }
   </div>
+
+  <!-- Pagination -->
+  @if (showPagination && totalItems > 0) {
+    <div class="px-4 py-3 border-t border-[var(--border-primary)]">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalItems]="totalItems"
+        [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="handlePageChange($event)"
+        (pageSizeChange)="handlePageSizeChange($event)"
+      ></app-pagination>
+    </div>
+  }
 </div>

@@ -2,10 +2,11 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { TableColumn, TableAction } from '../../models/table.model';
 import { IconComponent } from '../icon/icon.component';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'app-data-table',
-  imports: [CommonModule, IconComponent],
+  imports: [CommonModule, IconComponent, PaginationComponent],
   templateUrl: './data-table.html',
   styleUrl: './data-table.scss'
 })
@@ -13,18 +14,33 @@ export class DataTable implements OnChanges {
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
   @Input() actions: TableAction[] = [];
+
+  // Server-side pagination inputs
+  @Input() showPagination: boolean = false;
+  @Input() currentPage: number = 1;
+  @Input() totalItems: number = 0;
+  @Input() itemsPerPage: number = 10;
+  @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
+
   @Output() onActionClick = new EventEmitter<{ action: TableAction; row: any }>();
   @Output() onViewMorePermissions = new EventEmitter<{ permissions: string[]; roleName: string }>();
+  @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
-      console.log('DataTable recibió datos:', this.data);
-      console.log('Cantidad de registros:', this.data?.length);
-    }
+    // Data changes are now handled by parent component for server-side pagination
   }
 
-  handleAction(action: TableAction, row: any) {
+  handleAction(action: TableAction, row: any): void {
     this.onActionClick.emit({ action, row });
+  }
+
+  handlePageChange(page: number): void {
+    this.pageChange.emit(page);
+  }
+
+  handlePageSizeChange(size: number): void {
+    this.pageSizeChange.emit(size);
   }
 
   getBadgeClasses(column: TableColumn, value: string): string {
@@ -47,7 +63,7 @@ export class DataTable implements OnChanges {
     return permissions?.length > limit;
   }
 
-  handleViewMorePermissions(row: any) {
+  handleViewMorePermissions(row: any): void {
     this.onViewMorePermissions.emit({
       permissions: row.permisos || [],
       roleName: row.rol || 'Rol'

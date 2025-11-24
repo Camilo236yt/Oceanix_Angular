@@ -85,8 +85,14 @@
       [columns]="tableColumns"
       [data]="roles"
       [actions]="tableActions"
+      [showPagination]="true"
+      [currentPage]="currentPage"
+      [totalItems]="totalItems"
+      [itemsPerPage]="itemsPerPage"
       (onActionClick)="handleTableAction($event)"
-      (onViewMorePermissions)="handleViewMorePermissions($event)">
+      (onViewMorePermissions)="handleViewMorePermissions($event)"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)">
     </app-data-table>
   }
 

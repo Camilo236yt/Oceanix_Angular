@@ -1,11 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Role } from '../models/role.model';
-import { RolesApiResponse, RoleData } from '../../../interface/roles-api.interface';
+import { RolesApiResponse, RoleData, PaginatedResponse } from '../../../interface/roles-api.interface';
 import { CreateRoleRequest } from '../../../shared/models/permission.model';
 import { environment } from '../../../environments/environment';
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  search?: string;
+  filter?: Record<string, any>;
+}
+
+export interface PaginatedRolesResult {
+  roles: Role[];
+  meta: {
+    currentPage: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +38,47 @@ export class RolesService {
     return this.http.get<RolesApiResponse>(this.apiUrl, {
       withCredentials: true
     }).pipe(
-      map(response => this.transformRoles(response.data))
+      map((response: RolesApiResponse) => this.transformRoles(response.data))
+    );
+  }
+
+  getRolesPaginated(params: PaginationParams = {}): Observable<PaginatedRolesResult> {
+    let httpParams = new HttpParams();
+
+    if (params.page) {
+      httpParams = httpParams.set('page', params.page.toString());
+    }
+    if (params.limit) {
+      httpParams = httpParams.set('limit', params.limit.toString());
+    }
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+    if (params.sortBy) {
+      const sortOrder = params.sortOrder || 'ASC';
+      httpParams = httpParams.set('sortBy', `${params.sortBy}:${sortOrder}`);
+    }
+    if (params.filter) {
+      Object.keys(params.filter).forEach(key => {
+        if (params.filter![key] !== undefined && params.filter![key] !== null && params.filter![key] !== '') {
+          httpParams = httpParams.set(`filter.${key}`, params.filter![key]);
+        }
+      });
+    }
+
+    return this.http.get<PaginatedResponse<RoleData>>(this.apiUrl, {
+      params: httpParams,
+      withCredentials: true
+    }).pipe(
+      map((response: PaginatedResponse<RoleData>) => ({
+        roles: this.transformRoles(response.data),
+        meta: {
+          currentPage: response.meta.currentPage,
+          itemsPerPage: response.meta.itemsPerPage,
+          totalItems: response.meta.totalItems,
+          totalPages: response.meta.totalPages
+        }
+      }))
     );
   }
 
@@ -45,7 +104,7 @@ export class RolesService {
     return this.http.get<{ success: boolean; data: RoleData }>(`${this.apiUrl}/${roleId}`, {
       withCredentials: true
     }).pipe(
-      map(response => response.data)
+      map((response: { success: boolean; data: RoleData }) => response.data)
     );
   }
 
