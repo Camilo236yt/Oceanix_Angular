@@ -3,23 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Incident, IncidentApiResponse, IncidentData } from '../models/incident.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IncidenciasService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/incidencias';
+  private apiUrl = `${environment.apiUrl}/incidencias`;
 
   constructor(private http: HttpClient) {}
 
   // GET - Obtener todas las incidencias
   getIncidencias(): Observable<Incident[]> {
-    return this.http.get<IncidentApiResponse>(this.apiUrl, {
+    return this.http.get<any>(this.apiUrl, {
       withCredentials: true
     }).pipe(
       map(response => {
         console.log('API Response incidencias:', response);
-        return this.transformIncidencias(response.data);
+        // El backend usa paginación, los datos están en response.data
+        const incidenciasData = response.data || [];
+        return this.transformIncidencias(incidenciasData);
       })
     );
   }
@@ -48,7 +51,7 @@ export class IncidenciasService {
   }
 
   // Transformar datos del backend al modelo del DataTable
-  private transformIncidencias(incidenciasData: IncidentData[]): Incident[] {
+  private transformIncidencias(incidenciasData: any[]): Incident[] {
     if (!incidenciasData || !Array.isArray(incidenciasData)) {
       console.error('Error: incidenciasData no es un array válido', incidenciasData);
       return [];
@@ -60,7 +63,9 @@ export class IncidenciasService {
       descripcion: this.truncateText(incidencia.description, 25),
       tipoIncidencia: this.mapTipoIncidencia(incidencia.tipo),
       estado: this.mapEstado(incidencia.status),
-      empleadoAsignado: incidencia.assignedEmployeeId || '',
+      empleadoAsignado: incidencia.assignedEmployee
+        ? `${incidencia.assignedEmployee.name} ${incidencia.assignedEmployee.lastName}`
+        : 'Sin asignar',
       fechaCreacion: this.formatDate(incidencia.createdAt)
     }));
   }

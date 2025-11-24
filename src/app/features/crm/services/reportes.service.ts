@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ReporteDataBackend, ReporteApiResponse } from '../models/reporte.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ReportesService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/reports/generate';
+  private apiUrl = `${environment.apiUrl}/reports/generate`;
 
   constructor(private http: HttpClient) {}
 

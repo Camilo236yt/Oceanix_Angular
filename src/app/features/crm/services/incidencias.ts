@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DashboardData, DashboardApiResponse, DashboardDataBackend, IncidenciasPorTipoUI, EstadoIncidencias } from '../models/incidencia.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IncidenciasService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/dashboard';
+  private apiUrl = `${environment.apiUrl}/dashboard`;
 
   constructor(private http: HttpClient) {}
 

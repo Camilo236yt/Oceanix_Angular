@@ -5,6 +5,15 @@ export interface IncidentApiResponse {
   statusCode: number;
 }
 
+export interface IncidentImage {
+  id: string;
+  url: string;
+  key: string;
+  mimeType: string;
+  originalName: string;
+  createdAt: string;
+}
+
 export interface IncidentData {
   id: string;
   tipo: string;
@@ -20,6 +29,10 @@ export interface IncidentData {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  canClientUploadImages?: boolean;
+  imagesUploadAllowedUntil?: string | null;
+  imageUploadRequestedBy?: string | null;
+  images?: IncidentImage[];
 }
 
 // Interface para el DataTable

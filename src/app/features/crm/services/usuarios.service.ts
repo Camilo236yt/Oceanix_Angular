@@ -5,12 +5,13 @@ import { map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { UsuariosApiResponse, UsuarioData } from '../../../interface/usuarios-api.interface';
 import { CreateUserRequest, UpdateUserRequest } from '../../../shared/models/user-request.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsuariosService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/users';
+  private apiUrl = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 

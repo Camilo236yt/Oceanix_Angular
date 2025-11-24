@@ -48,3 +48,6 @@ Thumbs.db
 
 # Claude Code
 .claude/
+
+# SSL certificates
+/ssl

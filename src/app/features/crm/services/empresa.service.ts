@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Company } from '../models/company.model';
 import { EmpresasApiResponse, EmpresaData, CreateEmpresaRequest, CreateEmpresaResponse, UpdateEmpresaRequest, UpdateEmpresaResponse } from '../../../interface/empresas-api.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EmpresaService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/enterprise';
+  private apiUrl = `${environment.apiUrl}/enterprise`;
 
   constructor(private http: HttpClient) {}
 

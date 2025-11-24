@@ -5,12 +5,13 @@ import { map } from 'rxjs/operators';
 import { Role } from '../models/role.model';
 import { RolesApiResponse, RoleData } from '../../../interface/roles-api.interface';
 import { CreateRoleRequest } from '../../../shared/models/permission.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RolesService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/roles';
+  private apiUrl = `${environment.apiUrl}/roles`;
 
   constructor(private http: HttpClient) {}
 

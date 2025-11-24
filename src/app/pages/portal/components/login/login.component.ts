@@ -100,25 +100,27 @@ export class PortalLoginComponent implements OnInit {
   }
 
   private loginWithIdToken(idToken: string): void {
-    // Mostrar animación de carga
-    this.isLoading = true;
-    this.cdr.detectChanges();
+    // Usar setTimeout para evitar el error de ChangeDetection
+    setTimeout(() => {
+      this.isLoading = true;
+      this.cdr.detectChanges();
 
-    this.authClienteService.loginConGoogle(idToken)
-      .subscribe({
-        next: (response) => {
-          console.log('Login exitoso:', response);
-          // Mantener la animación mientras redirige
-          setTimeout(() => {
-            this.router.navigate(['/portal/registro-incidencia']);
-          }, 1000);
-        },
-        error: (error) => {
-          console.error('Error en login:', error);
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.errorMessage = error.error?.message || 'Error al iniciar sesión. Por favor, intenta nuevamente.';
-        }
-      });
+      this.authClienteService.loginConGoogle(idToken)
+        .subscribe({
+          next: (response) => {
+            console.log('Login exitoso:', response);
+            // Mantener la animación mientras redirige
+            setTimeout(() => {
+              this.router.navigate(['/portal/registro-incidencia']);
+            }, 1000);
+          },
+          error: (error) => {
+            console.error('Error en login:', error);
+            this.isLoading = false;
+            this.cdr.detectChanges();
+            this.errorMessage = error.error?.message || 'Error al iniciar sesión. Por favor, intenta nuevamente.';
+          }
+        });
+    }, 0);
   }
 }

@@ -63,7 +63,7 @@
           </div>
 
           <!-- Grid de información -->
-          <div class="grid grid-cols-2 gap-8">
+          <div class="grid grid-cols-2 gap-8 mb-8">
             <div>
               <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Asignado a</label>
               <p class="mt-1 text-sm text-gray-900">{{ incidentData.assignedEmployeeId || 'Sin asignar' }}</p>
@@ -79,6 +79,66 @@
             <div>
               <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Última actualización</label>
               <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(incidentData.updatedAt) }}</p>
+            </div>
+          </div>
+
+          <!-- Imágenes de Evidencia -->
+          @if (incidentData.images && incidentData.images.length > 0) {
+            <div class="mb-8">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">Imágenes de Evidencia ({{ incidentData.images.length }})</label>
+              <div class="grid grid-cols-3 gap-2">
+                @for (image of incidentData.images; track image.id) {
+                  <div class="relative group cursor-pointer rounded overflow-hidden border border-gray-200">
+                    <img [src]="image.url" [alt]="image.originalName" class="w-full h-32 object-cover">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span class="text-white text-xs">Ver imagen</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Chat de Mensajes -->
+          <div class="border-t border-gray-200 pt-6">
+            <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3 block">Conversación</label>
+
+            <!-- Banner de solicitud activa -->
+            @if (hasActiveUploadRequest) {
+              <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  <div class="flex-1">
+                    <h4 class="text-sm font-medium text-orange-900 mb-1">Solicitud de nueva evidencia</h4>
+                    <p class="text-sm text-orange-700 mb-3">El empleado ha solicitado que vuelvas a subir las imágenes.</p>
+                    @if (uploadTimeRemaining) {
+                      <p class="text-xs text-orange-600 mb-3">Tiempo restante: {{ uploadTimeRemaining }}</p>
+                    }
+                    <button class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded transition-colors">
+                      Subir nueva evidencia
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Placeholder para lista de mensajes -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4 max-h-96 overflow-y-auto">
+              <p class="text-sm text-gray-500 text-center py-8">
+                Sistema de mensajes en desarrollo...
+              </p>
+            </div>
+
+            <!-- Input para enviar mensaje -->
+            <div class="flex gap-2">
+              <input type="text"
+                     placeholder="Escribe un mensaje..."
+                     class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <button class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors">
+                Enviar
+              </button>
             </div>
           </div>
         </div>

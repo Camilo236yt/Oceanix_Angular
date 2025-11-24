@@ -21,8 +21,13 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   // Preparar headers
   const headers: { [key: string]: string } = {
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
   };
+
+  // NO agregar Content-Type si el body es FormData
+  // Angular y el navegador lo configurarán automáticamente con el boundary correcto
+  if (!(req.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // Agregar X-Subdomain header si existe
   if (subdomain) {

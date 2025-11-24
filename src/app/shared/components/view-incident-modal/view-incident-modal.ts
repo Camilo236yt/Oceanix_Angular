@@ -113,4 +113,36 @@ export class ViewIncidentModalComponent implements OnChanges {
     };
     return iconMap[this.incidentData?.tipo || ''] || 'file-text';
   }
+
+  get hasActiveUploadRequest(): boolean {
+    if (!this.incidentData?.canClientUploadImages) {
+      return false;
+    }
+    if (!this.incidentData.imagesUploadAllowedUntil) {
+      return false;
+    }
+    const allowedUntil = new Date(this.incidentData.imagesUploadAllowedUntil);
+    return new Date() < allowedUntil;
+  }
+
+  get uploadTimeRemaining(): string | null {
+    if (!this.incidentData?.imagesUploadAllowedUntil) {
+      return null;
+    }
+    const allowedUntil = new Date(this.incidentData.imagesUploadAllowedUntil);
+    const now = new Date();
+    const diffMs = allowedUntil.getTime() - now.getTime();
+
+    if (diffMs <= 0) {
+      return null;
+    }
+
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  }
 }

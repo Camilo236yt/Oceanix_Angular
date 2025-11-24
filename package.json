@@ -4,8 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
+    "start:ssl": "ng serve --ssl --ssl-cert ssl/cert.pem --ssl-key ssl/key.pem --proxy-config proxy.conf.json",
     "dev:subdomain": "node scripts/start-with-subdomain.js",
-    "dev:techcorp": "node scripts/start-with-subdomain.js techcorp",
+    "dev:techcorp": "ng serve --proxy-config proxy.conf.json",
     "dev:acme": "node scripts/start-with-subdomain.js acme",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

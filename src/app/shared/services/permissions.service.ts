@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Permission } from '../models/permission.model';
 import { PermissionsApiResponse } from '../../interface/permissions-api.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PermissionsService {
-  private apiUrl = 'https://backend-dev.oceanix.space/api/v1/permissions';
+  private apiUrl = `${environment.apiUrl}/permissions`;
 
   constructor(private http: HttpClient) {}
 
