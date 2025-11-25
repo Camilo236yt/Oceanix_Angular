@@ -3,7 +3,7 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'https://backend-dev.oceanix.space/api/v1',
+  apiUrl: '/api/v1', // Usar proxy de nginx para evitar problemas CORS
   appDomain: 'oceanix.space',
   enableSubdomainRedirect: true // Habilitar redirección a subdominios en producción
 };
