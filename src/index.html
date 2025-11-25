@@ -7,19 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-  // Configurar subdomain SOLO para desarrollo local
-  // En producción, el subdomain se extrae automáticamente de la URL
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.')) {
-    localStorage.setItem('dev_subdomain', 'techcorp');
-    console.log('%c[DEV] Subdomain configurado: techcorp', 'color: #4CAF50; font-weight: bold; font-size: 14px;');
-  } else {
-    // En producción, limpiar dev_subdomain si existe
-    localStorage.removeItem('dev_subdomain');
-    console.log('%c[PROD] Dev subdomain removed - using subdomain from URL', 'color: #2196F3; font-weight: bold; font-size: 14px;');
-  }
+  // Configurar subdomain para desarrollo local
+  localStorage.setItem('dev_subdomain', 'techcorp');
+  console.log('%c[DEV] Subdomain configurado: techcorp', 'color: #4CAF50; font-weight: bold; font-size: 14px;');
 </script>
 </head>
 <body>
