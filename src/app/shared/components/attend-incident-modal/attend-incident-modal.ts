@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -6,7 +6,7 @@ import { IconComponent } from '../icon/icon.component';
 import { IncidentData } from '../../../features/crm/models/incident.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { IncidenciaChatService, ChatMessage } from '../../services/incidencia-chat.service';
+import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../services/incidencia-chat.service';
 import { AuthService } from '../../../services/auth.service';
 
 interface Message {
@@ -66,7 +66,8 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private chatService: IncidenciaChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -88,8 +89,16 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.isConnected = connected;
         this.cdr.detectChanges();
       }),
-      this.chatService.error$.subscribe((error: string) => {
-        console.error('Chat error:', error);
+      this.chatService.error$.subscribe(() => {
+        // Error manejado silenciosamente
+      }),
+      // Suscribirse a cambios de nivel de alerta
+      this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
+        // Si el incidentData actual es el que cambió, actualizar
+        if (this.incidentData && this.incidentData.id === alertChange.incidenciaId) {
+          (this.incidentData.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+        }
       })
     );
   }
@@ -109,11 +118,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Log para debug
-    if (changes['incidentData']) {
-      console.log('🔄 [ADMIN] incidentData changed:', this.incidentData ? `ID: ${this.incidentData.id}` : 'NULL');
-    }
-
     if (changes['isOpen']) {
       if (this.isOpen) {
         document.body.style.overflow = 'hidden';
@@ -121,8 +125,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
           this.selectedStatus = this.incidentData.status;
           this.loadMessages();
           this.connectToChat();
-        } else {
-          console.warn('⚠️ [ADMIN] Modal opened but incidentData is null');
         }
       } else {
         document.body.style.overflow = '';
@@ -134,7 +136,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
     // Si incidentData cambia mientras el modal está abierto, reconectar
     if (changes['incidentData'] && this.isOpen && this.incidentData) {
-      console.log('🔄 [ADMIN] Reconnecting due to incidentData change');
       this.selectedStatus = this.incidentData.status;
       this.loadMessages();
       this.connectToChat();
@@ -143,18 +144,13 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
   private connectToChat(): void {
     const token = this.authService.getToken();
-    console.log('🔐 [ADMIN] Token from authService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔐 [ADMIN] Token length:', token?.length);
-    console.log('🔐 [ADMIN] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
 
     if (!token || !this.incidentData) {
-      console.error('❌ [ADMIN] Cannot connect to chat:', !token ? 'No token' : 'No incident data');
       return;
     }
 
     // Conectar si no está conectado
     if (!this.chatService.isConnected()) {
-      console.log('🔌 [ADMIN] Connecting to WebSocket...');
       this.chatService.connect(token);
     }
 
@@ -184,8 +180,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error loading messages:', error);
+      error: () => {
         this.isLoadingMessages = false;
       }
     });
@@ -201,11 +196,14 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     if (this.chatService.isConnected()) {
       try {
         await this.chatService.sendMessage(messageContent);
-        this.newMessage = '';
-        this.isSendingMessage = false;
-        this.cdr.detectChanges();
+
+        // Forzar la actualización dentro de la zona de Angular
+        this.ngZone.run(() => {
+          this.newMessage = '';
+          this.isSendingMessage = false;
+          this.cdr.detectChanges();
+        });
       } catch (error) {
-        console.error('WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
@@ -231,8 +229,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error sending message:', error);
+      error: () => {
         this.isSendingMessage = false;
       }
     });
@@ -333,8 +330,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error requesting images:', error);
+      error: () => {
         this.isRequestingImages = false;
       }
     });

@@ -16,6 +16,15 @@ export interface ChatMessage {
   };
 }
 
+export interface AlertLevelChange {
+  incidenciaId: string;
+  previousLevel: string;
+  newLevel: string;
+  minutesSinceCreation: number;
+  emoji: string;
+  timestamp: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,26 +37,25 @@ export class IncidenciaChatService implements OnDestroy {
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
   private errorSubject = new Subject<string>();
   private typingSubject = new Subject<{ userId: string; isTyping: boolean }>();
+  private alertLevelChangeSubject = new Subject<AlertLevelChange>();
 
   // Observables públicos
   newMessage$ = this.newMessageSubject.asObservable();
   connectionStatus$ = this.connectionStatusSubject.asObservable();
   error$ = this.errorSubject.asObservable();
   typing$ = this.typingSubject.asObservable();
+  alertLevelChange$ = this.alertLevelChangeSubject.asObservable();
 
   constructor() {}
 
   /**
    * Conectar al WebSocket con el token de autenticación
+   * Si no se proporciona token, se usarán las cookies (para clientes)
    */
-  connect(token: string): void {
+  connect(token?: string): void {
     if (this.socket?.connected) {
       return;
     }
-
-    console.log('🔑 Token received for WebSocket:', token ? `${token.substring(0, 20)}...` : 'NULL');
-    console.log('🔑 Token length:', token?.length);
-    console.log('🔑 Token type:', typeof token);
 
     // Construir URL del WebSocket
     // En desarrollo apiUrl es relativo (/api/v1), necesitamos la URL completa del backend
@@ -60,15 +68,22 @@ export class IncidenciaChatService implements OnDestroy {
       wsUrl = environment.apiUrl.replace('/api/v1', '');
     }
 
-    console.log('Connecting to WebSocket:', `${wsUrl}/chat`);
-
-    this.socket = io(`${wsUrl}/chat`, {
-      auth: { token },
+    // Configuración base
+    const socketConfig: any = {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-    });
+      withCredentials: true, // Enviar cookies en cross-origin requests
+    };
+
+    // Solo agregar auth si hay token (empleados)
+    // Si no hay token (clientes), socket.io usará las cookies automáticamente
+    if (token) {
+      socketConfig.auth = { token };
+    }
+
+    this.socket = io(`${wsUrl}/chat`, socketConfig);
 
     this.setupEventListeners();
   }
@@ -80,7 +95,6 @@ export class IncidenciaChatService implements OnDestroy {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected');
       this.connectionStatusSubject.next(true);
 
       // Reconectar a la sala si había una incidencia activa
@@ -89,35 +103,22 @@ export class IncidenciaChatService implements OnDestroy {
       }
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected. Reason:', reason);
-      console.log('Disconnect reasons: io server disconnect =', reason === 'io server disconnect',
-                  ', io client disconnect =', reason === 'io client disconnect',
-                  ', transport close =', reason === 'transport close');
+    this.socket.on('disconnect', () => {
       this.connectionStatusSubject.next(false);
     });
 
-    this.socket.on('connect_error', (error: any) => {
-      console.error('WebSocket connection error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        description: error.description,
-        context: error.context,
-        type: error.type
-      });
+    this.socket.on('connect_error', () => {
       this.errorSubject.next('Error de conexión al chat');
       this.connectionStatusSubject.next(false);
     });
 
     // Evento de nuevo mensaje
     this.socket.on('newMessage', (data: { message: ChatMessage }) => {
-      console.log('New message received:', data.message);
       this.newMessageSubject.next(data.message);
     });
 
     // Evento de solicitud de imágenes
     this.socket.on('imageReuploadRequested', (data: { message: ChatMessage; incidenciaId: string }) => {
-      console.log('Image reupload requested:', data);
       this.newMessageSubject.next(data.message);
     });
 
@@ -126,9 +127,13 @@ export class IncidenciaChatService implements OnDestroy {
       this.typingSubject.next(data);
     });
 
+    // Evento de cambio de nivel de alerta
+    this.socket.on('alertLevelChanged', (data: AlertLevelChange) => {
+      this.alertLevelChangeSubject.next(data);
+    });
+
     // Evento de error
     this.socket.on('error', (data: { message: string }) => {
-      console.error('WebSocket error:', data.message);
       this.errorSubject.next(data.message);
     });
   }
@@ -138,17 +143,13 @@ export class IncidenciaChatService implements OnDestroy {
    */
   joinRoom(incidenciaId: string): void {
     if (!this.socket?.connected) {
-      console.warn('Cannot join room: socket not connected');
       return;
     }
 
     this.currentIncidenciaId = incidenciaId;
     this.socket.emit('joinIncidenciaChat', { incidenciaId }, (response: any) => {
       if (response?.event === 'error') {
-        console.error('Error joining room:', response.data.message);
         this.errorSubject.next(response.data.message);
-      } else {
-        console.log('Joined room:', response?.data?.roomName);
       }
     });
   }
@@ -182,10 +183,12 @@ export class IncidenciaChatService implements OnDestroy {
           content,
         },
         (response: any) => {
+          // Los errores vienen como { event: 'error', data: { message: '...' } }
           if (response?.event === 'error') {
             reject(new Error(response.data.message));
           } else {
-            resolve(response?.data?.message);
+            // El éxito viene directamente como { message: {...} }
+            resolve(response?.message);
           }
         }
       );

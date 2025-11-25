@@ -9,6 +9,7 @@ import { FilterConfig, SearchFilterData } from '../../../../shared/models/filter
 import { IncidenciasService, IncidentPaginationParams, PaginatedIncidentsResult } from '../../services/incidencias.service';
 import { ViewIncidentModalComponent } from '../../../../shared/components/view-incident-modal/view-incident-modal';
 import { AttendIncidentModalComponent } from '../../../../shared/components/attend-incident-modal/attend-incident-modal';
+import { AuthService } from '../../../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -37,12 +38,23 @@ export class Incidencias implements OnInit {
   isAttendModalOpen = false;
   attendingIncidentData: IncidentData | null = null;
 
+  // View mode state
+  viewMode: 'my-incidents' | 'all-incidents' = 'my-incidents';
+  currentUserId: string | null = null;
+  canViewAllIncidents = false;
+
   constructor(
     private incidenciasService: IncidenciasService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
-  // Configuración de filtros
-  filterConfigs: FilterConfig[] = [
+
+  // Configuración de filtros (se inicializa dinámicamente en ngOnInit)
+  filterConfigs: FilterConfig[] = [];
+  initialFilterValues: { [key: string]: string } = {};
+
+  // Filtros estáticos base
+  private baseFilterConfigs: FilterConfig[] = [
     {
       key: 'status',
       label: 'Todos los estados',
@@ -120,7 +132,44 @@ export class Incidencias implements OnInit {
   incidents: Incident[] = [];
 
   ngOnInit(): void {
+    // Obtener información del usuario actual
+    this.authService.meUser$.subscribe(user => {
+      if (user) {
+        this.currentUserId = user.id;
+      }
+    });
+
+    // Verificar si el usuario puede ver todas las incidencias
+    this.canViewAllIncidents = this.authService.hasAnyPermission(['view_incidents']);
+
+    // Configurar filtros dinámicamente
+    this.setupFilters();
+
+    // Cargar incidencias
     this.loadIncidencias();
+  }
+
+  setupFilters(): void {
+    this.filterConfigs = [];
+    this.initialFilterValues = {};
+
+    // Si el usuario tiene permisos para ver todas las incidencias, agregar filtro de vista
+    if (this.canViewAllIncidents) {
+      this.filterConfigs.push({
+        key: 'viewMode',
+        label: 'Vista',
+        options: [
+          { value: 'my-incidents', label: 'Mis incidencias' },
+          { value: 'all-incidents', label: 'Todas las incidencias' }
+        ]
+      });
+
+      // Establecer valor por defecto
+      this.initialFilterValues['viewMode'] = 'my-incidents';
+    }
+
+    // Agregar filtros base
+    this.filterConfigs.push(...this.baseFilterConfigs);
   }
 
   loadIncidencias(): void {
@@ -137,11 +186,19 @@ export class Incidencias implements OnInit {
       params.search = this.searchTerm;
     }
 
-    // Add active filters to params
+    // Inicializar el objeto filter si no existe
+    params.filter = {};
+
+    // Si está en modo "Mis incidencias", agregar filtro de empleado asignado
+    if (this.viewMode === 'my-incidents' && this.currentUserId) {
+      params.filter['assignedEmployeeId'] = this.currentUserId;
+    }
+
+    // Add active filters to params (except viewMode, which is handled separately)
     if (Object.keys(this.activeFilters).length > 0) {
-      params.filter = {};
       Object.keys(this.activeFilters).forEach(key => {
-        if (this.activeFilters[key]) {
+        // Skip viewMode filter - it's handled separately above
+        if (key !== 'viewMode' && this.activeFilters[key]) {
           params.filter![key] = this.activeFilters[key];
         }
       });
@@ -371,6 +428,12 @@ export class Incidencias implements OnInit {
   onFilterChange(filterData: SearchFilterData) {
     this.searchTerm = filterData.searchTerm || '';
     this.activeFilters = filterData.filters || {};
+
+    // Actualizar viewMode según el filtro (solo si el usuario tiene permisos)
+    if (this.canViewAllIncidents && this.activeFilters['viewMode']) {
+      this.viewMode = this.activeFilters['viewMode'] as 'my-incidents' | 'all-incidents';
+    }
+
     this.currentPage = 1;
     this.loadIncidencias();
   }

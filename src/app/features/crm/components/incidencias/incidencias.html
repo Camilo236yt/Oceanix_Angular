@@ -12,6 +12,7 @@
     <app-search-filters
       searchPlaceholder="Buscar incidencias..."
       [filters]="filterConfigs"
+      [initialFilters]="initialFilterValues"
       (onFilterChange)="onFilterChange($event)">
     </app-search-filters>
   </div>

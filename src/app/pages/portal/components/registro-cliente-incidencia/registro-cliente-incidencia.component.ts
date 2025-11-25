@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { Incidencia } from '../../models/incidencia.model';
 import { IncidenciasService, Message } from '../../services/incidencias.service';
 import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
-import { IncidenciaChatService, ChatMessage } from '../../../../shared/services/incidencia-chat.service';
+import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../../../shared/services/incidencia-chat.service';
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import Swal from 'sweetalert2';
 
@@ -58,7 +58,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private chatService: IncidenciaChatService,
-    private authClienteService: AuthClienteService
+    private authClienteService: AuthClienteService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -79,8 +80,23 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.isConnected = connected;
         this.cdr.detectChanges();
       }),
-      this.chatService.error$.subscribe((error: string) => {
-        console.error('Chat error:', error);
+      this.chatService.error$.subscribe(() => {
+        // Error handling
+      }),
+      // Suscribirse a cambios de nivel de alerta
+      this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
+        // Si hay una incidencia seleccionada y es la misma que cambió, actualizar
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === alertChange.incidenciaId) {
+          (this.selectedIncidencia.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+        }
+
+        // Actualizar en la lista de incidencias
+        const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === alertChange.incidenciaId);
+        if (incidenciaEnLista) {
+          (incidenciaEnLista.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+        }
       })
     );
   }
@@ -111,12 +127,11 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   cargarIncidencias(): void {
     this.incidenciasService.getIncidencias().subscribe({
       next: (incidencias) => {
-        console.log('Incidencias cargadas:', incidencias);
         this.incidencias = [...incidencias];
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.error('Error al cargar incidencias:', error);
+      error: () => {
+        // Error handling
       }
     });
   }
@@ -215,9 +230,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       : this.incidenciasService.crearIncidencia(request);
 
     peticion.subscribe({
-      next: (nuevaIncidencia) => {
-        console.log('Incidencia creada:', nuevaIncidencia);
-
+      next: () => {
         Swal.fire({
           icon: 'success',
           title: 'Incidencia registrada',
@@ -234,7 +247,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cargarIncidencias();
       },
       error: (error) => {
-        console.error('Error al crear incidencia:', error);
         const errorMsg = error.error?.message || 'No se pudo registrar la incidencia. Por favor intenta nuevamente.';
 
         Swal.fire({
@@ -254,7 +266,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   verDetalles(incidencia: Incidencia): void {
-    console.log('Ver detalles - alertLevel:', incidencia.alertLevel);
     this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
     document.body.style.overflow = 'hidden';
@@ -275,20 +286,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   private connectToChat(): void {
-    const token = this.authClienteService.getToken();
-    console.log('🔐 [CLIENTE] Token from authClienteService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔐 [CLIENTE] Token length:', token?.length);
-    console.log('🔐 [CLIENTE] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
-
-    if (!token || !this.selectedIncidencia) {
-      console.error('❌ [CLIENTE] Cannot connect to chat:', !token ? 'No token' : 'No incidencia selected');
+    if (!this.selectedIncidencia) {
       return;
     }
 
-    // Conectar si no está conectado
+    // Los clientes usan autenticación por cookies, no por token JWT
     if (!this.chatService.isConnected()) {
-      console.log('🔌 [CLIENTE] Connecting to WebSocket...');
-      this.chatService.connect(token);
+      this.chatService.connect();
     }
 
     // Esperar a que se conecte y unirse a la sala
@@ -299,7 +303,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       }
     }, 100);
 
-    // Timeout después de 5 segundos
     setTimeout(() => clearInterval(checkConnection), 5000);
   }
 
@@ -314,8 +317,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error loading messages:', error);
+      error: () => {
         this.isLoadingMessages = false;
       }
     });
@@ -331,11 +333,14 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     if (this.chatService.isConnected()) {
       try {
         await this.chatService.sendMessage(messageContent);
-        this.newMessage = '';
-        this.isSendingMessage = false;
-        this.cdr.detectChanges();
+
+        // Forzar la actualización dentro de la zona de Angular
+        this.ngZone.run(() => {
+          this.newMessage = '';
+          this.isSendingMessage = false;
+          this.cdr.detectChanges();
+        });
       } catch (error) {
-        console.error('WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
@@ -356,8 +361,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error sending message:', error);
+      error: () => {
         this.isSendingMessage = false;
       }
     });
@@ -430,7 +434,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         });
       },
       error: (error) => {
-        console.error('Error uploading images:', error);
         this.isUploadingImages = false;
         Swal.fire({
           icon: 'error',
@@ -562,7 +565,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
             }, 400);
           },
           error: (error) => {
-            console.error('Error al cancelar incidencia:', error);
             Swal.fire({
               icon: 'error',
               title: 'Error',
