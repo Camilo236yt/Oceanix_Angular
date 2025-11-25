@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -58,7 +58,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private chatService: IncidenciaChatService,
-    private authClienteService: AuthClienteService
+    private authClienteService: AuthClienteService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -275,20 +276,18 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   private connectToChat(): void {
-    const token = this.authClienteService.getToken();
-    console.log('🔐 [CLIENTE] Token from authClienteService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔐 [CLIENTE] Token length:', token?.length);
-    console.log('🔐 [CLIENTE] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
-
-    if (!token || !this.selectedIncidencia) {
-      console.error('❌ [CLIENTE] Cannot connect to chat:', !token ? 'No token' : 'No incidencia selected');
+    if (!this.selectedIncidencia) {
+      console.error('❌ [CLIENTE] Cannot connect to chat: No incidencia selected');
       return;
     }
 
-    // Conectar si no está conectado
+    // Los clientes usan autenticación por cookies, no por token JWT
+    // Pasar undefined para que el WebSocket use las cookies automáticamente
+    console.log('🔌 [CLIENTE] Connecting to WebSocket with cookie-based auth...');
+
+    // Conectar si no está conectado (sin token, usa cookies)
     if (!this.chatService.isConnected()) {
-      console.log('🔌 [CLIENTE] Connecting to WebSocket...');
-      this.chatService.connect(token);
+      this.chatService.connect(); // Sin parámetro = usa cookies
     }
 
     // Esperar a que se conecte y unirse a la sala
@@ -325,20 +324,30 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     if (!this.newMessage.trim() || !this.selectedIncidencia || this.isSendingMessage) return;
 
     const messageContent = this.newMessage;
+    console.log('🔵 [COMPONENTE] Iniciando envío de mensaje, bloqueando botón...');
     this.isSendingMessage = true;
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
+      console.log('🔵 [COMPONENTE] WebSocket conectado, enviando mensaje...');
       try {
-        await this.chatService.sendMessage(messageContent);
-        this.newMessage = '';
-        this.isSendingMessage = false;
-        this.cdr.detectChanges();
+        console.log('🔵 [COMPONENTE] Llamando a chatService.sendMessage()...');
+        const result = await this.chatService.sendMessage(messageContent);
+        console.log('🟢 [COMPONENTE] Mensaje enviado exitosamente:', result);
+
+        // Forzar la actualización dentro de la zona de Angular
+        this.ngZone.run(() => {
+          this.newMessage = '';
+          this.isSendingMessage = false;
+          console.log('🟢 [COMPONENTE] Botón desbloqueado (isSendingMessage = false)');
+          this.cdr.detectChanges();
+        });
       } catch (error) {
-        console.error('WebSocket send failed, falling back to HTTP:', error);
+        console.error('🔴 [COMPONENTE] WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
+      console.log('🔵 [COMPONENTE] WebSocket NO conectado, usando HTTP fallback');
       // Fallback a HTTP si no hay WebSocket
       this.sendMessageViaHttp(messageContent);
     }

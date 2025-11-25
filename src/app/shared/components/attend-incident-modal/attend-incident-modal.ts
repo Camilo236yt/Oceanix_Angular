@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -66,7 +66,8 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private chatService: IncidenciaChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit() {
@@ -195,20 +196,30 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     if (!this.newMessage.trim() || !this.incidentData || this.isSendingMessage) return;
 
     const messageContent = this.newMessage;
+    console.log('🔵 [ADMIN-MODAL] Iniciando envío de mensaje, bloqueando botón...');
     this.isSendingMessage = true;
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
+      console.log('🔵 [ADMIN-MODAL] WebSocket conectado, enviando mensaje...');
       try {
-        await this.chatService.sendMessage(messageContent);
-        this.newMessage = '';
-        this.isSendingMessage = false;
-        this.cdr.detectChanges();
+        console.log('🔵 [ADMIN-MODAL] Llamando a chatService.sendMessage()...');
+        const result = await this.chatService.sendMessage(messageContent);
+        console.log('🟢 [ADMIN-MODAL] Mensaje enviado exitosamente:', result);
+
+        // Forzar la actualización dentro de la zona de Angular
+        this.ngZone.run(() => {
+          this.newMessage = '';
+          this.isSendingMessage = false;
+          console.log('🟢 [ADMIN-MODAL] Botón desbloqueado (isSendingMessage = false)');
+          this.cdr.detectChanges();
+        });
       } catch (error) {
-        console.error('WebSocket send failed, falling back to HTTP:', error);
+        console.error('🔴 [ADMIN-MODAL] WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
+      console.log('🔵 [ADMIN-MODAL] WebSocket NO conectado, usando HTTP fallback');
       // Fallback a HTTP si no hay WebSocket
       this.sendMessageViaHttp(messageContent);
     }

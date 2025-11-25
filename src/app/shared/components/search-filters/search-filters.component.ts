@@ -14,6 +14,7 @@ export class SearchFiltersComponent implements OnInit {
   @Input() searchPlaceholder: string = 'Buscar...';
   @Input() filters: FilterConfig[] = [];
   @Input() showSearch: boolean = true;
+  @Input() initialFilters: { [key: string]: string } = {};
 
   @Output() onSearchChange = new EventEmitter<string>();
   @Output() onFilterChange = new EventEmitter<SearchFilterData>();
@@ -22,10 +23,15 @@ export class SearchFiltersComponent implements OnInit {
   selectedFilters: { [key: string]: string } = {};
 
   ngOnInit(): void {
-    // Inicializar los filtros con valores vacíos
+    // Inicializar los filtros con valores por defecto o vacíos
     this.filters.forEach(filter => {
-      this.selectedFilters[filter.key] = '';
+      this.selectedFilters[filter.key] = this.initialFilters[filter.key] || '';
     });
+
+    // Emitir el cambio inicial si hay valores por defecto
+    if (Object.keys(this.initialFilters).length > 0) {
+      this.emitFilterChange();
+    }
   }
 
   onSearchInput(event: Event): void {

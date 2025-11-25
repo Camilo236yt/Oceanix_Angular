@@ -39,13 +39,14 @@ export class IncidenciaChatService implements OnDestroy {
 
   /**
    * Conectar al WebSocket con el token de autenticación
+   * Si no se proporciona token, se usarán las cookies (para clientes)
    */
-  connect(token: string): void {
+  connect(token?: string): void {
     if (this.socket?.connected) {
       return;
     }
 
-    console.log('🔑 Token received for WebSocket:', token ? `${token.substring(0, 20)}...` : 'NULL');
+    console.log('🔑 Token received for WebSocket:', token ? `${token.substring(0, 20)}...` : 'NULL (using cookies)');
     console.log('🔑 Token length:', token?.length);
     console.log('🔑 Token type:', typeof token);
 
@@ -62,13 +63,22 @@ export class IncidenciaChatService implements OnDestroy {
 
     console.log('Connecting to WebSocket:', `${wsUrl}/chat`);
 
-    this.socket = io(`${wsUrl}/chat`, {
-      auth: { token },
+    // Configuración base
+    const socketConfig: any = {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-    });
+      withCredentials: true, // Enviar cookies en cross-origin requests
+    };
+
+    // Solo agregar auth si hay token (empleados)
+    // Si no hay token (clientes), socket.io usará las cookies automáticamente
+    if (token) {
+      socketConfig.auth = { token };
+    }
+
+    this.socket = io(`${wsUrl}/chat`, socketConfig);
 
     this.setupEventListeners();
   }
@@ -170,10 +180,15 @@ export class IncidenciaChatService implements OnDestroy {
    */
   sendMessage(content: string): Promise<ChatMessage> {
     return new Promise((resolve, reject) => {
+      console.log('📤 [CHAT-SERVICE] sendMessage() iniciado');
+
       if (!this.socket?.connected || !this.currentIncidenciaId) {
+        console.error('❌ [CHAT-SERVICE] No hay conexión activa');
         reject(new Error('No hay conexión activa'));
         return;
       }
+
+      console.log('📡 [CHAT-SERVICE] Emitiendo mensaje a través del socket...');
 
       this.socket.emit(
         'sendMessage',
@@ -182,13 +197,21 @@ export class IncidenciaChatService implements OnDestroy {
           content,
         },
         (response: any) => {
+          console.log('📥 [CHAT-SERVICE] Respuesta recibida del servidor:', response);
+
+          // Los errores vienen como { event: 'error', data: { message: '...' } }
           if (response?.event === 'error') {
+            console.error('❌ [CHAT-SERVICE] Error en respuesta:', response.data.message);
             reject(new Error(response.data.message));
           } else {
-            resolve(response?.data?.message);
+            // El éxito viene directamente como { message: {...} }
+            console.log('✅ [CHAT-SERVICE] Resolviendo Promise con mensaje:', response?.message);
+            resolve(response?.message);
           }
         }
       );
+
+      console.log('⏳ [CHAT-SERVICE] Esperando respuesta del servidor...');
     });
   }
 
