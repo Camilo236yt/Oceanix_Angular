@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { Incidencia } from '../../models/incidencia.model';
 import { IncidenciasService, Message } from '../../services/incidencias.service';
 import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
-import { IncidenciaChatService, ChatMessage } from '../../../../shared/services/incidencia-chat.service';
+import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../../../shared/services/incidencia-chat.service';
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import Swal from 'sweetalert2';
 
@@ -82,6 +82,25 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       }),
       this.chatService.error$.subscribe((error: string) => {
         console.error('Chat error:', error);
+      }),
+      // Suscribirse a cambios de nivel de alerta
+      this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
+        console.log('🚨 [CLIENTE] Nivel de alerta cambió:', alertChange);
+
+        // Si hay una incidencia seleccionada y es la misma que cambió, actualizar
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === alertChange.incidenciaId) {
+          (this.selectedIncidencia.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+          console.log('✅ [CLIENTE] AlertLevel actualizado en modal:', alertChange.newLevel);
+        }
+
+        // Actualizar en la lista de incidencias
+        const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === alertChange.incidenciaId);
+        if (incidenciaEnLista) {
+          (incidenciaEnLista.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+          console.log('✅ [CLIENTE] AlertLevel actualizado en lista:', alertChange.newLevel);
+        }
       })
     );
   }

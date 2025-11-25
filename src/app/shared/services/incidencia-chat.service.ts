@@ -16,6 +16,15 @@ export interface ChatMessage {
   };
 }
 
+export interface AlertLevelChange {
+  incidenciaId: string;
+  previousLevel: string;
+  newLevel: string;
+  minutesSinceCreation: number;
+  emoji: string;
+  timestamp: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,12 +37,14 @@ export class IncidenciaChatService implements OnDestroy {
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
   private errorSubject = new Subject<string>();
   private typingSubject = new Subject<{ userId: string; isTyping: boolean }>();
+  private alertLevelChangeSubject = new Subject<AlertLevelChange>();
 
   // Observables públicos
   newMessage$ = this.newMessageSubject.asObservable();
   connectionStatus$ = this.connectionStatusSubject.asObservable();
   error$ = this.errorSubject.asObservable();
   typing$ = this.typingSubject.asObservable();
+  alertLevelChange$ = this.alertLevelChangeSubject.asObservable();
 
   constructor() {}
 
@@ -134,6 +145,12 @@ export class IncidenciaChatService implements OnDestroy {
     // Evento de usuario escribiendo
     this.socket.on('userTyping', (data: { userId: string; isTyping: boolean }) => {
       this.typingSubject.next(data);
+    });
+
+    // Evento de cambio de nivel de alerta
+    this.socket.on('alertLevelChanged', (data: AlertLevelChange) => {
+      console.log('🚨 Alert level changed:', data);
+      this.alertLevelChangeSubject.next(data);
     });
 
     // Evento de error

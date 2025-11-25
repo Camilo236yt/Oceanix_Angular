@@ -430,14 +430,16 @@
                   <h3 class="text-lg font-bold text-gray-900 mb-1">{{ selectedIncidencia.name }}</h3>
                   <span class="text-sm text-purple-600 font-medium">{{ getTipoLabel(selectedIncidencia.tipo) }}</span>
                 </div>
-                <!-- Semáforo -->
+                <!-- Semáforo (4 niveles: GREEN -> YELLOW -> ORANGE -> RED) -->
                 <div class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5">
                   <div class="w-3 h-3 rounded-full"
-                       [style.background-color]="selectedIncidencia.alertLevel === 'RED' ? '#ef4444' : '#d1d5db'"></div>
+                       [style.background-color]="selectedIncidencia.alertLevel === 'GREEN' ? '#22c55e' : '#d1d5db'"></div>
                   <div class="w-3 h-3 rounded-full"
                        [style.background-color]="selectedIncidencia.alertLevel === 'YELLOW' ? '#facc15' : '#d1d5db'"></div>
                   <div class="w-3 h-3 rounded-full"
-                       [style.background-color]="selectedIncidencia.alertLevel === 'GREEN' ? '#22c55e' : '#d1d5db'"></div>
+                       [style.background-color]="selectedIncidencia.alertLevel === 'ORANGE' ? '#f97316' : '#d1d5db'"></div>
+                  <div class="w-3 h-3 rounded-full"
+                       [style.background-color]="selectedIncidencia.alertLevel === 'RED' ? '#ef4444' : '#d1d5db'"></div>
                 </div>
               </div>
 

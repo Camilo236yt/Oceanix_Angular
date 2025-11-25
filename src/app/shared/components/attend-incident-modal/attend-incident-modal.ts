@@ -6,7 +6,7 @@ import { IconComponent } from '../icon/icon.component';
 import { IncidentData } from '../../../features/crm/models/incident.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { IncidenciaChatService, ChatMessage } from '../../services/incidencia-chat.service';
+import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../services/incidencia-chat.service';
 import { AuthService } from '../../../services/auth.service';
 
 interface Message {
@@ -91,6 +91,17 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
       }),
       this.chatService.error$.subscribe((error: string) => {
         console.error('Chat error:', error);
+      }),
+      // Suscribirse a cambios de nivel de alerta
+      this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
+        console.log('🚨 [ADMIN-MODAL] Nivel de alerta cambió:', alertChange);
+
+        // Si el incidentData actual es el que cambió, actualizar
+        if (this.incidentData && this.incidentData.id === alertChange.incidenciaId) {
+          (this.incidentData.alertLevel as any) = alertChange.newLevel;
+          this.cdr.detectChanges();
+          console.log('✅ [ADMIN-MODAL] AlertLevel actualizado:', alertChange.newLevel);
+        }
       })
     );
   }

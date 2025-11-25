@@ -4,7 +4,7 @@ export interface Incidencia {
   name: string;
   description: string;
   status: 'IN_PROGRESS' | 'PENDING' | 'RESOLVED' | 'CLOSED';
-  alertLevel: 'GREEN' | 'YELLOW' | 'RED';
+  alertLevel: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
   ProducReferenceId: string;
   canClientUploadImages: boolean;
   createdAt: string;
@@ -12,6 +12,7 @@ export interface Incidencia {
   clientId?: number;
   assignedEmployeeId?: number;
   createdByUserId?: number;
+  isActive?: boolean;
 }
 
 export interface CrearIncidenciaRequest {
