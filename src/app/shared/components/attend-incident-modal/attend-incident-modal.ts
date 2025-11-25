@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../services/incidencia-chat.service';
 import { AuthService } from '../../../services/auth.service';
+import { SecureImagePipe } from '../../pipes/secure-image.pipe';
 
 interface Message {
   id: string;
@@ -35,7 +36,7 @@ interface MessagesResponse {
 @Component({
   selector: 'app-attend-incident-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent],
+  imports: [CommonModule, FormsModule, IconComponent, SecureImagePipe],
   templateUrl: './attend-incident-modal.html',
   styleUrls: ['./attend-incident-modal.scss']
 })

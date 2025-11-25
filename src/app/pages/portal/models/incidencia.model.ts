@@ -1,3 +1,10 @@
+export interface IncidenciaImage {
+  id: string;
+  url: string;
+  originalName: string;
+  mimeType?: string;
+}
+
 export interface Incidencia {
   id: number;
   tipo: string;
@@ -13,6 +20,7 @@ export interface Incidencia {
   assignedEmployeeId?: number;
   createdByUserId?: number;
   isActive?: boolean;
+  images?: IncidenciaImage[];
 }
 
 export interface CrearIncidenciaRequest {

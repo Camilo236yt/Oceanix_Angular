@@ -8,12 +8,13 @@ import { IncidenciasService, Message } from '../../services/incidencias.service'
 import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../../utils/form-helpers';
 import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../../../shared/services/incidencia-chat.service';
 import { AuthClienteService } from '../../services/auth-cliente.service';
+import { SecureImagePipe } from '../../../../shared/pipes/secure-image.pipe';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -266,12 +267,26 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   verDetalles(incidencia: Incidencia): void {
-    this.selectedIncidencia = incidencia;
-    this.isModalOpen.set(true);
-    document.body.style.overflow = 'hidden';
-    this.loadMessages();
-    this.connectToChat();
-    this.cdr.detectChanges();
+    // Hacer petición para obtener datos completos con imágenes
+    this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
+      next: (incidenciaCompleta) => {
+        this.selectedIncidencia = incidenciaCompleta;
+        this.isModalOpen.set(true);
+        document.body.style.overflow = 'hidden';
+        this.loadMessages();
+        this.connectToChat();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Si falla, usar los datos que ya tenemos
+        this.selectedIncidencia = incidencia;
+        this.isModalOpen.set(true);
+        document.body.style.overflow = 'hidden';
+        this.loadMessages();
+        this.connectToChat();
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   closeModal(): void {

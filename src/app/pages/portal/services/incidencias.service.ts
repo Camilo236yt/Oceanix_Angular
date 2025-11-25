@@ -62,6 +62,18 @@ export class IncidenciasService {
   }
 
   /**
+   * Obtener detalle completo de una incidencia del cliente (incluye imágenes)
+   */
+  getMyIncidenciaById(id: string): Observable<Incidencia> {
+    return this.http.get<{ success: boolean; data: Incidencia; statusCode: number }>(
+      `${environment.apiUrl}/incidencias/client/me/${id}`,
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data)
+    );
+  }
+
+  /**
    * Crear una nueva incidencia
    */
   crearIncidencia(request: CrearIncidenciaRequest): Observable<Incidencia> {

@@ -481,6 +481,38 @@
                 </div>
               </div>
 
+              <!-- Imágenes de evidencia existentes -->
+              @if (selectedIncidencia.images && selectedIncidencia.images.length > 0) {
+                <div class="mb-4">
+                  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">
+                    Imágenes de Evidencia ({{ selectedIncidencia.images.length }})
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    @for (image of selectedIncidencia.images; track image.id) {
+                      <div class="relative group cursor-pointer rounded-lg overflow-hidden border border-gray-200 aspect-video bg-gray-100">
+                        @if ((image.url | secureImage:true | async); as imageUrl) {
+                          @if (imageUrl) {
+                            <img [src]="imageUrl" [alt]="image.originalName" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span class="text-white text-xs font-medium">Ver imagen</span>
+                            </div>
+                          } @else {
+                            <!-- Skeleton loader -->
+                            <div class="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse">
+                              <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                              </div>
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
               <!-- Upload de imágenes (solo si puede subir) -->
               @if (selectedIncidencia.canClientUploadImages) {
                 <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
