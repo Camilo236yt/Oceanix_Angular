@@ -75,12 +75,6 @@ export class AuthService {
       `${this.API_URL}/auth/register-enterprise`,
       data,
       { headers }
-    ).pipe(
-      tap(response => {
-        if (response.success) {
-          console.log('Empresa registrada exitosamente:', response.data.enterprise);
-        }
-      })
     );
   }
 
@@ -147,14 +141,10 @@ export class AuthService {
    * @param enterprise Enterprise data
    */
   private setAuthData(token: string, user: AdminUser, enterprise: Enterprise): void {
-    console.log('🔑 [AuthService] setAuthData called with token:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔑 [AuthService] Saving to TOKEN_KEY:', this.TOKEN_KEY);
-
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     localStorage.setItem(this.ENTERPRISE_KEY, JSON.stringify(enterprise));
 
-    console.log('✅ [AuthService] Token saved. Verification:', localStorage.getItem(this.TOKEN_KEY)?.substring(0, 30) + '...');
     this.isAuthenticatedSubject.next(true);
   }
 
@@ -164,9 +154,6 @@ export class AuthService {
    */
   getToken(): string | null {
     const token = localStorage.getItem(this.TOKEN_KEY);
-    console.log('🔐 [AuthService] getToken called, token:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔐 [AuthService] TOKEN_KEY:', this.TOKEN_KEY);
-    console.log('🔐 [AuthService] localStorage keys:', Object.keys(localStorage));
     return token;
   }
 
@@ -226,43 +213,25 @@ export class AuthService {
    * @returns Observable with boolean indicating if session is valid
    */
   checkSession(): Observable<boolean> {
-    console.log('[AuthService] checkSession: Iniciando verificación de sesión');
-
     return this.http.get<{ success: boolean }>(
       `${this.API_URL}/auth/check`,
       { withCredentials: true }
     ).pipe(
       switchMap(response => {
-        console.log('[AuthService] checkSession: Respuesta recibida:', response);
-
         if (response.success === true) {
-          console.log('[AuthService] checkSession: Sesión válida');
-          console.log('[AuthService] checkSession: Permisos en memoria:', this.permissionsSubject.value.length);
-
           // Si la sesión es válida pero no hay permisos en memoria, cargarlos
           if (this.permissionsSubject.value.length === 0) {
-            console.log('[AuthService] checkSession: No hay permisos en memoria, cargando con fetchMeData()');
             return this.fetchMeData().pipe(
-              map(() => {
-                console.log('[AuthService] checkSession: Permisos cargados exitosamente');
-                return true;
-              }),
-              catchError((error) => {
-                console.error('[AuthService] checkSession: Error al cargar permisos:', error);
-                return of(true); // Aún así retornar true si falla cargar permisos
-              })
+              map(() => true),
+              catchError(() => of(true)) // Aún así retornar true si falla cargar permisos
             );
           }
           return of(true);
         }
 
-        console.log('[AuthService] checkSession: Sesión inválida (response.success !== true)');
         return of(false);
       }),
-      catchError((error) => {
-        console.error('[AuthService] checkSession: Error en la petición /auth/check:', error);
-        return of(false);
-      })
+      catchError(() => of(false))
     );
   }
 
@@ -561,7 +530,6 @@ export class AuthService {
   validateSubdomain(): void {
     // En localhost, no validar subdominio
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log('[DEV MODE] Subdomain validation skipped in localhost');
       return;
     }
 
@@ -572,11 +540,8 @@ export class AuthService {
     // Si no hay subdominio (ej: oceanix.space), NO hacer nada
     // El dominio principal (oceanix.space) es válido para landing, login y registro
     if (parts.length < 3) {
-      console.log('[AUTH] Main domain detected (no subdomain) - OK');
       return;
     }
-
-    console.log('[AUTH] Subdomain detected:', parts[0]);
   }
 
   /**
@@ -590,8 +555,6 @@ export class AuthService {
 
     // En localhost, guardar subdomain para desarrollo y navegar al dashboard
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.log(`[DEV MODE - localhost] Simulando subdominio: ${subdomain}`);
-
       // Guardar subdomain SOLO para modo desarrollo (usado por HTTP Interceptor)
       localStorage.setItem('subdomain', subdomain);
       localStorage.setItem('dev_subdomain', subdomain);
@@ -603,7 +566,6 @@ export class AuthService {
 
     // Si la redirección de subdominio está deshabilitada (desarrollo)
     if (!environment.enableSubdomainRedirect) {
-      console.log(`[DEV MODE] Redirección de subdominio deshabilitada. En producción se redirigiría a: ${newUrl}`);
       // En desarrollo, navegar al dashboard sin cambiar de dominio
       window.location.href = '/crm/dashboard';
       return;
@@ -611,7 +573,6 @@ export class AuthService {
 
     // En producción, redirigir al subdominio real
     // NO guardamos en localStorage porque el subdomain ya está en la URL
-    console.log(`Redirigiendo a: ${newUrl}`);
     window.location.href = newUrl;
   }
 }

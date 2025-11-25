@@ -15,15 +15,10 @@ export class PermissionsService {
   constructor(private http: HttpClient) {}
 
   getPermissions(): Observable<Permission[]> {
-    console.log('PermissionsService: Haciendo petición a:', this.apiUrl);
     return this.http.get<PermissionsApiResponse>(this.apiUrl, {
       withCredentials: true
     }).pipe(
-      map(response => {
-        console.log('PermissionsService: Respuesta recibida:', response);
-        console.log('PermissionsService: Data:', response.data);
-        return response.data;
-      })
+      map(response => response.data)
     );
   }
 }

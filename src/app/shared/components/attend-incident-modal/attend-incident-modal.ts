@@ -89,18 +89,15 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.isConnected = connected;
         this.cdr.detectChanges();
       }),
-      this.chatService.error$.subscribe((error: string) => {
-        console.error('Chat error:', error);
+      this.chatService.error$.subscribe(() => {
+        // Error manejado silenciosamente
       }),
       // Suscribirse a cambios de nivel de alerta
       this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
-        console.log('🚨 [ADMIN-MODAL] Nivel de alerta cambió:', alertChange);
-
         // Si el incidentData actual es el que cambió, actualizar
         if (this.incidentData && this.incidentData.id === alertChange.incidenciaId) {
           (this.incidentData.alertLevel as any) = alertChange.newLevel;
           this.cdr.detectChanges();
-          console.log('✅ [ADMIN-MODAL] AlertLevel actualizado:', alertChange.newLevel);
         }
       })
     );
@@ -121,11 +118,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Log para debug
-    if (changes['incidentData']) {
-      console.log('🔄 [ADMIN] incidentData changed:', this.incidentData ? `ID: ${this.incidentData.id}` : 'NULL');
-    }
-
     if (changes['isOpen']) {
       if (this.isOpen) {
         document.body.style.overflow = 'hidden';
@@ -133,8 +125,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
           this.selectedStatus = this.incidentData.status;
           this.loadMessages();
           this.connectToChat();
-        } else {
-          console.warn('⚠️ [ADMIN] Modal opened but incidentData is null');
         }
       } else {
         document.body.style.overflow = '';
@@ -146,7 +136,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
     // Si incidentData cambia mientras el modal está abierto, reconectar
     if (changes['incidentData'] && this.isOpen && this.incidentData) {
-      console.log('🔄 [ADMIN] Reconnecting due to incidentData change');
       this.selectedStatus = this.incidentData.status;
       this.loadMessages();
       this.connectToChat();
@@ -155,18 +144,13 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
   private connectToChat(): void {
     const token = this.authService.getToken();
-    console.log('🔐 [ADMIN] Token from authService:', token ? `${token.substring(0, 30)}...` : 'NULL/UNDEFINED');
-    console.log('🔐 [ADMIN] Token length:', token?.length);
-    console.log('🔐 [ADMIN] Token is valid JWT format:', token ? /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/.test(token) : false);
 
     if (!token || !this.incidentData) {
-      console.error('❌ [ADMIN] Cannot connect to chat:', !token ? 'No token' : 'No incident data');
       return;
     }
 
     // Conectar si no está conectado
     if (!this.chatService.isConnected()) {
-      console.log('🔌 [ADMIN] Connecting to WebSocket...');
       this.chatService.connect(token);
     }
 
@@ -196,8 +180,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error loading messages:', error);
+      error: () => {
         this.isLoadingMessages = false;
       }
     });
@@ -207,30 +190,23 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     if (!this.newMessage.trim() || !this.incidentData || this.isSendingMessage) return;
 
     const messageContent = this.newMessage;
-    console.log('🔵 [ADMIN-MODAL] Iniciando envío de mensaje, bloqueando botón...');
     this.isSendingMessage = true;
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
-      console.log('🔵 [ADMIN-MODAL] WebSocket conectado, enviando mensaje...');
       try {
-        console.log('🔵 [ADMIN-MODAL] Llamando a chatService.sendMessage()...');
-        const result = await this.chatService.sendMessage(messageContent);
-        console.log('🟢 [ADMIN-MODAL] Mensaje enviado exitosamente:', result);
+        await this.chatService.sendMessage(messageContent);
 
         // Forzar la actualización dentro de la zona de Angular
         this.ngZone.run(() => {
           this.newMessage = '';
           this.isSendingMessage = false;
-          console.log('🟢 [ADMIN-MODAL] Botón desbloqueado (isSendingMessage = false)');
           this.cdr.detectChanges();
         });
       } catch (error) {
-        console.error('🔴 [ADMIN-MODAL] WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
-      console.log('🔵 [ADMIN-MODAL] WebSocket NO conectado, usando HTTP fallback');
       // Fallback a HTTP si no hay WebSocket
       this.sendMessageViaHttp(messageContent);
     }
@@ -253,8 +229,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error sending message:', error);
+      error: () => {
         this.isSendingMessage = false;
       }
     });
@@ -355,8 +330,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error requesting images:', error);
+      error: () => {
         this.isRequestingImages = false;
       }
     });

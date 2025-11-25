@@ -80,18 +80,15 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.isConnected = connected;
         this.cdr.detectChanges();
       }),
-      this.chatService.error$.subscribe((error: string) => {
-        console.error('Chat error:', error);
+      this.chatService.error$.subscribe(() => {
+        // Error handling
       }),
       // Suscribirse a cambios de nivel de alerta
       this.chatService.alertLevelChange$.subscribe((alertChange: AlertLevelChange) => {
-        console.log('🚨 [CLIENTE] Nivel de alerta cambió:', alertChange);
-
         // Si hay una incidencia seleccionada y es la misma que cambió, actualizar
         if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === alertChange.incidenciaId) {
           (this.selectedIncidencia.alertLevel as any) = alertChange.newLevel;
           this.cdr.detectChanges();
-          console.log('✅ [CLIENTE] AlertLevel actualizado en modal:', alertChange.newLevel);
         }
 
         // Actualizar en la lista de incidencias
@@ -99,7 +96,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         if (incidenciaEnLista) {
           (incidenciaEnLista.alertLevel as any) = alertChange.newLevel;
           this.cdr.detectChanges();
-          console.log('✅ [CLIENTE] AlertLevel actualizado en lista:', alertChange.newLevel);
         }
       })
     );
@@ -131,12 +127,11 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   cargarIncidencias(): void {
     this.incidenciasService.getIncidencias().subscribe({
       next: (incidencias) => {
-        console.log('Incidencias cargadas:', incidencias);
         this.incidencias = [...incidencias];
         this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.error('Error al cargar incidencias:', error);
+      error: () => {
+        // Error handling
       }
     });
   }
@@ -235,9 +230,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       : this.incidenciasService.crearIncidencia(request);
 
     peticion.subscribe({
-      next: (nuevaIncidencia) => {
-        console.log('Incidencia creada:', nuevaIncidencia);
-
+      next: () => {
         Swal.fire({
           icon: 'success',
           title: 'Incidencia registrada',
@@ -254,7 +247,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cargarIncidencias();
       },
       error: (error) => {
-        console.error('Error al crear incidencia:', error);
         const errorMsg = error.error?.message || 'No se pudo registrar la incidencia. Por favor intenta nuevamente.';
 
         Swal.fire({
@@ -274,7 +266,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   verDetalles(incidencia: Incidencia): void {
-    console.log('Ver detalles - alertLevel:', incidencia.alertLevel);
     this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
     document.body.style.overflow = 'hidden';
@@ -296,17 +287,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   private connectToChat(): void {
     if (!this.selectedIncidencia) {
-      console.error('❌ [CLIENTE] Cannot connect to chat: No incidencia selected');
       return;
     }
 
     // Los clientes usan autenticación por cookies, no por token JWT
-    // Pasar undefined para que el WebSocket use las cookies automáticamente
-    console.log('🔌 [CLIENTE] Connecting to WebSocket with cookie-based auth...');
-
-    // Conectar si no está conectado (sin token, usa cookies)
     if (!this.chatService.isConnected()) {
-      this.chatService.connect(); // Sin parámetro = usa cookies
+      this.chatService.connect();
     }
 
     // Esperar a que se conecte y unirse a la sala
@@ -317,7 +303,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       }
     }, 100);
 
-    // Timeout después de 5 segundos
     setTimeout(() => clearInterval(checkConnection), 5000);
   }
 
@@ -332,8 +317,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error loading messages:', error);
+      error: () => {
         this.isLoadingMessages = false;
       }
     });
@@ -343,30 +327,23 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     if (!this.newMessage.trim() || !this.selectedIncidencia || this.isSendingMessage) return;
 
     const messageContent = this.newMessage;
-    console.log('🔵 [COMPONENTE] Iniciando envío de mensaje, bloqueando botón...');
     this.isSendingMessage = true;
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
-      console.log('🔵 [COMPONENTE] WebSocket conectado, enviando mensaje...');
       try {
-        console.log('🔵 [COMPONENTE] Llamando a chatService.sendMessage()...');
-        const result = await this.chatService.sendMessage(messageContent);
-        console.log('🟢 [COMPONENTE] Mensaje enviado exitosamente:', result);
+        await this.chatService.sendMessage(messageContent);
 
         // Forzar la actualización dentro de la zona de Angular
         this.ngZone.run(() => {
           this.newMessage = '';
           this.isSendingMessage = false;
-          console.log('🟢 [COMPONENTE] Botón desbloqueado (isSendingMessage = false)');
           this.cdr.detectChanges();
         });
       } catch (error) {
-        console.error('🔴 [COMPONENTE] WebSocket send failed, falling back to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
-      console.log('🔵 [COMPONENTE] WebSocket NO conectado, usando HTTP fallback');
       // Fallback a HTTP si no hay WebSocket
       this.sendMessageViaHttp(messageContent);
     }
@@ -384,8 +361,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: (error) => {
-        console.error('Error sending message:', error);
+      error: () => {
         this.isSendingMessage = false;
       }
     });
@@ -458,7 +434,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         });
       },
       error: (error) => {
-        console.error('Error uploading images:', error);
         this.isUploadingImages = false;
         Swal.fire({
           icon: 'error',
@@ -590,7 +565,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
             }, 400);
           },
           error: (error) => {
-            console.error('Error al cancelar incidencia:', error);
             Swal.fire({
               icon: 'error',
               title: 'Error',

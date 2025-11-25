@@ -57,10 +57,6 @@ export class IncidenciaChatService implements OnDestroy {
       return;
     }
 
-    console.log('🔑 Token received for WebSocket:', token ? `${token.substring(0, 20)}...` : 'NULL (using cookies)');
-    console.log('🔑 Token length:', token?.length);
-    console.log('🔑 Token type:', typeof token);
-
     // Construir URL del WebSocket
     // En desarrollo apiUrl es relativo (/api/v1), necesitamos la URL completa del backend
     let wsUrl: string;
@@ -71,8 +67,6 @@ export class IncidenciaChatService implements OnDestroy {
       // Producción: extraer del apiUrl
       wsUrl = environment.apiUrl.replace('/api/v1', '');
     }
-
-    console.log('Connecting to WebSocket:', `${wsUrl}/chat`);
 
     // Configuración base
     const socketConfig: any = {
@@ -101,7 +95,6 @@ export class IncidenciaChatService implements OnDestroy {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected');
       this.connectionStatusSubject.next(true);
 
       // Reconectar a la sala si había una incidencia activa
@@ -110,35 +103,22 @@ export class IncidenciaChatService implements OnDestroy {
       }
     });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected. Reason:', reason);
-      console.log('Disconnect reasons: io server disconnect =', reason === 'io server disconnect',
-                  ', io client disconnect =', reason === 'io client disconnect',
-                  ', transport close =', reason === 'transport close');
+    this.socket.on('disconnect', () => {
       this.connectionStatusSubject.next(false);
     });
 
-    this.socket.on('connect_error', (error: any) => {
-      console.error('WebSocket connection error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        description: error.description,
-        context: error.context,
-        type: error.type
-      });
+    this.socket.on('connect_error', () => {
       this.errorSubject.next('Error de conexión al chat');
       this.connectionStatusSubject.next(false);
     });
 
     // Evento de nuevo mensaje
     this.socket.on('newMessage', (data: { message: ChatMessage }) => {
-      console.log('New message received:', data.message);
       this.newMessageSubject.next(data.message);
     });
 
     // Evento de solicitud de imágenes
     this.socket.on('imageReuploadRequested', (data: { message: ChatMessage; incidenciaId: string }) => {
-      console.log('Image reupload requested:', data);
       this.newMessageSubject.next(data.message);
     });
 
@@ -149,13 +129,11 @@ export class IncidenciaChatService implements OnDestroy {
 
     // Evento de cambio de nivel de alerta
     this.socket.on('alertLevelChanged', (data: AlertLevelChange) => {
-      console.log('🚨 Alert level changed:', data);
       this.alertLevelChangeSubject.next(data);
     });
 
     // Evento de error
     this.socket.on('error', (data: { message: string }) => {
-      console.error('WebSocket error:', data.message);
       this.errorSubject.next(data.message);
     });
   }
@@ -165,17 +143,13 @@ export class IncidenciaChatService implements OnDestroy {
    */
   joinRoom(incidenciaId: string): void {
     if (!this.socket?.connected) {
-      console.warn('Cannot join room: socket not connected');
       return;
     }
 
     this.currentIncidenciaId = incidenciaId;
     this.socket.emit('joinIncidenciaChat', { incidenciaId }, (response: any) => {
       if (response?.event === 'error') {
-        console.error('Error joining room:', response.data.message);
         this.errorSubject.next(response.data.message);
-      } else {
-        console.log('Joined room:', response?.data?.roomName);
       }
     });
   }
@@ -197,15 +171,10 @@ export class IncidenciaChatService implements OnDestroy {
    */
   sendMessage(content: string): Promise<ChatMessage> {
     return new Promise((resolve, reject) => {
-      console.log('📤 [CHAT-SERVICE] sendMessage() iniciado');
-
       if (!this.socket?.connected || !this.currentIncidenciaId) {
-        console.error('❌ [CHAT-SERVICE] No hay conexión activa');
         reject(new Error('No hay conexión activa'));
         return;
       }
-
-      console.log('📡 [CHAT-SERVICE] Emitiendo mensaje a través del socket...');
 
       this.socket.emit(
         'sendMessage',
@@ -214,21 +183,15 @@ export class IncidenciaChatService implements OnDestroy {
           content,
         },
         (response: any) => {
-          console.log('📥 [CHAT-SERVICE] Respuesta recibida del servidor:', response);
-
           // Los errores vienen como { event: 'error', data: { message: '...' } }
           if (response?.event === 'error') {
-            console.error('❌ [CHAT-SERVICE] Error en respuesta:', response.data.message);
             reject(new Error(response.data.message));
           } else {
             // El éxito viene directamente como { message: {...} }
-            console.log('✅ [CHAT-SERVICE] Resolviendo Promise con mensaje:', response?.message);
             resolve(response?.message);
           }
         }
       );
-
-      console.log('⏳ [CHAT-SERVICE] Esperando respuesta del servidor...');
     });
   }
 
