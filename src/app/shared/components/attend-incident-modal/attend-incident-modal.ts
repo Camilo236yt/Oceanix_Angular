@@ -100,6 +100,33 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
           (this.incidentData.alertLevel as any) = alertChange.newLevel;
           this.cdr.detectChanges();
         }
+      }),
+
+      // Suscribirse a imágenes subidas
+      this.chatService.imagesUploaded$.subscribe((event) => {
+        // Si el incidentData actual es el que recibió nuevas imágenes, actualizar
+        if (this.incidentData && this.incidentData.id === event.incidenciaId) {
+          if (!this.incidentData.images) {
+            this.incidentData.images = [];
+          }
+          // Agregar las nuevas imágenes
+          this.incidentData.images = [...this.incidentData.images, ...event.images];
+          this.ngZone.run(() => {
+            this.cdr.detectChanges();
+          });
+        }
+      }),
+
+      // Suscribirse a actualizaciones de incidencia
+      this.chatService.incidenciaUpdated$.subscribe((event) => {
+        if (this.incidentData && this.incidentData.id === event.incidenciaId) {
+          if (event.canClientUploadImages !== undefined) {
+            this.incidentData.canClientUploadImages = event.canClientUploadImages;
+          }
+          this.ngZone.run(() => {
+            this.cdr.detectChanges();
+          });
+        }
       })
     );
   }
