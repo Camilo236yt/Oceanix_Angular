@@ -1,10 +1,13 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../services/auth.service';
 import { VerificationBannerComponent } from '../../../../shared/components/verification-banner/verification-banner.component';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import { NotificationToastComponent } from '../../../../shared/components/notification-toast/notification-toast.component';
+import { IncidenciaChatService, NewMessageNotification } from '../../../../shared/services/incidencia-chat.service';
+import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
 interface MenuItem {
@@ -19,7 +22,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -32,12 +35,17 @@ export class CrmLayout implements OnInit, OnDestroy {
   mobileViewMode: MobileViewMode = 'icons-with-names';
   currentDate: string = '';
   private midnightTimer: any;
+  private notificationSubscription?: Subscription;
+
+  // Notifications
+  notifications = signal<Array<NewMessageNotification & { id: number }>>([]);
 
   // Servicios
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private chatService = inject(IncidenciaChatService);
 
   private allMenuItems: MenuItem[] = [
     { path: '/crm/dashboard', label: 'Dashboard', icon: 'dashboard', permissions: ['read_dashboard'] },
@@ -74,6 +82,18 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Inicializar la fecha actual
     this.updateCurrentDate();
     this.scheduleMidnightUpdate();
+
+    // Auto-conectar al WebSocket para recibir notificaciones
+    const token = this.authService.getToken();
+    if (token) {
+      this.chatService.autoConnect(token);
+    }
+
+    // Suscribirse a notificaciones de nuevos mensajes
+    this.notificationSubscription = this.chatService.newMessageNotification$.subscribe((notification) => {
+      // Agregar notificación a la lista
+      this.notifications.update(notifs => [...notifs, { id: Date.now(), ...notification }]);
+    });
   }
 
   /**
@@ -101,6 +121,11 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Limpiar el timer cuando el componente se destruya
     if (this.midnightTimer) {
       clearTimeout(this.midnightTimer);
+    }
+
+    // Cancelar suscripción a notificaciones
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
     }
   }
 
@@ -261,5 +286,25 @@ export class CrmLayout implements OnInit, OnDestroy {
       console.log('Redirecting to:', loginUrl);
       window.location.href = loginUrl;
     }
+  }
+
+  /**
+   * Eliminar una notificación de la lista
+   */
+  removeNotification(id: number) {
+    this.notifications.update(notifs => notifs.filter(n => n.id !== id));
+  }
+
+  /**
+   * Navegar a una incidencia desde la notificación
+   */
+  openIncident(incidenciaId: string, notificationId: number) {
+    // Eliminar la notificación
+    this.removeNotification(notificationId);
+
+    // Navegar a la página de incidencias (la modal se abrirá automáticamente si es necesario)
+    this.router.navigate(['/crm/incidencias'], {
+      queryParams: { incidenciaId: incidenciaId }
+    });
   }
 }

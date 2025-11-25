@@ -25,6 +25,30 @@ export interface AlertLevelChange {
   timestamp: string;
 }
 
+export interface ImagesUploadedEvent {
+  incidenciaId: string;
+  images: Array<any>; // Array compatible con IncidentImage o IncidenciaImage
+  imageCount: number;
+  timestamp: string;
+}
+
+export interface IncidenciaUpdatedEvent {
+  incidenciaId: string;
+  canClientUploadImages?: boolean;
+  [key: string]: any;
+}
+
+export interface NewMessageNotification {
+  incidenciaId: string;
+  incidenciaName: string;
+  message: {
+    id: string;
+    content: string;
+    senderType: string;
+    timestamp: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +62,9 @@ export class IncidenciaChatService implements OnDestroy {
   private errorSubject = new Subject<string>();
   private typingSubject = new Subject<{ userId: string; isTyping: boolean }>();
   private alertLevelChangeSubject = new Subject<AlertLevelChange>();
+  private imagesUploadedSubject = new Subject<ImagesUploadedEvent>();
+  private incidenciaUpdatedSubject = new Subject<IncidenciaUpdatedEvent>();
+  private newMessageNotificationSubject = new Subject<NewMessageNotification>();
 
   // Observables públicos
   newMessage$ = this.newMessageSubject.asObservable();
@@ -45,6 +72,9 @@ export class IncidenciaChatService implements OnDestroy {
   error$ = this.errorSubject.asObservable();
   typing$ = this.typingSubject.asObservable();
   alertLevelChange$ = this.alertLevelChangeSubject.asObservable();
+  imagesUploaded$ = this.imagesUploadedSubject.asObservable();
+  incidenciaUpdated$ = this.incidenciaUpdatedSubject.asObservable();
+  newMessageNotification$ = this.newMessageNotificationSubject.asObservable();
 
   constructor() {}
 
@@ -132,10 +162,37 @@ export class IncidenciaChatService implements OnDestroy {
       this.alertLevelChangeSubject.next(data);
     });
 
+    // Evento de imágenes subidas
+    this.socket.on('imagesUploaded', (data: ImagesUploadedEvent) => {
+      this.imagesUploadedSubject.next(data);
+    });
+
+    // Evento de actualización de incidencia (canClientUploadImages, etc)
+    this.socket.on('incidenciaUpdated', (data: IncidenciaUpdatedEvent) => {
+      this.incidenciaUpdatedSubject.next(data);
+    });
+
+    // Evento de notificación de nuevo mensaje (cuando empleado no está en la sala)
+    this.socket.on('newMessageNotification', (data: NewMessageNotification) => {
+      this.newMessageNotificationSubject.next(data);
+    });
+
     // Evento de error
     this.socket.on('error', (data: { message: string }) => {
       this.errorSubject.next(data.message);
     });
+  }
+
+  /**
+   * Auto-conectar al WebSocket para recibir notificaciones
+   * Debe llamarse cuando el usuario se autentica
+   */
+  autoConnect(token: string): void {
+    if (this.socket?.connected) {
+      return; // Ya conectado
+    }
+
+    this.connect(token);
   }
 
   /**

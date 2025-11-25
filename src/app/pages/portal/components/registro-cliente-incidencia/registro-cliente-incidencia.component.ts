@@ -98,6 +98,49 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           (incidenciaEnLista.alertLevel as any) = alertChange.newLevel;
           this.cdr.detectChanges();
         }
+      }),
+
+      // Suscribirse a imágenes subidas
+      this.chatService.imagesUploaded$.subscribe((event) => {
+        // Si hay una incidencia seleccionada y es la misma, actualizar las imágenes
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === event.incidenciaId) {
+          if (!this.selectedIncidencia.images) {
+            this.selectedIncidencia.images = [];
+          }
+          // Agregar las nuevas imágenes
+          this.selectedIncidencia.images = [...this.selectedIncidencia.images, ...event.images];
+          this.cdr.detectChanges();
+        }
+
+        // Actualizar en la lista de incidencias
+        const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === event.incidenciaId);
+        if (incidenciaEnLista) {
+          if (!incidenciaEnLista.images) {
+            incidenciaEnLista.images = [];
+          }
+          incidenciaEnLista.images = [...incidenciaEnLista.images, ...event.images];
+          this.cdr.detectChanges();
+        }
+      }),
+
+      // Suscribirse a actualizaciones de incidencia (canClientUploadImages, etc)
+      this.chatService.incidenciaUpdated$.subscribe((event) => {
+        // Si hay una incidencia seleccionada y es la misma, actualizar
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === event.incidenciaId) {
+          if (event.canClientUploadImages !== undefined) {
+            this.selectedIncidencia.canClientUploadImages = event.canClientUploadImages;
+          }
+          this.cdr.detectChanges();
+        }
+
+        // Actualizar en la lista de incidencias
+        const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === event.incidenciaId);
+        if (incidenciaEnLista) {
+          if (event.canClientUploadImages !== undefined) {
+            incidenciaEnLista.canClientUploadImages = event.canClientUploadImages;
+          }
+          this.cdr.detectChanges();
+        }
       })
     );
   }
