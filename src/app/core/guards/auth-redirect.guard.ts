@@ -14,11 +14,20 @@ export const authRedirectGuard: CanActivateFn = () => {
 
   console.log('[authRedirectGuard] Verificando sesión...');
 
-  // Verificar sesión con el backend
+  // Primero verificar si hay token en localStorage (check rápido y sincrónico)
+  const hasToken = authService.isAuthenticated();
+
+  if (!hasToken) {
+    // Si no hay token, permitir acceso inmediatamente sin llamar al backend
+    console.log('[authRedirectGuard] No hay token, permitiendo acceso');
+    return of(true);
+  }
+
+  // Si hay token, verificar con el backend que la sesión sea válida
   return authService.checkSession().pipe(
     tap(isValid => console.log('[authRedirectGuard] Sesión válida:', isValid)),
     map(isValid => {
-      if (isValid) { 
+      if (isValid) {
         // Si está autenticado, redirigir al CRM
         console.log('[authRedirectGuard] Usuario autenticado, redirigiendo a /crm/dashboard');
         router.navigate(['/crm/dashboard']);

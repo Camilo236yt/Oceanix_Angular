@@ -569,11 +569,14 @@ export class AuthService {
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
 
-    // Si no hay subdominio (ej: oceanix.space), redirigir al login
+    // Si no hay subdominio (ej: oceanix.space), NO hacer nada
+    // El dominio principal (oceanix.space) es válido para landing, login y registro
     if (parts.length < 3) {
-      console.log('[AUTH] No subdomain detected, redirecting to main domain');
-      window.location.href = `${window.location.protocol}//${environment.appDomain}`;
+      console.log('[AUTH] Main domain detected (no subdomain) - OK');
+      return;
     }
+
+    console.log('[AUTH] Subdomain detected:', parts[0]);
   }
 
   /**
