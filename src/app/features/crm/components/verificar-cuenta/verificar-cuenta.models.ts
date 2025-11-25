@@ -67,20 +67,32 @@ export interface TemaAvanzado {
 }
 
 export interface Paso2Marca {
-  logo?: ImagenMarca;
-  favicon?: ImagenMarca;
-  banner?: ImagenMarca;
+  logo?: File;
+  logoUrl?: string;
+  favicon?: File;
+  faviconUrl?: string;
+  banner?: File;
+  bannerUrl?: string;
   colores: ColoresMarca;
   temaAvanzado?: TemaAvanzado;
 }
 
 // ============================================
-// PASO 3: EMAIL CORPORATIVO
+// PASO 3: EMAIL Y VERIFICACIÓN
 // ============================================
 
-export interface Paso3Email {
+export interface Paso3EmailVerificacion {
+  // Dominios corporativos
   dominios: string[];
   requerirEmailCorporativo: boolean;
+
+  // Verificación de contacto
+  email: string;
+  emailVerificado: boolean;
+  codigoEmail?: string;
+  telefono: string;
+  telefonoVerificado: boolean;
+  codigoTelefono?: string;
 }
 
 // ============================================
@@ -90,5 +102,5 @@ export interface Paso3Email {
 export interface DatosVerificacion {
   paso1: Paso1Documentos;
   paso2: Paso2Marca;
-  paso3: Paso3Email;
+  paso3: Paso3EmailVerificacion;
 }
