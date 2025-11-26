@@ -547,18 +547,26 @@ export class Usuarios implements OnInit {
 
         // Verificar si es un error de correo duplicado
         const errorMessage = error?.error?.message || '';
-        const errorDetails = error?.error?.error?.details || [];
+        const errorDetails = error?.error?.error?.details || error?.error?.details || [];
 
+        console.log('Error message:', errorMessage);
+        console.log('Error details:', errorDetails);
+
+        // Verificar en el mensaje principal
         const isDuplicateEmail = errorMessage.toLowerCase().includes('email') &&
                                  (errorMessage.toLowerCase().includes('already') ||
                                   errorMessage.toLowerCase().includes('existe') ||
+                                  errorMessage.toLowerCase().includes('registrado') ||
                                   errorMessage.toLowerCase().includes('duplicado'));
 
+        // Verificar en los detalles (puede estar en error.error.details o error.error.error.details)
         const hasDuplicateEmailDetail = Array.isArray(errorDetails) &&
                                        errorDetails.some((detail: string) =>
                                          detail.toLowerCase().includes('email') &&
                                          (detail.toLowerCase().includes('already') ||
-                                          detail.toLowerCase().includes('exist')));
+                                          detail.toLowerCase().includes('exist') ||
+                                          detail.toLowerCase().includes('registrado') ||
+                                          detail.toLowerCase().includes('está registrado')));
 
         if (isDuplicateEmail || hasDuplicateEmailDetail) {
           // Mostrar modal de confirmación para correo duplicado (NO cerrar el modal de crear usuario)
