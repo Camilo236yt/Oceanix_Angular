@@ -243,10 +243,14 @@ export class Register implements OnInit {
   }
 
   /**
-   * Navega a la página de login
+   * Navega a la página de login con animación de carga
    */
   goBack(): void {
-    this.router.navigate(['/login']);
+    this.isLoading = true;
+    // Delay estándar para que se vea la animación antes de navegar
+    setTimeout(() => {
+      this.router.navigate(['/login']);
+    }, 800);
   }
 
   /**

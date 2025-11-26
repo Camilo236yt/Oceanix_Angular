@@ -147,10 +147,10 @@ export class Login implements OnInit {
    */
   navigateToRegister(): void {
     this.isLoading = true;
-    // Pequeño delay para que se vea la animación antes de navegar
+    // Delay estándar para que se vea la animación antes de navegar
     setTimeout(() => {
       this.router.navigate(['/register']);
-    }, 300);
+    }, 800);
   }
 
   /**
