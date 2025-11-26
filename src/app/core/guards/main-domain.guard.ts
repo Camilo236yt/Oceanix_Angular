@@ -4,15 +4,15 @@ import { SubdomainService } from '../services/subdomain.service';
 
 /**
  * Guard que protege rutas para que solo sean accesibles desde el dominio principal
- * Redirige a /login si se accede desde un subdominio
+ * Redirige a /portal/login si se accede desde un subdominio
  */
 export const mainDomainGuard: CanActivateFn = () => {
   const subdomainService = inject(SubdomainService);
   const router = inject(Router);
 
-  // Si estamos en un subdominio, redirigir al login
+  // Si estamos en un subdominio, redirigir al login del portal
   if (subdomainService.hasSubdomain()) {
-    router.navigate(['/login']);
+    router.navigate(['/portal/login']);
     return false;
   }
 

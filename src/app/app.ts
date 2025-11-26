@@ -21,7 +21,7 @@ export class App {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         // Rutas donde NO se debe mostrar el navbar y footer
-        const hiddenLayoutRoutes = ['/login', '/register'];
+        const hiddenLayoutRoutes = ['/admin', '/register'];
         const url = event.urlAfterRedirects;
 
         // Ocultar layout si la ruta está en hiddenLayoutRoutes o empieza con /crm o /portal

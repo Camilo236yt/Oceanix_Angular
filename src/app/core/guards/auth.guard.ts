@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 
 /**
  * Guard que protege rutas autenticadas
- * Redirige a /login si el usuario no está autenticado
+ * Redirige a /admin si el usuario no está autenticado
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = () => {
 
   // Si el usuario NO está autenticado, redirigir al login
   if (!authService.isAuthenticated()) {
-    router.navigate(['/login']);
+    router.navigate(['/admin']);
     return false;
   }
 

@@ -93,7 +93,7 @@ export class ActivateAccount implements OnInit {
    * Redirige al usuario al login
    */
   goToLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/admin']);
   }
 
   /**

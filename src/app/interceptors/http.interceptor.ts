@@ -99,6 +99,6 @@ function handleTokenExpiration(router: Router): void {
     allowEscapeKey: false
   }).then(() => {
     // Redirigir al login después de cerrar el alert
-    router.navigate(['/login']);
+    router.navigate(['/admin']);
   });
 }
