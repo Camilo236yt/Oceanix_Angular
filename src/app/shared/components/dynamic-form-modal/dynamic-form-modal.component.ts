@@ -240,9 +240,19 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     if (this.selectedPermissions.has(permission.id)) {
       this.selectedPermissions.delete(permission.id);
       category.selectedCount--;
+
+      // Si se desmarca el permiso de asignar incidencias, desmarcar también "Puede recibir incidencias"
+      if (permission.name === 'assign_incidents') {
+        this.canReceiveIncidents = false;
+      }
     } else {
       this.selectedPermissions.add(permission.id);
       category.selectedCount++;
+
+      // Si se marca el permiso de asignar incidencias, marcar también "Puede recibir incidencias"
+      if (permission.name === 'assign_incidents') {
+        this.canReceiveIncidents = true;
+      }
     }
 
     this.clearPermissionsError();
@@ -276,11 +286,23 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     if (!this.roleName.trim()) {
       this.nameError = 'El nombre del rol es obligatorio';
       isValid = false;
+    } else if (this.roleName.trim().length < 3) {
+      this.nameError = 'El nombre debe tener al menos 3 caracteres';
+      isValid = false;
+    } else if (this.roleName.trim().length > 50) {
+      this.nameError = 'El nombre no puede exceder 50 caracteres';
+      isValid = false;
     }
 
     // Validate description
     if (!this.roleDescription.trim()) {
       this.descriptionError = 'La descripción es obligatoria';
+      isValid = false;
+    } else if (this.roleDescription.trim().length < 5) {
+      this.descriptionError = 'La descripción debe tener al menos 5 caracteres';
+      isValid = false;
+    } else if (this.roleDescription.trim().length > 200) {
+      this.descriptionError = 'La descripción no puede exceder 200 caracteres';
       isValid = false;
     }
 
@@ -301,8 +323,60 @@ export class DynamicFormModalComponent implements OnInit, OnChanges {
     this.descriptionError = '';
   }
 
+  onNameBlur() {
+    if (this.roleName.trim()) {
+      if (this.roleName.trim().length < 3) {
+        this.nameError = 'El nombre debe tener al menos 3 caracteres';
+      } else if (this.roleName.trim().length > 50) {
+        this.nameError = 'El nombre no puede exceder 50 caracteres';
+      } else {
+        this.nameError = '';
+      }
+    }
+  }
+
+  onDescriptionBlur() {
+    if (this.roleDescription.trim()) {
+      if (this.roleDescription.trim().length < 5) {
+        this.descriptionError = 'La descripción debe tener al menos 5 caracteres';
+      } else if (this.roleDescription.trim().length > 200) {
+        this.descriptionError = 'La descripción no puede exceder 200 caracteres';
+      } else {
+        this.descriptionError = '';
+      }
+    }
+  }
+
   clearPermissionsError() {
     this.permissionsError = '';
+  }
+
+  onCanReceiveIncidentsChange() {
+    // Buscar el permiso de assign_incidents en todas las categorías
+    this.categories.forEach(category => {
+      const assignIncidentsPermission = category.permissions.find(p =>
+        p.name === 'assign_incidents'
+      );
+
+      if (assignIncidentsPermission) {
+        if (this.canReceiveIncidents) {
+          // Si se marca "Puede recibir incidencias", marcar automáticamente "Asignar Incidencias"
+          if (!this.selectedPermissions.has(assignIncidentsPermission.id)) {
+            this.selectedPermissions.add(assignIncidentsPermission.id);
+            category.selectedCount++;
+          }
+        } else {
+          // Si se desmarca "Puede recibir incidencias", desmarcar también "Asignar Incidencias"
+          if (this.selectedPermissions.has(assignIncidentsPermission.id)) {
+            this.selectedPermissions.delete(assignIncidentsPermission.id);
+            category.selectedCount--;
+          }
+        }
+      }
+    });
+
+    this.clearPermissionsError();
+    this.cdr.markForCheck();
   }
 
   handleSubmit() {
