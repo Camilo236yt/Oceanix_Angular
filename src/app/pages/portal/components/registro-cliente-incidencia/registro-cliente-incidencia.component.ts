@@ -403,22 +403,16 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   async sendMessage(): Promise<void> {
-    if (!this.newMessage.trim() || !this.selectedIncidencia || this.isSendingMessage) return;
+    if (!this.newMessage.trim() || !this.selectedIncidencia) return;
 
     const messageContent = this.newMessage;
-    this.isSendingMessage = true;
+    this.newMessage = ''; // Limpiar inmediatamente para UX fluida
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
       try {
         await this.chatService.sendMessage(messageContent);
-
-        // Forzar la actualización dentro de la zona de Angular
-        this.ngZone.run(() => {
-          this.newMessage = '';
-          this.isSendingMessage = false;
-          this.cdr.detectChanges();
-        });
+        this.cdr.detectChanges();
       } catch (error) {
         this.sendMessageViaHttp(messageContent);
       }
@@ -435,13 +429,11 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         if (!this.messages.find(m => m.id === message.id)) {
           this.messages = [...this.messages, message];
         }
-        this.newMessage = '';
-        this.isSendingMessage = false;
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: () => {
-        this.isSendingMessage = false;
+      error: (error) => {
+        console.error('Error al enviar mensaje:', error);
       }
     });
   }
