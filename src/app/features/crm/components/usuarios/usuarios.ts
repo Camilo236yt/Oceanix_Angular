@@ -40,7 +40,7 @@ export class Usuarios implements OnInit {
   isCreateUserModalOpen = false;
   isEditMode = false;
   editingUserId: string | null = null;
-  editingUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[] } | null = null;
+  editingUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[]; userType?: string } | null = null;
   availableRoles: RoleOption[] = [];
 
   // View user modal state
@@ -398,13 +398,14 @@ export class Usuarios implements OnInit {
         // Set edit mode first
         this.isEditMode = true;
 
-        // Set edit data with roleIds
+        // Set edit data with roleIds and userType
         this.editingUserData = {
           name: userData.name,
           lastName: userData.lastName,
           email: userData.email,
           phoneNumber: userData.phoneNumber,
-          roleIds: roleIds
+          roleIds: roleIds,
+          userType: userData.userType
         };
         console.log('Edit user data:', this.editingUserData);
 
