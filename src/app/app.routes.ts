@@ -21,8 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: RedirectComponent,
-    canActivate: [loginRedirectGuard]
+    component: Login
   },
   {
     path: 'register',
