@@ -20,11 +20,12 @@ import {
 import { NumericOnlyDirective } from '../../utils/numeric-only.directive';
 import { AuthService } from '../../services/auth.service';
 import { RegisterEnterpriseRequest } from '../../interface/auth.interface';
+import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NumericOnlyDirective],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NumericOnlyDirective, LoadingSpinner],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -293,7 +294,7 @@ export class Register implements OnInit {
           const redirectUrl = response.data.redirectUrl;
           const subdomain = response.data.subdomain;
 
-          this.isLoading = false;
+          // Mantener isLoading = true para mostrar la animación durante la navegación
 
           // En local, simular el flujo redirigiendo a /auth/activate con el token
           if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
