@@ -136,11 +136,17 @@ export class CreateUserModalComponent implements OnChanges {
     if (!this.userName.trim()) {
       this.nameError = 'El nombre es obligatorio';
       isValid = false;
+    } else if (this.userName.trim().length < 3) {
+      this.nameError = 'El nombre debe tener al menos 3 caracteres';
+      isValid = false;
     }
 
     // Validate lastName
     if (!this.userLastName.trim()) {
       this.lastNameError = 'El apellido es obligatorio';
+      isValid = false;
+    } else if (this.userLastName.trim().length < 3) {
+      this.lastNameError = 'El apellido debe tener al menos 3 caracteres';
       isValid = false;
     }
 
@@ -259,6 +265,28 @@ export class CreateUserModalComponent implements OnChanges {
     this.clearIdentificationNumberError();
   }
 
+  // Validar nombre solo cuando sale del campo
+  onNameBlur() {
+    if (this.userName.trim()) {
+      if (this.userName.trim().length < 3) {
+        this.nameError = 'El nombre debe tener al menos 3 caracteres';
+      } else {
+        this.nameError = '';
+      }
+    }
+  }
+
+  // Validar apellido solo cuando sale del campo
+  onLastNameBlur() {
+    if (this.userLastName.trim()) {
+      if (this.userLastName.trim().length < 3) {
+        this.lastNameError = 'El apellido debe tener al menos 3 caracteres';
+      } else {
+        this.lastNameError = '';
+      }
+    }
+  }
+
   clearNameError() {
     this.nameError = '';
   }
@@ -277,6 +305,28 @@ export class CreateUserModalComponent implements OnChanges {
       this.emailError = 'Ingrese un correo válido (ejemplo: usuario@dominio.com)';
     } else {
       this.emailError = '';
+    }
+  }
+
+  // Validar contraseña solo cuando sale del campo
+  onPasswordBlur() {
+    if (this.userPassword.trim()) {
+      if (this.userPassword.length < 8) {
+        this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
+      } else {
+        this.passwordError = '';
+      }
+    }
+  }
+
+  // Validar confirmar contraseña solo cuando sale del campo
+  onConfirmPasswordBlur() {
+    if (this.userConfirmPassword.trim()) {
+      if (this.userPassword !== this.userConfirmPassword) {
+        this.confirmPasswordError = 'Las contraseñas no coinciden';
+      } else {
+        this.confirmPasswordError = '';
+      }
     }
   }
 

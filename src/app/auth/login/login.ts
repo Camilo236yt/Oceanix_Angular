@@ -143,6 +143,17 @@ export class Login implements OnInit {
   }
 
   /**
+   * Navega a la página de registro con animación de carga
+   */
+  navigateToRegister(): void {
+    this.isLoading = true;
+    // Delay estándar para que se vea la animación antes de navegar
+    setTimeout(() => {
+      this.router.navigate(['/register']);
+    }, 800);
+  }
+
+  /**
    * Alterna la visibilidad de la contraseña
    */
   togglePasswordVisibility(): void {
