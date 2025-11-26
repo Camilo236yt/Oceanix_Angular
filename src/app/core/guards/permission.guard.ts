@@ -31,7 +31,7 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
 
         if (!isValid) {
           console.log('[PermissionGuard] Sesión inválida, redirigiendo a login');
-          router.navigate(['/login']);
+          router.navigate(['/admin']);
           return false;
         }
 
@@ -52,7 +52,7 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
       }),
       catchError((error) => {
         console.error('[PermissionGuard] Error al verificar sesión:', error);
-        router.navigate(['/login']);
+        router.navigate(['/admin']);
         return of(false);
       })
     );
@@ -81,7 +81,7 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
     return authService.checkSession().pipe(
       map(isValid => {
         if (!isValid) {
-          router.navigate(['/login']);
+          router.navigate(['/admin']);
           return false;
         }
 
@@ -96,7 +96,7 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
         return false;
       }),
       catchError(() => {
-        router.navigate(['/login']);
+        router.navigate(['/admin']);
         return of(false);
       })
     );
@@ -125,7 +125,7 @@ export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateF
     return authService.checkSession().pipe(
       map(isValid => {
         if (!isValid) {
-          router.navigate(['/login']);
+          router.navigate(['/admin']);
           return false;
         }
 
@@ -140,7 +140,7 @@ export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateF
         return false;
       }),
       catchError(() => {
-        router.navigate(['/login']);
+        router.navigate(['/admin']);
         return of(false);
       })
     );
@@ -169,7 +169,7 @@ export const roleGuard = (requiredUserType: string): CanActivateFn => {
     return authService.checkSession().pipe(
       map(isValid => {
         if (!isValid) {
-          router.navigate(['/login']);
+          router.navigate(['/admin']);
           return false;
         }
 
@@ -184,7 +184,7 @@ export const roleGuard = (requiredUserType: string): CanActivateFn => {
         return false;
       }),
       catchError(() => {
-        router.navigate(['/login']);
+        router.navigate(['/admin']);
         return of(false);
       })
     );

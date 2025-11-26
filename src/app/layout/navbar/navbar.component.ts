@@ -74,7 +74,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   navigateToLogin(): void {
     this.isMobileMenuOpen = false;
-    this.router.navigate(['/login']);
+    this.router.navigate(['/admin']);
   }
 
   scrollToSection(anchor: string): void {

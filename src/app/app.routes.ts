@@ -13,9 +13,14 @@ export const routes: Routes = [
     canActivate: [mainDomainGuard, authRedirectGuard] // Solo en dominio principal y sin autenticación
   },
   {
+    path: 'admin',
+    component: Login,
+    canActivate: [mainDomainGuard] // Solo en dominio principal
+  },
+  {
     path: 'login',
-    component: Login
-    // Sin guard - accesible siempre (el landing tiene authRedirectGuard para bloquear usuarios autenticados)
+    redirectTo: 'admin',
+    pathMatch: 'full'
   },
   {
     path: 'register',
@@ -36,6 +41,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'admin'
   }
 ];

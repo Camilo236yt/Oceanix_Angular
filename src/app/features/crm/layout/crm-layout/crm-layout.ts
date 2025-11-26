@@ -290,13 +290,13 @@ export class CrmLayout implements OnInit, OnDestroy {
 
     // Si estamos en localhost, usar router.navigate
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      this.router.navigate(['/login']).then(() => {
+      this.router.navigate(['/admin']).then(() => {
         console.log('Navigation to login completed (localhost)');
       });
     } else {
       // En producción, usar window.location para forzar recarga completa
       // Esto asegura que se limpie todo el estado de la aplicación
-      const loginUrl = `${window.location.protocol}//${hostname}/login`;
+      const loginUrl = `${window.location.protocol}//${hostname}/admin`;
 
       console.log('Redirecting to:', loginUrl);
       window.location.href = loginUrl;

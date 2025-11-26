@@ -242,7 +242,7 @@ export class Register implements OnInit {
     this.isLoading = true;
     // Delay estándar para que se vea la animación antes de navegar
     setTimeout(() => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/admin']);
     }, 800);
   }
 
@@ -253,7 +253,7 @@ export class Register implements OnInit {
     this.isLoading = true;
     // Delay estándar para que se vea la animación antes de navegar
     setTimeout(() => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/admin']);
     }, 800);
   }
 
