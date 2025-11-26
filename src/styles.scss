@@ -120,3 +120,35 @@ body {
   margin: 0;
   position: relative;
 }
+
+/* SweetAlert2 - Adaptación Dark Mode */
+.dark {
+  .swal2-popup {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .swal2-title {
+    color: var(--text-primary) !important;
+  }
+
+  .swal2-html-container {
+    color: var(--text-secondary) !important;
+  }
+
+  .swal2-icon.swal2-warning {
+    border-color: #f59e0b !important;
+    color: #f59e0b !important;
+  }
+
+  .swal2-icon.swal2-success {
+    border-color: #10b981 !important;
+    [class^='swal2-success-line'] {
+      background-color: #10b981 !important;
+    }
+    .swal2-success-ring {
+      border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+  }
+}
