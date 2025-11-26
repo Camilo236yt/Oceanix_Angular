@@ -34,7 +34,7 @@ export class Usuarios implements OnInit {
   totalItems = 0;
   totalPages = 0;
   searchTerm = '';
-  activeFilters: Record<string, string> = {};
+  activeFilters: Record<string, string> = { userType: 'EMPLOYEE' };
 
   // Modal state
   isCreateUserModalOpen = false;
