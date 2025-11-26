@@ -6,6 +6,7 @@ import { ActivateAccount } from './auth/activate-account/activate-account';
 import { mainDomainGuard } from './core/guards/main-domain.guard';
 import { authRedirectGuard } from './core/guards/auth-redirect.guard';
 import { loginRedirectGuard } from './core/guards/login-redirect.guard';
+import { RedirectComponent } from './core/components/redirect.component';
 
 export const routes: Routes = [
   {
@@ -20,8 +21,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    canActivate: [loginRedirectGuard],
-    children: []
+    component: RedirectComponent,
+    canActivate: [loginRedirectGuard]
   },
   {
     path: 'register',
