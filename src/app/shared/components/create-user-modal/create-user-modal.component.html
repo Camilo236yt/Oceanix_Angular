@@ -93,68 +93,72 @@
               }
             </div>
 
-            <!-- Contraseña y Confirmar Contraseña en grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <!-- Contraseña -->
+            <!-- Contraseña y Confirmar Contraseña en grid (hidden for CLIENT users in edit mode) -->
+            @if (!isEditMode || currentUserType !== 'CLIENT') {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <!-- Contraseña -->
+                <div>
+                  <label for="userPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                    Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
+                  </label>
+                  <input
+                    type="password"
+                    id="userPassword"
+                    [(ngModel)]="userPassword"
+                    name="userPassword"
+                    (input)="clearPasswordError()"
+                    (blur)="onPasswordBlur()"
+                    [class.border-red-500]="passwordError"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [placeholder]="isEditMode ? 'Dejar vacío para mantener actual' : 'Mínimo 8 caracteres'" />
+                  @if (passwordError) {
+                    <p class="mt-1 text-xs sm:text-sm text-red-500">{{ passwordError }}</p>
+                  }
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div>
+                  <label for="userConfirmPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                    Confirmar Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
+                  </label>
+                  <input
+                    type="password"
+                    id="userConfirmPassword"
+                    [(ngModel)]="userConfirmPassword"
+                    name="userConfirmPassword"
+                    (input)="clearConfirmPasswordError()"
+                    (blur)="onConfirmPasswordBlur()"
+                    [class.border-red-500]="confirmPasswordError"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Repita la contraseña" />
+                  @if (confirmPasswordError) {
+                    <p class="mt-1 text-xs sm:text-sm text-red-500">{{ confirmPasswordError }}</p>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Teléfono (hidden for CLIENT users in edit mode) -->
+            @if (!isEditMode || currentUserType !== 'CLIENT') {
               <div>
-                <label for="userPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
+                <label for="userPhoneNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Teléfono <span class="text-red-500">*</span>
                 </label>
                 <input
-                  type="password"
-                  id="userPassword"
-                  [(ngModel)]="userPassword"
-                  name="userPassword"
-                  (input)="clearPasswordError()"
-                  (blur)="onPasswordBlur()"
-                  [class.border-red-500]="passwordError"
+                  type="tel"
+                  id="userPhoneNumber"
+                  [(ngModel)]="userPhoneNumber"
+                  name="userPhoneNumber"
+                  (input)="onPhoneInput($event)"
+                  [class.border-red-500]="phoneError"
                   class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  [placeholder]="isEditMode ? 'Dejar vacío para mantener actual' : 'Mínimo 8 caracteres'" />
-                @if (passwordError) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ passwordError }}</p>
+                  placeholder="Ej: 3001234567"
+                  maxlength="10" />
+                @if (phoneError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ phoneError }}</p>
                 }
               </div>
-
-              <!-- Confirmar Contraseña -->
-              <div>
-                <label for="userConfirmPassword" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Confirmar Contraseña @if (!isEditMode) { <span class="text-red-500">*</span> } @else { <span class="text-xs text-[var(--text-tertiary)]">(opcional)</span> }
-                </label>
-                <input
-                  type="password"
-                  id="userConfirmPassword"
-                  [(ngModel)]="userConfirmPassword"
-                  name="userConfirmPassword"
-                  (input)="clearConfirmPasswordError()"
-                  (blur)="onConfirmPasswordBlur()"
-                  [class.border-red-500]="confirmPasswordError"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  placeholder="Repita la contraseña" />
-                @if (confirmPasswordError) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ confirmPasswordError }}</p>
-                }
-              </div>
-            </div>
-
-            <!-- Teléfono -->
-            <div>
-              <label for="userPhoneNumber" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Teléfono <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                id="userPhoneNumber"
-                [(ngModel)]="userPhoneNumber"
-                name="userPhoneNumber"
-                (input)="onPhoneInput($event)"
-                [class.border-red-500]="phoneError"
-                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="Ej: 3001234567"
-                maxlength="10" />
-              @if (phoneError) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ phoneError }}</p>
-              }
-            </div>
+            }
 
             <!-- Tipo de Identificación y Número en grid (only for create mode) -->
             @if (!isEditMode) {
@@ -201,43 +205,45 @@
               </div>
             }
 
-            <!-- Selección de Roles (for both create and edit mode) -->
-            <div>
-              <label class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Seleccionar Roles <span class="text-red-500">*</span>
-              </label>
-              <div [class.border-red-500]="rolesError" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                @if (availableRoles.length === 0) {
-                  <p class="text-xs sm:text-sm text-[var(--text-tertiary)] text-center py-2 col-span-2">Cargando roles...</p>
-                } @else {
-                  @for (role of availableRoles; track role.id) {
-                    <label
-                      class="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] cursor-pointer transition-all hover:bg-[var(--bg-hover)] hover:border-purple-400"
-                      [class.border-purple-500]="isRoleSelected(role.id)"
-                      [class.bg-purple-50]="isRoleSelected(role.id)"
-                      [class.dark:bg-purple-900/20]="isRoleSelected(role.id)">
-                      <input
-                        type="checkbox"
-                        [checked]="isRoleSelected(role.id)"
-                        (change)="toggleRole(role.id)"
-                        class="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600 bg-[var(--card-bg)] border-[var(--card-border)] rounded focus:ring-purple-500 focus:ring-2" />
-                      <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-[var(--text-primary)]">{{ role.name }}</p>
-                        @if (role.description) {
-                          <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ role.description }}</p>
-                        }
-                      </div>
-                    </label>
+            <!-- Selección de Roles (for both create and edit mode, but hidden for CLIENT users) -->
+            @if (!isEditMode || currentUserType !== 'CLIENT') {
+              <div>
+                <label class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                  Seleccionar Roles <span class="text-red-500">*</span>
+                </label>
+                <div [class.border-red-500]="rolesError" class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  @if (availableRoles.length === 0) {
+                    <p class="text-xs sm:text-sm text-[var(--text-tertiary)] text-center py-2 col-span-2">Cargando roles...</p>
+                  } @else {
+                    @for (role of availableRoles; track role.id) {
+                      <label
+                        class="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] cursor-pointer transition-all hover:bg-[var(--bg-hover)] hover:border-purple-400"
+                        [class.border-purple-500]="isRoleSelected(role.id)"
+                        [class.bg-purple-50]="isRoleSelected(role.id)"
+                        [class.dark:bg-purple-900/20]="isRoleSelected(role.id)">
+                        <input
+                          type="checkbox"
+                          [checked]="isRoleSelected(role.id)"
+                          (change)="toggleRole(role.id)"
+                          class="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600 bg-[var(--card-bg)] border-[var(--card-border)] rounded focus:ring-purple-500 focus:ring-2" />
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-[var(--text-primary)]">{{ role.name }}</p>
+                          @if (role.description) {
+                            <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ role.description }}</p>
+                          }
+                        </div>
+                      </label>
+                    }
                   }
+                </div>
+                @if (rolesError) {
+                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ rolesError }}</p>
+                }
+                @if (selectedRoles.length > 0) {
+                  <p class="mt-1 text-xs text-[var(--text-tertiary)]">{{ selectedRoles.length }} rol(es) seleccionado(s)</p>
                 }
               </div>
-              @if (rolesError) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ rolesError }}</p>
-              }
-              @if (selectedRoles.length > 0) {
-                <p class="mt-1 text-xs text-[var(--text-tertiary)]">{{ selectedRoles.length }} rol(es) seleccionado(s)</p>
-              }
-            </div>
+            }
           </form>
         </div>
 

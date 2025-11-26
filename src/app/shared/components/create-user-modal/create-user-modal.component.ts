@@ -14,7 +14,7 @@ import { CreateUserRequest, UpdateUserRequest, CreateUserWithRolesRequest, RoleO
 export class CreateUserModalComponent implements OnChanges {
   @Input() isOpen = false;
   @Input() isEditMode = false;
-  @Input() editUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[] } | null = null;
+  @Input() editUserData: { name: string; lastName: string; email: string; phoneNumber: string; roleIds?: string[]; userType?: string } | null = null;
   @Input() availableRoles: RoleOption[] = [];
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<CreateUserWithRolesRequest>();
@@ -30,6 +30,7 @@ export class CreateUserModalComponent implements OnChanges {
   identificationType = '';
   identificationNumber = '';
   selectedRoles: string[] = [];
+  currentUserType = '';
 
   // Validation errors
   nameError = '';
@@ -92,6 +93,7 @@ export class CreateUserModalComponent implements OnChanges {
     if (this.editUserData) {
       console.log('Loading edit data into form:', this.editUserData);
       console.log('Role IDs to load:', this.editUserData.roleIds);
+      console.log('User type:', this.editUserData.userType);
 
       this.userName = this.editUserData.name;
       this.userLastName = this.editUserData.lastName;
@@ -102,6 +104,7 @@ export class CreateUserModalComponent implements OnChanges {
       this.identificationType = '';
       this.identificationNumber = '';
       this.selectedRoles = [...(this.editUserData.roleIds || [])];
+      this.currentUserType = this.editUserData.userType || '';
 
       console.log('Selected roles after loading:', this.selectedRoles);
 
@@ -120,6 +123,9 @@ export class CreateUserModalComponent implements OnChanges {
 
   validateForm(): boolean {
     let isValid = true;
+
+    // Check if editing a CLIENT user (to skip certain validations)
+    const isClientUser = this.isEditMode && this.currentUserType === 'CLIENT';
 
     // Reset errors
     this.nameError = '';
@@ -159,45 +165,49 @@ export class CreateUserModalComponent implements OnChanges {
       isValid = false;
     }
 
-    // Validate password (required for create, optional for edit)
-    if (!this.isEditMode) {
-      if (!this.userPassword.trim()) {
-        this.passwordError = 'La contraseña es obligatoria';
-        isValid = false;
-      } else if (this.userPassword.length < 8) {
-        this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
-        isValid = false;
-      }
-
-      // Validate confirm password
-      if (!this.userConfirmPassword.trim()) {
-        this.confirmPasswordError = 'Debe confirmar la contraseña';
-        isValid = false;
-      } else if (this.userPassword !== this.userConfirmPassword) {
-        this.confirmPasswordError = 'Las contraseñas no coinciden';
-        isValid = false;
-      }
-    } else {
-      // In edit mode, validate password only if provided
-      if (this.userPassword.trim()) {
-        if (this.userPassword.length < 8) {
+    // Validate password (required for create, optional for edit, skip for CLIENT users in edit mode)
+    if (!isClientUser) {
+      if (!this.isEditMode) {
+        if (!this.userPassword.trim()) {
+          this.passwordError = 'La contraseña es obligatoria';
+          isValid = false;
+        } else if (this.userPassword.length < 8) {
           this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
           isValid = false;
         }
-        if (this.userPassword !== this.userConfirmPassword) {
+
+        // Validate confirm password
+        if (!this.userConfirmPassword.trim()) {
+          this.confirmPasswordError = 'Debe confirmar la contraseña';
+          isValid = false;
+        } else if (this.userPassword !== this.userConfirmPassword) {
           this.confirmPasswordError = 'Las contraseñas no coinciden';
           isValid = false;
+        }
+      } else {
+        // In edit mode, validate password only if provided
+        if (this.userPassword.trim()) {
+          if (this.userPassword.length < 8) {
+            this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
+            isValid = false;
+          }
+          if (this.userPassword !== this.userConfirmPassword) {
+            this.confirmPasswordError = 'Las contraseñas no coinciden';
+            isValid = false;
+          }
         }
       }
     }
 
-    // Validate phone
-    if (!this.userPhoneNumber.trim()) {
-      this.phoneError = 'El teléfono es obligatorio';
-      isValid = false;
-    } else if (!this.isValidPhone(this.userPhoneNumber)) {
-      this.phoneError = 'El teléfono debe contener exactamente 10 dígitos numéricos';
-      isValid = false;
+    // Validate phone (skip for CLIENT users in edit mode)
+    if (!isClientUser) {
+      if (!this.userPhoneNumber.trim()) {
+        this.phoneError = 'El teléfono es obligatorio';
+        isValid = false;
+      } else if (!this.isValidPhone(this.userPhoneNumber)) {
+        this.phoneError = 'El teléfono debe contener exactamente 10 dígitos numéricos';
+        isValid = false;
+      }
     }
 
     // Validate identificationType (only for create mode)
@@ -217,8 +227,9 @@ export class CreateUserModalComponent implements OnChanges {
       }
     }
 
-    // Validate roles (required for both create and edit mode)
-    if (this.selectedRoles.length === 0) {
+    // Validate roles (required for both create and edit mode, but only for EMPLOYEE users)
+    // In edit mode for CLIENT users, skip role validation
+    if (!isClientUser && this.selectedRoles.length === 0) {
       this.rolesError = 'Debe seleccionar al menos un rol';
       isValid = false;
     }
@@ -420,6 +431,7 @@ export class CreateUserModalComponent implements OnChanges {
     this.identificationType = '';
     this.identificationNumber = '';
     this.selectedRoles = [];
+    this.currentUserType = '';
 
     this.nameError = '';
     this.lastNameError = '';
