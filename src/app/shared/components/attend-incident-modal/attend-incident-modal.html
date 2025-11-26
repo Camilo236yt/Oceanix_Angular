@@ -19,102 +19,168 @@
           </button>
         </div>
 
+        <!-- Mobile Tabs - Only visible on mobile -->
+        <div class="md:hidden border-b border-[var(--border-primary)] bg-[var(--card-bg)] flex-shrink-0">
+          <div class="flex">
+            <button (click)="switchTab('details')"
+                    [class]="activeTab === 'details'
+                      ? 'flex-1 px-6 py-4 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
+                      : 'flex-1 px-6 py-4 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
+              <div class="flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Detalles</span>
+              </div>
+            </button>
+            <button (click)="switchTab('chat')"
+                    [class]="activeTab === 'chat'
+                      ? 'flex-1 px-6 py-4 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
+                      : 'flex-1 px-6 py-4 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
+              <div class="flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span>Chat</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Body - Split into two columns -->
         <div class="flex-1 overflow-hidden flex">
 
           <!-- Left Column - Ticket Details -->
-          <div class="w-1/2 border-r border-[var(--border-primary)] overflow-y-auto p-6">
-            <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Ticket Inicial</h3>
+          <div [class]="activeTab === 'details' ? 'w-full md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-6 space-y-6 animate-slide-in-left' : 'hidden md:block md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-6 space-y-6'">
+            <div>
+              <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-5">Ticket Inicial</h3>
 
-            <!-- Type and Alert Level -->
-            <div class="flex items-center justify-between mb-4">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                {{ tipoLabel }}
-              </span>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs text-[var(--text-tertiary)] mr-2">Alerta:</span>
-                <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-[var(--bg-tertiary)]'"></div>
-                <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-[var(--bg-tertiary)]'"></div>
-                <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'ORANGE' ? 'bg-orange-500' : 'bg-[var(--bg-tertiary)]'"></div>
-                <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-[var(--bg-tertiary)]'"></div>
+              <!-- Type and Alert Level -->
+              <div class="flex items-start justify-between gap-4 mb-6 pb-6 border-b border-[var(--border-primary)]">
+                <div>
+                  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">Tipo de Incidencia</label>
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ tipoLabel }}
+                  </span>
+                </div>
+                <div class="flex flex-col items-end">
+                  <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Nivel de Alerta</label>
+                  <div class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5">
+                    <div class="w-3 h-3 rounded-full"
+                         [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-gray-300'"></div>
+                    <div class="w-3 h-3 rounded-full"
+                         [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-gray-300'"></div>
+                    <div class="w-3 h-3 rounded-full"
+                         [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-gray-300'"></div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- Status Selector -->
-            <div class="mb-6">
-              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">Estado</label>
-              <div class="flex gap-2">
-                <select [(ngModel)]="selectedStatus"
-                        (change)="updateStatus()"
-                        class="flex-1 px-3 py-2 border border-[var(--card-border)] rounded-lg text-sm bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500">
-                  <option value="PENDING">Pendiente</option>
-                  <option value="IN_PROGRESS">En Progreso</option>
-                  <option value="RESOLVED">Resuelto</option>
-                </select>
-              </div>
+            <div class="pb-6 border-b border-[var(--border-primary)]">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-3">Estado</label>
+              <select [(ngModel)]="selectedStatus"
+                      (change)="updateStatus()"
+                      class="w-full px-4 py-2.5 border border-[var(--card-border)] rounded-lg text-sm bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                <option value="PENDING">Pendiente</option>
+                <option value="IN_PROGRESS">En Progreso</option>
+                <option value="RESOLVED">Resuelto</option>
+              </select>
             </div>
 
             <!-- Description -->
-            <div class="mb-6">
-              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">Descripción</label>
-              <div class="bg-[var(--bg-tertiary)] rounded-lg p-4">
+            <div class="pb-6 border-b border-[var(--border-primary)]">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-3">Descripción</label>
+              <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 border border-[var(--card-border)]">
                 <p class="text-sm text-[var(--text-secondary)] leading-relaxed">{{ incidentData.description || 'Sin descripción' }}</p>
               </div>
             </div>
 
             <!-- Info Grid -->
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1">Referencia</label>
-                <p class="text-sm text-[var(--text-primary)] font-mono">{{ incidentData.ProducReferenceId }}</p>
-              </div>
-              <div>
-                <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1">Creado por</label>
-                <p class="text-sm text-[var(--text-primary)]">{{ createdByName }}</p>
-              </div>
-              <div>
-                <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1">Asignado a</label>
-                <p class="text-sm text-[var(--text-primary)]">{{ assignedEmployeeName }}</p>
-              </div>
-              <div>
-                <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1">Fecha creación</label>
-                <p class="text-sm text-[var(--text-primary)]">{{ formatDateTime(incidentData.createdAt) }}</p>
+            <div class="pb-6 border-b border-[var(--border-primary)]">
+              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-4">Información del Ticket</label>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-4">
+                <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-[var(--card-border)]">
+                  <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1.5">Referencia</label>
+                  <p class="text-sm text-[var(--text-primary)] font-mono font-medium">{{ incidentData.ProducReferenceId }}</p>
+                </div>
+                <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-[var(--card-border)]">
+                  <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1.5">Fecha creación</label>
+                  <p class="text-sm text-[var(--text-primary)] font-medium">{{ formatDateTime(incidentData.createdAt) }}</p>
+                </div>
+                <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-[var(--card-border)]">
+                  <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1.5">Creado por</label>
+                  <p class="text-sm text-[var(--text-primary)] font-medium">{{ createdByName }}</p>
+                </div>
+                <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-[var(--card-border)]">
+                  <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1.5">Asignado a</label>
+                  <p class="text-sm text-[var(--text-primary)] font-medium">{{ assignedEmployeeName }}</p>
+                </div>
               </div>
             </div>
 
-            <!-- Images -->
+            <!-- Images Carousel -->
             @if (incidentData.images && incidentData.images.length > 0) {
               <div>
-                <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">
+                <label class="text-xs font-medium text-gray-500 uppercase tracking-wide block mb-4">
                   Imágenes de Evidencia ({{ incidentData.images.length }})
                 </label>
-                <div class="grid grid-cols-2 gap-2">
-                  @for (image of incidentData.images; track image.id) {
-                    <div class="relative group cursor-pointer rounded-lg overflow-hidden border border-[var(--card-border)] aspect-video bg-[var(--bg-tertiary)]">
-                      @if ((image.url | secureImage | async); as imageUrl) {
-                        @if (imageUrl) {
-                          <img [src]="imageUrl" [alt]="image.originalName" class="w-full h-full object-cover">
-                          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span class="text-white text-xs font-medium">Ver imagen</span>
-                          </div>
-                        } @else {
-                          <!-- Skeleton loader -->
-                          <div class="w-full h-full bg-gradient-to-r from-[var(--bg-tertiary)] via-[var(--bg-secondary)] to-[var(--bg-tertiary)] animate-pulse">
-                            <div class="w-full h-full flex items-center justify-center">
-                              <svg class="w-8 h-8 text-[var(--text-tertiary)] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                              </svg>
-                            </div>
-                          </div>
-                        }
-                      }
+                <div class="relative">
+                  <!-- Carousel Container -->
+                  <div class="relative rounded-lg overflow-hidden border border-[var(--card-border)] aspect-video bg-white group">
+                    @if ((incidentData.images[currentImageIndex].url | secureImage | async); as imageUrl) {
+                      <img [src]="imageUrl"
+                           [alt]="incidentData.images[currentImageIndex].originalName"
+                           class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
+                           style="image-rendering: -webkit-optimize-contrast;"
+                           (click)="openLightbox(currentImageIndex)"
+                           title="Click para ver imagen completa">
+                    }
+
+                    <!-- Hover Overlay - Ver imagen (se oculta cuando hover sobre botones) -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
+                      <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/95 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-gray-700">Ver imagen completa</span>
+                      </div>
                     </div>
-                  }
-                </div>              </div>
+
+                    <!-- Image Counter -->
+                    <div class="absolute top-3 right-3 bg-black/70 text-white text-xs font-medium px-2.5 py-1 rounded-md z-30 pointer-events-none">
+                      {{ currentImageIndex + 1 }} / {{ incidentData.images.length }}
+                    </div>
+
+                    <!-- Navigation Arrows (only show if more than 1 image) -->
+                    @if (incidentData.images.length > 1) {
+                      <!-- Previous Button - Solo visible si NO es la primera imagen -->
+                      @if (currentImageIndex > 0) {
+                        <button (click)="previousImage($event)"
+                                (mouseenter)="$event.stopPropagation()"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                          </svg>
+                        </button>
+                      }
+
+                      <!-- Next Button - Solo visible si NO es la última imagen -->
+                      @if (currentImageIndex < incidentData.images.length - 1) {
+                        <button (click)="nextImage($event)"
+                                (mouseenter)="$event.stopPropagation()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                          </svg>
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
             } @else {
               <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-center">
                 <p class="text-sm text-[var(--text-tertiary)]">No hay imágenes adjuntas</p>
@@ -124,116 +190,191 @@
           </div>
 
           <!-- Right Column - Chat -->
-          <div class="w-1/2 flex flex-col">
-            <div class="p-4 border-b border-[var(--border-primary)]">
-              <h3 class="text-lg font-semibold text-[var(--text-primary)]">Conversación</h3>
-              <p class="text-xs text-[var(--text-tertiary)]">Chat con el cliente</p>
+          <div [class]="activeTab === 'chat' ? 'w-full md:w-1/2 flex flex-col animate-slide-in-right' : 'hidden md:flex md:w-1/2 flex-col'">
+            <!-- Chat Header - More professional -->
+            <div class="px-4 md:px-8 py-3 md:py-5 border-b border-gray-200 bg-white">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm md:text-base font-semibold text-gray-900 tracking-tight">Conversación con el Cliente</h3>
+                  <p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full"></span>
+                    <span>Activo</span>
+                  </p>
+                </div>
+                <!-- Optional: Connection status indicator -->
+                @if (isConnected) {
+                  <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-medium text-green-700">En línea</span>
+                  </div>
+                }
+              </div>
             </div>
 
-            <!-- Messages Container -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--bg-tertiary)]">
+            <!-- Messages Container - More spacious -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto px-3 md:px-8 py-3 md:py-6 space-y-2 md:space-y-4 bg-gray-50">
               @if (isLoadingMessages) {
-                <div class="flex items-center justify-center py-8">
-                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <div class="flex items-center justify-center py-12 md:py-20">
+                  <div class="flex flex-col items-center gap-2 md:gap-3">
+                    <div class="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-b-2 border-purple-600"></div>
+                    <p class="text-xs md:text-sm text-gray-500">Cargando mensajes...</p>
+                  </div>
                 </div>
               } @else if (messages.length === 0) {
-                <div class="flex flex-col items-center justify-center py-8 text-[var(--text-tertiary)]">
-                  <svg class="w-12 h-12 mb-3 text-[var(--text-tertiary)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                  </svg>
-                  <p class="text-sm">No hay mensajes aún</p>
-                  <p class="text-xs opacity-70">Envía el primer mensaje al cliente</p>
+                <div class="flex flex-col items-center justify-center py-16 md:py-24">
+                  <div class="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center mb-3 md:mb-5">
+                    <svg class="w-7 h-7 md:w-10 md:h-10 text-purple-600 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                  </div>
+                  <h4 class="text-sm md:text-base font-semibold text-gray-900 mb-1 md:mb-2">Sin mensajes</h4>
+                  <p class="text-xs md:text-sm text-gray-500">Inicia la conversación con el cliente</p>
                 </div>
               } @else {
                 @for (message of messages; track message.id) {
-                  <div [class]="message.senderType === 'EMPLOYEE' ? 'flex justify-end' : 'flex justify-start'">
-                    <div [class]="message.senderType === 'EMPLOYEE'
-                      ? 'bg-purple-600 text-white rounded-2xl rounded-br-md px-4 py-2 max-w-[80%]'
-                      : 'bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl rounded-bl-md px-4 py-2 max-w-[80%] shadow-sm'">
-                      @if (message.senderType === 'CLIENT' && message.sender) {
-                        <p class="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">
+                  @let isEmployeeMsg = message.senderType === 'EMPLOYEE' || message.messageType === 'REQUEST_IMAGES' || message.messageType === 'SYSTEM' || message.content?.includes('Por favor, sube imágenes');
+
+                  <div [class]="isEmployeeMsg ? 'flex justify-end items-end gap-1.5 md:gap-3' : 'flex justify-start items-end gap-1.5 md:gap-3'">
+                    <!-- Avatar for CLIENT messages (solo para mensajes de clientes reales) -->
+                    @if (!isEmployeeMsg && message.senderType === 'CLIENT') {
+                      <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-[10px] md:text-xs font-semibold flex-shrink-0">
+                        {{ message.sender ? (message.sender.name.charAt(0) + message.sender.lastName.charAt(0)).toUpperCase() : 'C' }}
+                      </div>
+                    }
+
+                    <div class="flex flex-col"
+                         [class.items-end]="isEmployeeMsg"
+                         [class.items-start]="!isEmployeeMsg">
+                      <!-- Sender name for CLIENT (solo para mensajes de clientes reales) -->
+                      @if (!isEmployeeMsg && message.senderType === 'CLIENT' && message.sender) {
+                        <p class="text-[10px] md:text-xs font-semibold text-gray-700 mb-1 md:mb-1.5 px-0.5 md:px-1">
                           {{ message.sender.name }} {{ message.sender.lastName }}
                         </p>
                       }
-                      <p [class]="message.senderType === 'EMPLOYEE' ? 'text-sm' : 'text-sm text-[var(--text-primary)]'">{{ message.content }}</p>
-                      <p [class]="message.senderType === 'EMPLOYEE'
-                        ? 'text-xs text-purple-200 mt-1 text-right'
-                        : 'text-xs text-[var(--text-tertiary)] mt-1'">
+
+                      <!-- Message bubble -->
+                      <div [class]="isEmployeeMsg
+                        ? 'bg-purple-600 text-white rounded-2xl rounded-br-sm px-3 py-2 md:px-5 md:py-3.5 min-w-[120px] md:min-w-[180px] max-w-[85%] md:max-w-[85%] shadow-md'
+                        : 'bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-3 py-2 md:px-5 md:py-3.5 min-w-[120px] md:min-w-[180px] max-w-[85%] md:max-w-[85%] shadow-sm'">
+                        <p [class]="isEmployeeMsg ? 'text-[13px] md:text-[15px] leading-relaxed break-words' : 'text-[13px] md:text-[15px] text-gray-800 leading-relaxed break-words'">{{ message.content }}</p>
+                      </div>
+
+                      <!-- Timestamp -->
+                      <p class="text-[9px] md:text-[11px] text-gray-500 mt-1 md:mt-1.5 px-0.5 md:px-1">
                         {{ formatMessageTime(message.createdAt) }}
                       </p>
                     </div>
+
+                    <!-- Avatar for EMPLOYEE messages (incluye REQUEST_IMAGES y SYSTEM) -->
+                    @if (isEmployeeMsg) {
+                      <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white text-[10px] md:text-xs font-semibold flex-shrink-0">
+                        TÚ
+                      </div>
+                    }
                   </div>
                 }
               }
             </div>
 
-            <!-- Message Input -->
-            <div class="p-4 border-t border-[var(--border-primary)] bg-[var(--card-bg)]">
-              <!-- Request Images Options -->
-              @if (showRequestImagesOptions) {
-                <div class="mb-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-amber-600 dark:text-amber-400">Solicitar evidencia</span>
-                    <button (click)="toggleRequestImagesOptions()" class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <select [(ngModel)]="requestImagesHours"
-                            class="flex-1 px-3 py-1.5 border border-[var(--card-border)] rounded-lg text-sm bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-amber-500">
-                      <option [value]="6">6 horas</option>
-                      <option [value]="12">12 horas</option>
-                      <option [value]="24">24 horas</option>
-                      <option [value]="48">48 horas</option>
-                      <option [value]="72">72 horas</option>
-                    </select>
-                    <button (click)="requestImages()"
-                            [disabled]="isRequestingImages"
-                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1">
-                      @if (isRequestingImages) {
-                        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                      }
-                      Enviar
-                    </button>
+            <!-- Message Input - Professional design -->
+            <div class="px-3 md:px-8 py-3 md:py-5 border-t border-gray-200 bg-white">
+              @if (isChatDisabled) {
+                <!-- Chat disabled message -->
+                <div class="flex items-center justify-center py-2 md:py-4">
+                  <div class="flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-3 bg-gray-100 border border-gray-200 rounded-xl">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <div>
+                      <p class="text-xs md:text-sm font-semibold text-gray-700">Chat deshabilitado</p>
+                      <p class="text-[10px] md:text-xs text-gray-500">La incidencia ha sido resuelta</p>
+                    </div>
                   </div>
                 </div>
-              }
-              <div class="flex gap-2">
-                <button (click)="toggleRequestImagesOptions()"
-                        [class]="showRequestImagesOptions ? 'text-amber-600' : 'text-[var(--text-tertiary)] hover:text-amber-600'"
-                        class="p-2.5 rounded-xl transition-colors"
-                        title="Solicitar más evidencia">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                </button>
-                <input type="text"
-                       [(ngModel)]="newMessage"
-                       (keyup.enter)="sendMessage()"
-                       placeholder="Escribe un mensaje..."
-                       [disabled]="isSendingMessage"
-                       class="flex-1 px-4 py-2.5 border border-[var(--card-border)] rounded-xl text-sm bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <button (click)="sendMessage()"
-                        [disabled]="!newMessage.trim() || isSendingMessage"
-                        class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-tertiary)] disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors flex items-center gap-2">
-                  @if (isSendingMessage) {
-                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  } @else {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              } @else {
+                <!-- Request Images Options -->
+                @if (showRequestImagesOptions) {
+                  <div class="mb-3 md:mb-4 p-3 md:p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl md:rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                      <div class="flex items-center gap-2 md:gap-3">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-100 flex items-center justify-center">
+                          <svg class="w-4 h-4 md:w-5 md:h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 class="text-xs md:text-sm font-semibold text-amber-900">Solicitar Evidencia</h4>
+                          <p class="text-[10px] md:text-xs text-amber-700 mt-0.5 hidden md:block">El cliente podrá subir imágenes durante el tiempo especificado</p>
+                        </div>
+                      </div>
+                      <button (click)="toggleRequestImagesOptions()" class="text-amber-600 hover:text-amber-700 p-1.5 md:p-2 hover:bg-amber-100 rounded-lg transition-all">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="flex items-center gap-2 md:gap-3">
+                      <div class="flex-1">
+                        <label class="text-[10px] md:text-xs font-medium text-amber-800 block mb-1.5 md:mb-2">Tiempo permitido</label>
+                        <select [(ngModel)]="requestImagesHours"
+                                class="w-full px-3 md:px-4 py-2 md:py-2.5 border border-amber-200 rounded-lg md:rounded-xl text-xs md:text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm">
+                          <option [value]="6">6 horas</option>
+                          <option [value]="12">12 horas</option>
+                          <option [value]="24">24 horas</option>
+                          <option [value]="48">48 horas</option>
+                          <option [value]="72">72 horas</option>
+                        </select>
+                      </div>
+                      <div class="pt-4 md:pt-6">
+                        <button (click)="requestImages()"
+                                [disabled]="isRequestingImages"
+                                class="px-3 md:px-6 py-2 md:py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs md:text-sm font-semibold rounded-lg md:rounded-xl transition-colors flex items-center gap-1.5 md:gap-2 shadow-sm">
+                          <span>Solicitar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Message Input Area -->
+                <div class="flex items-end gap-2 md:gap-3">
+                  <!-- Request Images Button -->
+                  <button (click)="toggleRequestImagesOptions()"
+                          [class]="showRequestImagesOptions ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'"
+                          class="p-2 md:p-3 rounded-lg md:rounded-xl transition-all border"
+                          title="Solicitar evidencia fotográfica">
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </button>
+
+                  <!-- Message Input -->
+                  <div class="flex-1 relative">
+                    <input type="text"
+                           [(ngModel)]="newMessage"
+                           (keyup.enter)="sendMessage()"
+                           placeholder="Escribe un mensaje..."
+                           [disabled]="isSendingMessage"
+                           class="w-full px-3 md:px-5 py-2.5 md:py-3.5 border border-gray-300 rounded-xl md:rounded-2xl text-xs md:text-sm bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white transition-all">
+                  </div>
+
+                  <!-- Send Button -->
+                  <button (click)="sendMessage()"
+                          [disabled]="!newMessage.trim() || isSendingMessage"
+                          class="px-3 md:px-6 py-2.5 md:py-3.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white text-xs md:text-sm font-semibold rounded-xl md:rounded-2xl transition-colors flex items-center gap-1.5 md:gap-2 shadow-sm">
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                     </svg>
-                  }
-                  Enviar
-                </button>
-              </div>
+                    <span class="hidden md:inline">Enviar</span>
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="px-6 py-4 border-t border-[var(--border-primary)] flex justify-end gap-3 flex-shrink-0">
+        <!-- Footer - Hidden on mobile -->
+        <div class="hidden md:flex px-6 py-4 border-t border-[var(--border-primary)] justify-end gap-3 flex-shrink-0">
           <button (click)="closeModal()"
                   class="px-4 py-2 rounded-lg text-sm font-medium bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">
             Cerrar
@@ -247,4 +388,39 @@
 
     </div>
   </div>
+
+  <!-- Lightbox for full-size image -->
+  @if (isLightboxOpen && incidentData && incidentData.images && incidentData.images.length > 0) {
+    <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 animate-fade-in"
+         (click)="closeLightbox()">
+      <!-- Close Button -->
+      <button (click)="closeLightbox()"
+              class="absolute top-4 right-4 text-white hover:text-gray-300 p-2 hover:bg-white/10 rounded-full transition-all z-10">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <!-- Image Container -->
+      <div class="relative w-full h-full flex items-center justify-center p-4"
+           (click)="$event.stopPropagation()">
+        @if ((incidentData.images[lightboxImageIndex].url | secureImage | async); as imageUrl) {
+          @if (imageUrl) {
+            <img [src]="imageUrl"
+                 [alt]="incidentData.images[lightboxImageIndex].originalName"
+                 class="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain shadow-2xl"
+                 style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                 (click)="$event.stopPropagation()">
+          }
+        }
+
+        <!-- Image Counter - Only show if more than 1 image -->
+        @if (incidentData.images.length > 1) {
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm font-medium px-4 py-2 rounded-full">
+            {{ lightboxImageIndex + 1 }} / {{ incidentData.images.length }}
+          </div>
+        }
+      </div>
+    </div>
+  }
 }
