@@ -131,12 +131,11 @@ export class VerificarCuenta implements OnInit {
   }
 
   validarPaso3(): boolean {
-    const { email, emailVerificado, telefono, telefonoVerificado } = this.datosVerificacion.paso3;
+    const { email, emailVerificado } = this.datosVerificacion.paso3;
     let esValido = true;
 
     // Limpiar errores previos
     this.errorEmail = '';
-    this.errorTelefono = '';
 
     // Validar email
     if (!email) {
@@ -144,15 +143,6 @@ export class VerificarCuenta implements OnInit {
       esValido = false;
     } else if (!emailVerificado) {
       this.errorEmail = 'Debes verificar tu correo electrónico antes de continuar';
-      esValido = false;
-    }
-
-    // Validar teléfono
-    if (!telefono) {
-      this.errorTelefono = 'El número de teléfono es obligatorio';
-      esValido = false;
-    } else if (!telefonoVerificado) {
-      this.errorTelefono = 'Debes verificar tu número de teléfono antes de continuar';
       esValido = false;
     }
 
@@ -522,7 +512,7 @@ export class VerificarCuenta implements OnInit {
   }
 
   get mostrarBotonOmitir(): boolean {
-    return this.pasoActual === 1 || this.pasoActual === 2;
+    return this.pasoActual === 1; // Solo mostrar en paso 2 (index 1), no en paso 3 (index 2)
   }
 
   get mostrarBotonAnterior(): boolean {
