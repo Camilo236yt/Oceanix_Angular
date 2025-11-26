@@ -98,9 +98,9 @@ export class Usuarios implements OnInit {
           dotColor: 'bg-purple-600 dark:bg-purple-400'
         },
         'Cliente': {
-          color: 'text-purple-600 dark:text-purple-400',
+          color: 'text-blue-600 dark:text-blue-400',
           bgColor: 'bg-transparent dark:bg-transparent',
-          dotColor: 'bg-purple-600 dark:bg-purple-400'
+          dotColor: 'bg-blue-600 dark:bg-blue-400'
         },
         'Super Admin': {
           color: 'text-purple-600 dark:text-purple-400',

@@ -43,12 +43,16 @@ export class DataTable implements OnChanges {
     this.pageSizeChange.emit(size);
   }
 
-  getBadgeClasses(column: TableColumn, value: string): string {
+  getBadgeClasses(column: TableColumn, value: string, row?: any): string {
     if (column.badgeConfig && column.badgeConfig[value]) {
       const config = column.badgeConfig[value];
       return `inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${config.color} ${config.bgColor}`;
     }
-    return 'inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700';
+    // Default color based on userType: blue for CLIENT, purple for EMPLOYEE
+    if (row?.userType === 'CLIENT') {
+      return 'inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap text-blue-600 dark:text-blue-400 bg-transparent dark:bg-transparent';
+    }
+    return 'inline-flex items-center px-2 py-1 rounded text-xs font-medium whitespace-nowrap text-purple-600 dark:text-purple-400 bg-transparent dark:bg-transparent';
   }
 
   getNestedValue(obj: any, key: string): any {
