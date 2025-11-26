@@ -615,7 +615,7 @@
               </div>
 
               <!-- Messages Container -->
-              <div id="client-chat-messages" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-gray-50">
+              <div id="client-chat-messages" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-gray-50" style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
                 @if (isLoadingMessages) {
                   <div class="flex items-center justify-center py-6 sm:py-8">
                     <div class="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-purple-600"></div>
@@ -650,22 +650,24 @@
                 }
               </div>
 
-              <!-- Message Input -->
-              <div class="p-2.5 sm:p-3 border-t border-gray-200 bg-white flex-shrink-0">
-                <div class="flex gap-1.5 sm:gap-2">
+              <!-- Message Input - Fixed positioning for mobile with safe area -->
+              <div class="p-3 sm:p-3 border-t border-gray-200 bg-white flex-shrink-0"
+                   style="padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
+                <div class="flex gap-2 sm:gap-2">
                   <input type="text"
                          [(ngModel)]="newMessage"
                          (keyup.enter)="sendMessage()"
                          placeholder="Escribe un mensaje..."
                          [disabled]="isSendingMessage"
-                         class="flex-1 px-2.5 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                         class="flex-1 px-3 sm:px-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                         style="font-size: 16px;">
                   <button (click)="sendMessage()"
                           [disabled]="!newMessage.trim() || isSendingMessage"
-                          class="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-medium rounded-lg transition-colors flex items-center gap-1">
+                          class="px-4 sm:px-3 py-3 sm:py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm sm:text-sm font-medium rounded-lg transition-colors flex items-center gap-1 flex-shrink-0">
                     @if (isSendingMessage) {
-                      <div class="animate-spin rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <div class="animate-spin rounded-full h-4 w-4 sm:h-4 sm:w-4 border-b-2 border-white"></div>
                     } @else {
-                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                       </svg>
                     }
