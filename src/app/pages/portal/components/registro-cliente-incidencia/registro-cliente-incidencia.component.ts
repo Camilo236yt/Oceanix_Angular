@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,12 +9,16 @@ import { getFieldError, isFieldInvalid, markFormGroupTouched } from '../../../..
 import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../../../shared/services/incidencia-chat.service';
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import { SecureImagePipe } from '../../../../shared/pipes/secure-image.pipe';
+import { NotificationsDropdown } from '../../../../features/crm/components/notifications-dropdown/notifications-dropdown';
+import { NotificationDetailModal } from '../../../../features/crm/components/notification-detail-modal/notification-detail-modal';
+import { ClientNotificationsService } from '../../services/client-notifications.service';
+import { CRMNotification } from '../../../../features/crm/models/notification.model';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -37,6 +41,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   isModalOpen = signal(false);
   selectedIncidencia: Incidencia | null = null;
   removingIncidenciaId: number | null = null;
+  activeTab: 'details' | 'chat' = 'details';
 
   // Chat en modal
   messages: Message[] = [];
@@ -52,6 +57,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   // WebSocket
   isConnected = false;
   private subscriptions: Subscription[] = [];
+
+  // Notificaciones
+  isNotificationDropdownOpen = false;
+  isNotificationDetailModalOpen = false;
+  selectedNotification: CRMNotification | null = null;
+  clientNotificationsService = inject(ClientNotificationsService);
 
   constructor(
     private router: Router,
@@ -143,6 +154,11 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    // Generar notificaciones de prueba al iniciar (solo si no hay notificaciones)
+    if (this.clientNotificationsService.notifications().length === 0) {
+      this.clientNotificationsService.generateTestNotifications();
+    }
   }
 
   ngOnDestroy(): void {
@@ -339,8 +355,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.newMessage = '';
     this.modalArchivos = [];
     this.modalPreviews = [];
+    this.activeTab = 'details';
     this.chatService.leaveRoom();
     document.body.style.overflow = '';
+  }
+
+  switchTab(tab: 'details' | 'chat'): void {
+    this.activeTab = tab;
   }
 
   private connectToChat(): void {
@@ -633,5 +654,43 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  /**
+   * Manejar click en notificación
+   */
+  onNotificationClick(notification: CRMNotification): void {
+    this.selectedNotification = notification;
+    this.isNotificationDetailModalOpen = true;
+    this.isNotificationDropdownOpen = false;
+  }
+
+  /**
+   * Marcar notificación como leída
+   */
+  onMarkNotificationAsRead(notificationId: string): void {
+    this.clientNotificationsService.markAsRead(notificationId);
+  }
+
+  /**
+   * Marcar todas las notificaciones como leídas
+   */
+  onMarkAllNotificationsAsRead(): void {
+    this.clientNotificationsService.markAllAsRead();
+  }
+
+  /**
+   * Eliminar notificación
+   */
+  onDeleteNotification(notificationId: string): void {
+    this.clientNotificationsService.deleteNotification(notificationId);
+  }
+
+  /**
+   * Cerrar modal de detalle de notificación
+   */
+  closeNotificationDetailModal(): void {
+    this.isNotificationDetailModalOpen = false;
+    this.selectedNotification = null;
   }
 }

@@ -7,6 +7,10 @@ import { VerificationBannerComponent } from '../../../../shared/components/verif
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import { NotificationToastComponent } from '../../../../shared/components/notification-toast/notification-toast.component';
 import { IncidenciaChatService, NewMessageNotification } from '../../../../shared/services/incidencia-chat.service';
+import { NotificationsDropdown } from '../../components/notifications-dropdown/notifications-dropdown';
+import { NotificationDetailModal } from '../../components/notification-detail-modal/notification-detail-modal';
+import { CrmNotificationsService } from '../../services/crm-notifications';
+import { CRMNotification } from '../../models/notification.model';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -22,7 +26,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown, NotificationDetailModal],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -37,13 +41,19 @@ export class CrmLayout implements OnInit, OnDestroy {
   private midnightTimer: any;
   private notificationSubscription?: Subscription;
 
-  // Notifications
+  // Chat Notifications (Toast)
   notifications = signal<Array<NewMessageNotification & { id: number }>>([]);
+
+  // CRM Notifications (Dropdown)
+  isNotificationDropdownOpen = false;
+  isNotificationDetailModalOpen = false;
+  selectedNotification: CRMNotification | null = null;
 
   // Servicios
   themeService = inject(ThemeService);
   authService = inject(AuthService);
   router = inject(Router);
+  crmNotificationsService = inject(CrmNotificationsService);
   private cdr = inject(ChangeDetectorRef);
   private chatService = inject(IncidenciaChatService);
 
@@ -94,6 +104,11 @@ export class CrmLayout implements OnInit, OnDestroy {
       // Agregar notificación a la lista
       this.notifications.update(notifs => [...notifs, { id: Date.now(), ...notification }]);
     });
+
+    // Generar notificaciones de prueba al iniciar (solo si no hay notificaciones)
+    if (this.crmNotificationsService.notifications().length === 0) {
+      this.crmNotificationsService.generateTestNotifications();
+    }
   }
 
   /**
@@ -306,5 +321,43 @@ export class CrmLayout implements OnInit, OnDestroy {
     this.router.navigate(['/crm/incidencias'], {
       queryParams: { incidenciaId: incidenciaId }
     });
+  }
+
+  /**
+   * Manejar click en notificación CRM
+   */
+  onNotificationClick(notification: CRMNotification): void {
+    this.selectedNotification = notification;
+    this.isNotificationDetailModalOpen = true;
+    this.isNotificationDropdownOpen = false;
+  }
+
+  /**
+   * Marcar notificación CRM como leída
+   */
+  onMarkNotificationAsRead(notificationId: string): void {
+    this.crmNotificationsService.markAsRead(notificationId);
+  }
+
+  /**
+   * Marcar todas las notificaciones CRM como leídas
+   */
+  onMarkAllNotificationsAsRead(): void {
+    this.crmNotificationsService.markAllAsRead();
+  }
+
+  /**
+   * Eliminar notificación CRM
+   */
+  onDeleteNotification(notificationId: string): void {
+    this.crmNotificationsService.deleteNotification(notificationId);
+  }
+
+  /**
+   * Cerrar modal de detalle de notificación
+   */
+  closeNotificationDetailModal(): void {
+    this.isNotificationDetailModalOpen = false;
+    this.selectedNotification = null;
   }
 }
