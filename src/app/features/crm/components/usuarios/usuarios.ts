@@ -64,7 +64,6 @@ export class Usuarios implements OnInit {
       key: 'userType',
       label: 'Todos los tipos',
       options: [
-        { label: 'Admin Empresarial', value: 'ENTERPRISE_ADMIN' },
         { label: 'Empleado', value: 'EMPLOYEE' },
         { label: 'Cliente', value: 'CLIENT' }
       ]
