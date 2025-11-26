@@ -52,10 +52,23 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   isSendingMessage = false;
   selectedStatus = '';
 
+  // Mobile responsive
+  activeTab: 'details' | 'chat' = 'details';
+
   // Request images
   isRequestingImages = false;
   showRequestImagesOptions = false;
   requestImagesHours = 24;
+
+  // Carousel
+  currentImageIndex = 0;
+  isImageTransitioning = false;
+  private imageCache = new Map<string, string>();
+
+  // Lightbox
+  isLightboxOpen = false;
+  lightboxImageIndex = 0;
+  isLightboxTransitioning = false;
 
   // WebSocket
   isConnected = false;
@@ -79,6 +92,9 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     // Suscribirse a eventos del WebSocket
     this.subscriptions.push(
       this.chatService.newMessage$.subscribe((message: ChatMessage) => {
+        console.log('📨 Nuevo mensaje recibido:', message);
+        console.log('   - senderType:', message.senderType);
+        console.log('   - messageType:', message.messageType);
         // Evitar duplicados
         if (!this.messages.find(m => m.id === message.id)) {
           this.messages = [...this.messages, message as Message];
@@ -151,6 +167,8 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         document.body.style.overflow = 'hidden';
         if (this.incidentData) {
           this.selectedStatus = this.incidentData.status;
+          this.currentImageIndex = 0; // Reset carousel
+          this.preloadImages(); // Precargar imágenes
           this.loadMessages();
           this.connectToChat();
         }
@@ -158,6 +176,10 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         document.body.style.overflow = '';
         this.messages = [];
         this.newMessage = '';
+        this.currentImageIndex = 0; // Reset carousel
+        this.isLightboxOpen = false; // Close lightbox if open
+        this.activeTab = 'details'; // Reset to details tab
+        this.imageCache.clear(); // Limpiar cache
         this.chatService.leaveRoom();
       }
     }
@@ -165,9 +187,25 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     // Si incidentData cambia mientras el modal está abierto, reconectar
     if (changes['incidentData'] && this.isOpen && this.incidentData) {
       this.selectedStatus = this.incidentData.status;
+      this.currentImageIndex = 0; // Reset carousel when incident changes
+      this.preloadImages(); // Precargar imágenes
       this.loadMessages();
       this.connectToChat();
     }
+  }
+
+  private preloadImages() {
+    if (!this.incidentData?.images) return;
+
+    this.incidentData.images.forEach(image => {
+      if (!this.imageCache.has(image.url)) {
+        const img = new Image();
+        img.src = `${environment.apiUrl}/incidencias/image/${image.url}`;
+        img.onload = () => {
+          this.imageCache.set(image.url, img.src);
+        };
+      }
+    });
   }
 
   private connectToChat(): void {
@@ -198,18 +236,28 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     if (!this.incidentData) return;
 
     this.isLoadingMessages = true;
+    this.cdr.detectChanges();
+
     this.http.get<{ data: MessagesResponse; statusCode: number }>(
       `${this.apiUrl}/${this.incidentData.id}/messages`,
       { withCredentials: true }
     ).subscribe({
       next: (response) => {
-        this.messages = response.data?.messages || [];
-        this.isLoadingMessages = false;
-        this.cdr.detectChanges();
-        this.scrollToBottom();
+        this.ngZone.run(() => {
+          this.messages = response.data?.messages || [];
+          this.isLoadingMessages = false;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          setTimeout(() => {
+            this.scrollToBottom();
+          }, 50);
+        });
       },
       error: () => {
-        this.isLoadingMessages = false;
+        this.ngZone.run(() => {
+          this.isLoadingMessages = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -220,18 +268,18 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     const messageContent = this.newMessage;
     this.isSendingMessage = true;
 
+    // Limpiar input inmediatamente para mejor UX
+    this.newMessage = '';
+
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
       try {
         await this.chatService.sendMessage(messageContent);
-
-        // Forzar la actualización dentro de la zona de Angular
-        this.ngZone.run(() => {
-          this.newMessage = '';
-          this.isSendingMessage = false;
-          this.cdr.detectChanges();
-        });
+        // Mensaje enviado exitosamente por WebSocket
+        this.isSendingMessage = false;
+        this.cdr.detectChanges();
       } catch (error) {
+        console.error('Error sending via WebSocket, fallback to HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
@@ -252,20 +300,29 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         if (!this.messages.find(m => m.id === newMsg.id)) {
           this.messages = [...this.messages, newMsg];
         }
-        this.newMessage = '';
         this.isSendingMessage = false;
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error sending message via HTTP:', error);
         this.isSendingMessage = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
   updateStatus() {
     if (!this.incidentData || this.selectedStatus === this.incidentData.status) return;
+
+    // Actualizar el estado local inmediatamente
+    this.incidentData.status = this.selectedStatus;
+
+    // Emitir el evento para que el componente padre también actualice
     this.onStatusChange.emit({ id: this.incidentData.id, status: this.selectedStatus });
+
+    // Forzar detección de cambios para actualizar la UI
+    this.cdr.detectChanges();
   }
 
   closeModal() {
@@ -334,6 +391,19 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     return 'Sin asignar';
   }
 
+  get isChatDisabled(): boolean {
+    return this.incidentData?.status === 'RESOLVED';
+  }
+
+  switchTab(tab: 'details' | 'chat'): void {
+    this.activeTab = tab;
+    if (tab === 'chat') {
+      // Scroll to bottom when switching to chat tab
+      this.scrollToBottom();
+    }
+    this.cdr.detectChanges();
+  }
+
   toggleRequestImagesOptions() {
     this.showRequestImagesOptions = !this.showRequestImagesOptions;
   }
@@ -342,6 +412,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     if (!this.incidentData || this.isRequestingImages) return;
 
     this.isRequestingImages = true;
+
+    // Cerrar el panel inmediatamente
+    this.showRequestImagesOptions = false;
+    this.cdr.detectChanges();
+
     this.http.post<any>(
       `${this.apiUrl}/${this.incidentData.id}/request-images`,
       {
@@ -350,17 +425,82 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
       },
       { withCredentials: true }
     ).subscribe({
-      next: (response) => {
-        const newMsg = response.data || response;
-        this.messages = [...this.messages, newMsg];
-        this.isRequestingImages = false;
-        this.showRequestImagesOptions = false;
-        this.cdr.detectChanges();
-        this.scrollToBottom();
+      next: () => {
+        // No agregamos el mensaje manualmente, vendrá por WebSocket
+        this.ngZone.run(() => {
+          this.isRequestingImages = false;
+          this.cdr.detectChanges();
+        });
+        // El mensaje llegará automáticamente por WebSocket y se mostrará
       },
-      error: () => {
-        this.isRequestingImages = false;
+      error: (error) => {
+        console.error('Error requesting images:', error);
+        this.ngZone.run(() => {
+          this.isRequestingImages = false;
+          this.showRequestImagesOptions = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
+
+  // Carousel methods
+  nextImage(event: Event) {
+    event.stopPropagation();
+    if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
+
+    const totalImages = this.incidentData.images.length;
+    this.currentImageIndex = (this.currentImageIndex + 1) % totalImages;
+  }
+
+  previousImage(event: Event) {
+    event.stopPropagation();
+    if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
+
+    const totalImages = this.incidentData.images.length;
+    this.currentImageIndex = this.currentImageIndex === 0
+      ? totalImages - 1
+      : this.currentImageIndex - 1;
+  }
+
+  // Lightbox methods
+  openLightbox(index: number) {
+    this.lightboxImageIndex = index;
+    this.isLightboxOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  nextLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
+
+    const totalImages = this.incidentData.images.length;
+    this.isLightboxTransitioning = true;
+    setTimeout(() => {
+      this.lightboxImageIndex = (this.lightboxImageIndex + 1) % totalImages;
+      this.isLightboxTransitioning = false;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  previousLightboxImage(event: Event) {
+    event.stopPropagation();
+    if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
+
+    const totalImages = this.incidentData.images.length;
+    this.isLightboxTransitioning = true;
+    setTimeout(() => {
+      this.lightboxImageIndex = this.lightboxImageIndex === 0
+        ? totalImages - 1
+        : this.lightboxImageIndex - 1;
+      this.isLightboxTransitioning = false;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
 }
