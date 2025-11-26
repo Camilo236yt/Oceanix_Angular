@@ -42,10 +42,6 @@ export class CreateUserModalComponent implements OnChanges {
   identificationNumberError = '';
   rolesError = '';
 
-  // Touched state for real-time validation
-  passwordTouched = false;
-  confirmPasswordTouched = false;
-
   // Modal state
   isClosing = false;
 
@@ -269,6 +265,28 @@ export class CreateUserModalComponent implements OnChanges {
     this.clearIdentificationNumberError();
   }
 
+  // Validar nombre solo cuando sale del campo
+  onNameBlur() {
+    if (this.userName.trim()) {
+      if (this.userName.trim().length < 3) {
+        this.nameError = 'El nombre debe tener al menos 3 caracteres';
+      } else {
+        this.nameError = '';
+      }
+    }
+  }
+
+  // Validar apellido solo cuando sale del campo
+  onLastNameBlur() {
+    if (this.userLastName.trim()) {
+      if (this.userLastName.trim().length < 3) {
+        this.lastNameError = 'El apellido debe tener al menos 3 caracteres';
+      } else {
+        this.lastNameError = '';
+      }
+    }
+  }
+
   clearNameError() {
     this.nameError = '';
   }
@@ -290,39 +308,25 @@ export class CreateUserModalComponent implements OnChanges {
     }
   }
 
-  // Validar contraseña en tiempo real solo si ya fue tocada
-  onPasswordInput() {
-    this.passwordTouched = true;
-    if (this.passwordTouched && this.userPassword.trim()) {
+  // Validar contraseña solo cuando sale del campo
+  onPasswordBlur() {
+    if (this.userPassword.trim()) {
       if (this.userPassword.length < 8) {
         this.passwordError = 'La contraseña debe tener al menos 8 caracteres';
       } else {
         this.passwordError = '';
       }
-      // También validar confirmar contraseña si ya fue tocada
-      if (this.confirmPasswordTouched && this.userConfirmPassword.trim()) {
-        if (this.userPassword !== this.userConfirmPassword) {
-          this.confirmPasswordError = 'Las contraseñas no coinciden';
-        } else {
-          this.confirmPasswordError = '';
-        }
-      }
-    } else {
-      this.passwordError = '';
     }
   }
 
-  // Validar confirmar contraseña en tiempo real solo si ya fue tocada
-  onConfirmPasswordInput() {
-    this.confirmPasswordTouched = true;
-    if (this.confirmPasswordTouched && this.userConfirmPassword.trim()) {
+  // Validar confirmar contraseña solo cuando sale del campo
+  onConfirmPasswordBlur() {
+    if (this.userConfirmPassword.trim()) {
       if (this.userPassword !== this.userConfirmPassword) {
         this.confirmPasswordError = 'Las contraseñas no coinciden';
       } else {
         this.confirmPasswordError = '';
       }
-    } else {
-      this.confirmPasswordError = '';
     }
   }
 
@@ -426,10 +430,6 @@ export class CreateUserModalComponent implements OnChanges {
     this.identificationTypeError = '';
     this.identificationNumberError = '';
     this.rolesError = '';
-
-    // Reset touched states
-    this.passwordTouched = false;
-    this.confirmPasswordTouched = false;
   }
 
   closeModal() {
