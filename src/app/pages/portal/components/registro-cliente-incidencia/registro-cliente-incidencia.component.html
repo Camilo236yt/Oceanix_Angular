@@ -662,19 +662,14 @@
                          [(ngModel)]="newMessage"
                          (keyup.enter)="sendMessage()"
                          placeholder="Escribe un mensaje..."
-                         [disabled]="isSendingMessage"
                          class="flex-1 px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                          style="font-size: 16px;">
                   <button (click)="sendMessage()"
-                          [disabled]="!newMessage.trim() || isSendingMessage"
+                          [disabled]="!newMessage.trim()"
                           class="px-4 sm:px-3 py-2.5 sm:py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center gap-1 flex-shrink-0">
-                    @if (isSendingMessage) {
-                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    } @else {
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                      </svg>
-                    }
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
                   </button>
                 </div>
               </div>
