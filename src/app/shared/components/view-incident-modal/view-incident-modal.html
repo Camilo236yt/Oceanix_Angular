@@ -1,15 +1,15 @@
 <!-- Modal Backdrop -->
 @if (isOpen) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
        (click)="handleBackdropClick($event)">
     <!-- Modal Container -->
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl animate-scale-in">
+    <div class="bg-[var(--card-bg)] rounded-lg shadow-xl w-full max-w-2xl border border-[var(--card-border)] animate-scale-in">
 
       @if (incidentData) {
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 class="text-lg font-semibold text-gray-900">Detalle de Incidencia</h2>
-          <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-primary)]">
+          <h2 class="text-lg font-semibold text-[var(--text-primary)]">Detalle de Incidencia</h2>
+          <button (click)="closeModal()" class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)]">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -21,19 +21,19 @@
           <!-- Nombre y Semáforo -->
           <div class="flex items-start justify-between mb-8">
             <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-1">{{ incidentData.name }}</h3>
+              <h3 class="text-xl font-bold text-[var(--text-primary)] mb-1">{{ incidentData.name }}</h3>
               <span class="text-sm text-purple-600 font-medium">{{ tipoLabel }}</span>
             </div>
             <!-- Semáforo minimalista -->
             <div class="flex flex-col items-center">
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Nivel de Alerta</label>
-              <div class="flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1.5">
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">Nivel de Alerta</label>
+              <div class="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-full px-3 py-1.5">
                 <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-gray-300'"></div>
+                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-[var(--text-muted)]'"></div>
                 <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-gray-300'"></div>
+                     [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-[var(--text-muted)]'"></div>
                 <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-gray-300'"></div>
+                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-[var(--text-muted)]'"></div>
               </div>
             </div>
           </div>
@@ -58,37 +58,37 @@
 
           <!-- Descripción -->
           <div class="mb-8">
-            <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Descripción</label>
-            <p class="mt-1 text-sm text-gray-700 leading-relaxed">{{ incidentData.description || 'Sin descripción' }}</p>
+            <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Descripción</label>
+            <p class="mt-1 text-sm text-[var(--text-secondary)] leading-relaxed">{{ incidentData.description || 'Sin descripción' }}</p>
           </div>
 
           <!-- Grid de información -->
           <div class="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Asignado a</label>
-              <p class="mt-1 text-sm text-gray-900">{{ incidentData.assignedEmployeeId || 'Sin asignar' }}</p>
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Asignado a</label>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ incidentData.assignedEmployeeId || 'Sin asignar' }}</p>
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Creado por</label>
-              <p class="mt-1 text-sm text-gray-900">{{ incidentData.createdByUserId || 'Sistema' }}</p>
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Creado por</label>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ incidentData.createdByUserId || 'Sistema' }}</p>
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Fecha de creación</label>
-              <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(incidentData.createdAt) }}</p>
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Fecha de creación</label>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ formatDateTime(incidentData.createdAt) }}</p>
             </div>
             <div>
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide">Última actualización</label>
-              <p class="mt-1 text-sm text-gray-900">{{ formatDateTime(incidentData.updatedAt) }}</p>
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Última actualización</label>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ formatDateTime(incidentData.updatedAt) }}</p>
             </div>
           </div>
 
           <!-- Imágenes de Evidencia -->
           @if (incidentData.images && incidentData.images.length > 0) {
             <div>
-              <label class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">Imágenes de Evidencia ({{ incidentData.images.length }})</label>
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2 block">Imágenes de Evidencia ({{ incidentData.images.length }})</label>
               <div class="grid grid-cols-3 gap-2">
                 @for (image of incidentData.images; track image.id) {
-                  <div class="relative group cursor-pointer rounded overflow-hidden border border-gray-200">
+                  <div class="relative group cursor-pointer rounded overflow-hidden border border-[var(--border-primary)]">
                     <img [src]="image.url" [alt]="image.originalName" class="w-full h-32 object-cover">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span class="text-white text-xs">Ver imagen</span>
@@ -101,15 +101,15 @@
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
+        <div class="px-6 py-4 border-t border-[var(--border-primary)] flex justify-end">
           <button (click)="closeModal()"
-                  class="px-4 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors">
+                  class="px-5 py-2 rounded-lg text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors">
             Cerrar
           </button>
         </div>
       } @else {
         <div class="flex items-center justify-center py-16">
-          <p class="text-gray-500">Cargando...</p>
+          <p class="text-[var(--text-tertiary)]">Cargando...</p>
         </div>
       }
 
