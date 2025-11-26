@@ -19,6 +19,7 @@
     <app-search-filters
       searchPlaceholder="Buscar usuarios..."
       [filters]="filterConfigs"
+      [initialFilters]="activeFilters"
       (onFilterChange)="onFilterChange($event)">
     </app-search-filters>
   </div>
