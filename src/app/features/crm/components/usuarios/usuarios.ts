@@ -561,16 +561,15 @@ export class Usuarios implements OnInit {
                                           detail.toLowerCase().includes('exist')));
 
         if (isDuplicateEmail || hasDuplicateEmailDetail) {
-          // Mostrar error específico de correo duplicado sin cerrar el modal
+          // Mostrar modal de confirmación para correo duplicado (NO cerrar el modal de crear usuario)
           Swal.fire({
-            toast: true,
-            position: 'top-end',
             icon: 'error',
             title: 'Correo ya registrado',
             text: 'El correo ingresado ya existe en el sistema. Por favor, ingrese otro correo.',
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#9333ea',
+            allowOutsideClick: false,
+            allowEscapeKey: false
           });
         } else {
           // Error genérico
