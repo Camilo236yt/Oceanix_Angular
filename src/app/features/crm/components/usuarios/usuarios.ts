@@ -544,17 +544,48 @@ export class Usuarios implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al crear usuario o asignar roles:', error);
-        const errorMessage = error?.error?.message || 'No se pudo crear el usuario. Intente nuevamente.';
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error',
-          title: 'Error al crear el usuario',
-          text: errorMessage,
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true
-        });
+
+        // Verificar si es un error de correo duplicado
+        const errorMessage = error?.error?.message || '';
+        const errorDetails = error?.error?.error?.details || [];
+
+        const isDuplicateEmail = errorMessage.toLowerCase().includes('email') &&
+                                 (errorMessage.toLowerCase().includes('already') ||
+                                  errorMessage.toLowerCase().includes('existe') ||
+                                  errorMessage.toLowerCase().includes('duplicado'));
+
+        const hasDuplicateEmailDetail = Array.isArray(errorDetails) &&
+                                       errorDetails.some((detail: string) =>
+                                         detail.toLowerCase().includes('email') &&
+                                         (detail.toLowerCase().includes('already') ||
+                                          detail.toLowerCase().includes('exist')));
+
+        if (isDuplicateEmail || hasDuplicateEmailDetail) {
+          // Mostrar error específico de correo duplicado sin cerrar el modal
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Correo ya registrado',
+            text: 'El correo ingresado ya existe en el sistema. Por favor, ingrese otro correo.',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true
+          });
+        } else {
+          // Error genérico
+          const message = errorMessage || 'No se pudo crear el usuario. Intente nuevamente.';
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error al crear el usuario',
+            text: message,
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true
+          });
+        }
       }
     });
   }
