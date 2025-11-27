@@ -76,7 +76,7 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
  */
 function handleTokenExpiration(router: Router): void {
   // Limpiar localStorage completamente
-  localStorage.removeItem('authToken');  // Nuevo token de autenticación
+  localStorage.removeItem('authToken');
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
   localStorage.removeItem('auth_enterprise');

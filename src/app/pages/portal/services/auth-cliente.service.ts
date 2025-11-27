@@ -9,13 +9,13 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class AuthClienteService {
-  private readonly TOKEN_KEY = 'portal_cliente_token';
+  private readonly TOKEN_KEY = 'authToken';
   private readonly CLIENTE_KEY = 'portal_cliente_data';
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) { }
 
   /**
    * Login con Google - Envía el idToken al backend
