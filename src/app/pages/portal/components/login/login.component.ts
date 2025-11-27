@@ -67,6 +67,7 @@ export class PortalLoginComponent implements OnInit {
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
       `response_type=code&` +
       `scope=${encodeURIComponent('openid email profile')}&` +
+      `prompt=select_account&` + // Forzar selector de cuentas
       `state=${encodeURIComponent(stateEncoded)}`;
 
     console.log('🔄 Redirecting to Google OAuth...');
