@@ -72,8 +72,10 @@ export class PortalLoginComponent implements OnInit {
 
     // 4. Construir URL de Google OAuth con redirect centralizado
     const googleClientId = '72886373796-tpm8lsidvdrkv19t1qf8467a20ihec1d.apps.googleusercontent.com';
-    // IMPORTANTE: Debe incluir /api/v1 para que Nginx lo envíe al backend
-    const redirectUri = 'https://oceanix.space/api/v1/auth/google/callback';
+    // IMPORTANTE: Debe apuntar al BACKEND porque es donde Google hace el callback
+    // En desarrollo: http://localhost:3000/api/v1/auth/google/callback
+    // En producción: https://oceanix.space/api/v1/auth/google/callback
+    const redirectUri = `${environment.backendUrl}/api/v1/auth/google/callback`;
 
     const googleAuthUrl =
       `https://accounts.google.com/o/oauth2/v2/auth?` +

@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
-    selector: 'app-auth-callback',
-    standalone: true,
-    imports: [CommonModule, LoadingSpinner],
-    template: `
+  selector: 'app-auth-callback',
+  standalone: true,
+  imports: [CommonModule, LoadingSpinner],
+  template: `
     <div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-purple-100">
       <div class="text-center">
         <app-loading-spinner></app-loading-spinner>
@@ -23,58 +23,63 @@ import { LoadingSpinner } from '../../../../shared/components/loading-spinner/lo
       </div>
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class AuthCallbackComponent implements OnInit {
-    errorMessage = '';
+  errorMessage = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router
-    ) { }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) { }
 
-    ngOnInit() {
-        console.log('🔄 AuthCallbackComponent initialized');
+  ngOnInit() {
+    console.log('🔄 AuthCallbackComponent initialized');
 
-        // El backend redirige con ?token=xxx después de autenticar
-        this.route.queryParams.subscribe(params => {
-            const token = params['token'];
-            const error = params['error'];
+    // Detectar si estamos en entorno local o producción
+    const isLocal = window.location.hostname === 'localhost';
 
-            console.log('📥 Received params:', { hasToken: !!token, error });
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      const error = params['error'];
 
-            if (error) {
-                console.error('❌ Authentication error:', error);
-                this.errorMessage = 'Error de autenticación. Redirigiendo al login...';
+      if (error) {
+        console.error('❌ Authentication error:', error);
+        this.errorMessage = 'Error de autenticación. Redirigiendo al login...';
 
-                setTimeout(() => {
-                    this.router.navigate(['/portal/login'], {
-                        queryParams: { error: 'auth_failed' }
-                    });
-                }, 2000);
-                return;
-            }
+        setTimeout(() => {
+          this.router.navigate(['/portal/login'], {
+            queryParams: { error: 'auth_failed' }
+          });
+        }, 2000);
+        return;
+      }
 
-            if (token) {
-                console.log('✅ Token received, saving to localStorage');
+      if (isLocal) {
+        // DESARROLLO LOCAL: Usar Bearer token en localStorage
+        if (token) {
+          console.log('🔧 Local environment: Saving token to localStorage for Bearer auth');
+          localStorage.setItem('authToken', token);
+        } else {
+          console.error('❌ No token received in local environment');
+          this.errorMessage = 'No se recibió token de autenticación.';
+          setTimeout(() => {
+            this.router.navigate(['/portal/login'], {
+              queryParams: { error: 'no_token' }
+            });
+          }, 2000);
+          return;
+        }
+      } else {
+        // PRODUCCIÓN: Usar cookie httpOnly (ya seteada por el backend)
+        console.log('🔒 Production environment: Using httpOnly cookie');
+      }
 
-                // Guardar token en localStorage
-                localStorage.setItem('portal_cliente_token', token);
+      console.log('✅ Authentication successful');
+      console.log('🔄 Redirecting to dashboard...');
 
-                console.log('🔄 Redirecting to dashboard...');
-
-                // Redirigir al dashboard
-                this.router.navigate(['/portal/registro-incidencia']);
-            } else {
-                console.error('❌ No token received');
-                this.errorMessage = 'No se recibió token de autenticación. Redirigiendo al login...';
-
-                setTimeout(() => {
-                    this.router.navigate(['/portal/login'], {
-                        queryParams: { error: 'no_token' }
-                    });
-                }, 2000);
-            }
-        });
-    }
+      // Redirigir al dashboard
+      this.router.navigate(['/portal/registro-incidencia']);
+    });
+  }
 }

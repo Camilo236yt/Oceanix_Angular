@@ -15,8 +15,8 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   // Obtener subdomain (en localhost lee de localStorage, en producción de la URL)
   const subdomain = subdomainService.getSubdomain();
 
-  // Obtener token de autenticación desde localStorage
-  const token = localStorage.getItem('auth_token');
+  // Obtener token de autenticación desde localStorage (solo para desarrollo local)
+  const token = localStorage.getItem('authToken');
 
   // Preparar headers
   const headers: { [key: string]: string } = {
@@ -34,18 +34,19 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     headers['X-Subdomain'] = subdomain;
   }
 
-  // Solo agregar Authorization header si:
-  // 1. Existe token
-  // 2. La petición NO usa withCredentials (cookies)
-  // Esto evita conflictos cuando el backend espera solo uno de los dos métodos
-  if (token && !req.withCredentials) {
+  // Detectar si estamos en localhost (desarrollo) o producción
+  const isLocalhost = window.location.hostname === 'localhost';
+
+  // DESARROLLO LOCAL: Usar Bearer token desde localStorage
+  if (isLocalhost && token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Clonar la petición y agregar headers necesarios
-  // Mantener withCredentials de la petición original para cookies
+  // Clonar la petición con headers y configuración apropiada
   const clonedRequest = req.clone({
-    setHeaders: headers
+    setHeaders: headers,
+    // Siempre enviar withCredentials para cookies (producción) y CORS
+    withCredentials: true
   });
 
   return next(clonedRequest).pipe(
@@ -75,6 +76,7 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
  */
 function handleTokenExpiration(router: Router): void {
   // Limpiar localStorage completamente
+  localStorage.removeItem('authToken');  // Nuevo token de autenticación
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
   localStorage.removeItem('auth_enterprise');
