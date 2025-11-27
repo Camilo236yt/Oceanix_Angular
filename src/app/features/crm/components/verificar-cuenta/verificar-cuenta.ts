@@ -13,7 +13,7 @@ import { DatosVerificacion, Paso1Documentos, Paso2Marca, Paso3EmailVerificacion,
 export class VerificarCuenta implements OnInit {
   // Estado del stepper
   pasoActual: number = 0;
-  totalPasos: number = 3;
+  totalPasos: number = 2;
 
   // Datos de cada paso
   datosVerificacion: DatosVerificacion = {
@@ -45,8 +45,7 @@ export class VerificarCuenta implements OnInit {
   // Información de los pasos
   pasos = [
     { label: 'Documentos', icon: 'description' },
-    { label: 'Marca', icon: 'palette' },
-    { label: 'Contacto', icon: 'phone' }
+    { label: 'Verificación', icon: 'phone' }
   ];
 
   constructor() {}
@@ -76,9 +75,8 @@ export class VerificarCuenta implements OnInit {
   }
 
   omitirPaso(): void {
-    if (this.pasoActual === 1 || this.pasoActual === 2) {
-      this.pasoActual++;
-    }
+    // No hay pasos opcionales para omitir
+    return;
   }
 
   irAPaso(paso: number): void {
@@ -99,8 +97,6 @@ export class VerificarCuenta implements OnInit {
       case 0:
         return this.validarPaso1();
       case 1:
-        return true; // Paso 2 es opcional
-      case 2:
         return this.validarPaso3();
       default:
         return true;
@@ -512,7 +508,7 @@ export class VerificarCuenta implements OnInit {
   }
 
   get mostrarBotonOmitir(): boolean {
-    return this.pasoActual === 1; // Solo mostrar en paso 2 (index 1), no en paso 3 (index 2)
+    return false; // No hay pasos opcionales
   }
 
   get mostrarBotonAnterior(): boolean {
