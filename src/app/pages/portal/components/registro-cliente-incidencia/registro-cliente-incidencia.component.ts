@@ -72,7 +72,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     private chatService: IncidenciaChatService,
     private authClienteService: AuthClienteService,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -389,15 +389,32 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     if (!this.selectedIncidencia) return;
 
     this.isLoadingMessages = true;
+    console.log('Cargando mensajes para incidencia:', this.selectedIncidencia.id);
+
+    // Timeout de seguridad para evitar que se quede cargando indefinidamente
+    const loadingTimeout = setTimeout(() => {
+      if (this.isLoadingMessages) {
+        console.warn('Timeout: Los mensajes tardaron demasiado en cargar');
+        this.isLoadingMessages = false;
+        this.cdr.detectChanges();
+      }
+    }, 10000); // 10 segundos
+
     this.incidenciasService.getMessages(this.selectedIncidencia.id.toString()).subscribe({
       next: (messages) => {
+        clearTimeout(loadingTimeout);
+        console.log('Mensajes cargados:', messages);
         this.messages = messages;
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
         this.scrollToBottom();
       },
-      error: () => {
+      error: (error) => {
+        clearTimeout(loadingTimeout);
+        console.error('Error al cargar mensajes:', error);
         this.isLoadingMessages = false;
+        this.messages = []; // Asegurar que se muestra el estado vacío
+        this.cdr.detectChanges();
       }
     });
   }
@@ -684,5 +701,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   closeNotificationDetailModal(): void {
     this.isNotificationDetailModalOpen = false;
     this.selectedNotification = null;
+  }
+
+  /**
+   * Getter para verificar si el chat está deshabilitado
+   */
+  get isChatDisabled(): boolean {
+    return this.selectedIncidencia?.status === 'RESOLVED';
   }
 }
