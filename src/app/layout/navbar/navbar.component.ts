@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSpinner],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -76,9 +77,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   navigateToRegister(): void {
     this.isMobileMenuOpen = false;
     this.isNavigating = true;
-    setTimeout(() => {
-      this.router.navigate(['/register']);
-    }, 800);
+    this.router.navigate(['/register']);
   }
 
   navigateToLogin(): void {
