@@ -10,7 +10,7 @@ import { LoadingSpinner } from '../../../../shared/components/loading-spinner/lo
     template: `
     <div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-purple-100">
       <div class="text-center">
-        <loading-spinner></loading-spinner>
+        <app-loading-spinner></app-loading-spinner>
         <h2 class="mt-6 text-2xl font-semibold text-gray-800">Autenticando...</h2>
         <p class="mt-2 text-gray-600">Por favor espera un momento</p>
         
