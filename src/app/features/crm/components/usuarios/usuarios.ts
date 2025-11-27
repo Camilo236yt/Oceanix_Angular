@@ -34,7 +34,7 @@ export class Usuarios implements OnInit {
   totalItems = 0;
   totalPages = 0;
   searchTerm = '';
-  activeFilters: Record<string, string> = { userType: 'EMPLOYEE' };
+  activeFilters: Record<string, string> = { userType: 'EMPLOYEE', isActive: 'true' };
 
   // Modal state
   isCreateUserModalOpen = false;
@@ -57,7 +57,7 @@ export class Usuarios implements OnInit {
     private rolesService: RolesService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -554,19 +554,19 @@ export class Usuarios implements OnInit {
 
         // Verificar en el mensaje principal
         const isDuplicateEmail = errorMessage.toLowerCase().includes('email') &&
-                                 (errorMessage.toLowerCase().includes('already') ||
-                                  errorMessage.toLowerCase().includes('existe') ||
-                                  errorMessage.toLowerCase().includes('registrado') ||
-                                  errorMessage.toLowerCase().includes('duplicado'));
+          (errorMessage.toLowerCase().includes('already') ||
+            errorMessage.toLowerCase().includes('existe') ||
+            errorMessage.toLowerCase().includes('registrado') ||
+            errorMessage.toLowerCase().includes('duplicado'));
 
         // Verificar en los detalles (puede estar en error.error.details o error.error.error.details)
         const hasDuplicateEmailDetail = Array.isArray(errorDetails) &&
-                                       errorDetails.some((detail: string) =>
-                                         detail.toLowerCase().includes('email') &&
-                                         (detail.toLowerCase().includes('already') ||
-                                          detail.toLowerCase().includes('exist') ||
-                                          detail.toLowerCase().includes('registrado') ||
-                                          detail.toLowerCase().includes('está registrado')));
+          errorDetails.some((detail: string) =>
+            detail.toLowerCase().includes('email') &&
+            (detail.toLowerCase().includes('already') ||
+              detail.toLowerCase().includes('exist') ||
+              detail.toLowerCase().includes('registrado') ||
+              detail.toLowerCase().includes('está registrado')));
 
         if (isDuplicateEmail || hasDuplicateEmailDetail) {
           // Mostrar modal de confirmación para correo duplicado (NO cerrar el modal de crear usuario)
