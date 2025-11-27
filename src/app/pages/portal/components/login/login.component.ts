@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import { SubdomainService } from '../../../../services/subdomain.service';
+import { environment } from '../../../../environments/environment';
 
 declare const google: any;
 
@@ -21,7 +23,8 @@ export class PortalLoginComponent implements OnInit {
     private router: Router,
     private authClienteService: AuthClienteService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private subdomainService: SubdomainService
   ) { }
 
   ngOnInit(): void {
@@ -36,19 +39,30 @@ export class PortalLoginComponent implements OnInit {
   continueWithGoogle(): void {
     this.errorMessage = '';
 
-    // 1. Obtener el subdomain actual
-    const subdomain = this.getSubdomain();
+    // 1. Obtener el subdomain usando el servicio centralizado
+    const subdomain = this.subdomainService.getSubdomain();
 
     if (!subdomain) {
-      this.errorMessage = 'No se pudo detectar el subdomain. Por favor, accede desde tu empresa.oceanix.space';
+      // Verificar si estamos en localhost sin subdomain configurado
+      if (this.subdomainService.getCurrentDomain().includes('localhost')) {
+        this.errorMessage = 'En desarrollo local, necesitas configurar un subdomain. Abre la consola (F12) y ejecuta: localStorage.setItem("dev_subdomain", "tu-empresa")';
+      } else {
+        this.errorMessage = 'No se pudo detectar el subdomain. Por favor, accede desde tu empresa.oceanix.space';
+      }
       return;
     }
 
     console.log(`🏢 Subdomain detected: ${subdomain}`);
 
-    // 2. Crear state parameter con el subdomain y ruta de retorno
+    // 2. Obtener el hostname del frontend (sin protocolo)
+    // Ej: "localhost:4200" o "techcorp.oceanix.space"
+    const originDomain = window.location.host;
+    console.log(`🌐 Origin domain (frontend): ${originDomain}`);
+
+    // 3. Crear state parameter con el subdomain, originDomain y ruta de retorno
     const state = {
       subdomain: subdomain,
+      originDomain: originDomain, // Dominio del frontend sin protocolo
       returnPath: '/portal/callback', // Ruta donde Angular manejará el token
       timestamp: Date.now(),
       nonce: this.generateNonce()
@@ -56,7 +70,7 @@ export class PortalLoginComponent implements OnInit {
 
     const stateEncoded = btoa(JSON.stringify(state));
 
-    // 3. Construir URL de Google OAuth con redirect centralizado
+    // 4. Construir URL de Google OAuth con redirect centralizado
     const googleClientId = '72886373796-tpm8lsidvdrkv19t1qf8467a20ihec1d.apps.googleusercontent.com';
     // IMPORTANTE: Debe incluir /api/v1 para que Nginx lo envíe al backend
     const redirectUri = 'https://oceanix.space/api/v1/auth/google/callback';
@@ -71,26 +85,10 @@ export class PortalLoginComponent implements OnInit {
       `state=${encodeURIComponent(stateEncoded)}`;
 
     console.log('🔄 Redirecting to Google OAuth...');
+    console.log('📦 State parameter:', state);
 
-    // 4. Redirigir a Google
+    // 5. Redirigir a Google
     window.location.href = googleAuthUrl;
-  }
-
-  /**
-   * Obtiene el subdomain actual del hostname
-   * Por ejemplo: "techcorp" de "techcorp.oceanix.space"
-   */
-  private getSubdomain(): string {
-    const hostname = window.location.hostname;
-    const parts = hostname.split('.');
-
-    // localhost o dominio sin subdomain 
-    if (parts.length < 3 || hostname.includes('localhost')) {
-      return '';
-    }
-
-    // Retornar el primer segmento (subdomain)
-    return parts[0];
   }
 
   /**
