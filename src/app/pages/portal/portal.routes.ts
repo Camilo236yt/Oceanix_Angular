@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { PortalLoginComponent } from './components/login/login.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { RegistroClienteIncidenciaComponent } from './components/registro-cliente-incidencia/registro-cliente-incidencia.component';
 import { authClienteGuard } from './guards/auth-cliente.guard';
 
@@ -7,6 +8,10 @@ export const PORTAL_ROUTES: Routes = [
   {
     path: 'login',
     component: PortalLoginComponent
+  },
+  {
+    path: 'callback',
+    component: AuthCallbackComponent
   },
   {
     path: 'registro-incidencia',
