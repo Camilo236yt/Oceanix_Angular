@@ -19,6 +19,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private isScrollingProgrammatically = false;
   protected isMobileMenuOpen = false;
+  protected isNavigating = false;
 
   constructor(private router: Router) {}
 
@@ -70,6 +71,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  navigateToRegister(): void {
+    this.isMobileMenuOpen = false;
+    this.isNavigating = true;
+    setTimeout(() => {
+      this.router.navigate(['/register']);
+    }, 800);
   }
 
   navigateToLogin(): void {
