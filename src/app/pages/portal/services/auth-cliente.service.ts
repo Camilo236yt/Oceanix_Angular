@@ -76,4 +76,13 @@ export class AuthClienteService {
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
+
+  /**
+   * Verificar validez del token con el backend
+   */
+  checkToken(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/auth/check`, {
+      withCredentials: true
+    });
+  }
 }

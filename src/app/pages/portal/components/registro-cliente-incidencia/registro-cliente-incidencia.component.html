@@ -275,7 +275,29 @@
       <!-- Lista de incidencias -->
       @if (historialVisible()) {
         <div class="flex-1 overflow-y-auto p-3 space-y-2.5">
-          @if (incidencias.length > 0) {
+          @if (isLoadingIncidencias) {
+            <!-- Skeleton loader -->
+            @for (skeleton of [1,2,3]; track skeleton) {
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 animate-pulse">
+                <!-- Header skeleton -->
+                <div class="flex items-center justify-between mb-2">
+                  <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                  <div class="h-3 bg-gray-300 rounded w-16"></div>
+                </div>
+                <!-- Badge skeleton -->
+                <div class="mb-2">
+                  <div class="h-5 bg-gray-300 rounded-full w-20"></div>
+                </div>
+                <!-- Tipo skeleton -->
+                <div class="flex items-start gap-1.5 mb-2">
+                  <div class="h-3 bg-gray-300 rounded w-10"></div>
+                  <div class="h-3 bg-gray-300 rounded w-24"></div>
+                </div>
+                <!-- Button skeleton -->
+                <div class="h-8 bg-gray-300 rounded-md w-full"></div>
+              </div>
+            }
+          } @else if (incidencias.length > 0) {
             @for (incidencia of incidencias; track incidencia.id) {
               <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 hover:shadow-md transition-all"
                    [class.animate-remove]="removingIncidenciaId === incidencia.id">
@@ -366,7 +388,29 @@
 
       <!-- Lista de incidencias -->
       <div class="flex-1 overflow-y-auto p-3 space-y-2.5">
-        @if (incidencias.length > 0) {
+        @if (isLoadingIncidencias) {
+          <!-- Skeleton loader mobile -->
+          @for (skeleton of [1,2,3]; track skeleton) {
+            <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 animate-pulse">
+              <!-- Header skeleton -->
+              <div class="flex items-center justify-between mb-2">
+                <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div class="h-3 bg-gray-300 rounded w-16"></div>
+              </div>
+              <!-- Badge skeleton -->
+              <div class="mb-2">
+                <div class="h-5 bg-gray-300 rounded-full w-20"></div>
+              </div>
+              <!-- Tipo skeleton -->
+              <div class="flex items-start gap-1.5 mb-2">
+                <div class="h-3 bg-gray-300 rounded w-10"></div>
+                <div class="h-3 bg-gray-300 rounded w-24"></div>
+              </div>
+              <!-- Button skeleton -->
+              <div class="h-8 bg-gray-300 rounded-md w-full"></div>
+            </div>
+          }
+        } @else if (incidencias.length > 0) {
           @for (incidencia of incidencias; track incidencia.id) {
             <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 active:bg-gray-100 transition-all"
                  [class.animate-remove]="removingIncidenciaId === incidencia.id">

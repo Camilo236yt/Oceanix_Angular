@@ -36,6 +36,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   // Datos del historial
   incidencias: Incidencia[] = [];
+  isLoadingIncidencias = true;
 
   // Modal de detalles
   isModalOpen = signal(false);
@@ -185,13 +186,16 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   cargarIncidencias(): void {
+    this.isLoadingIncidencias = true;
     this.incidenciasService.getIncidencias().subscribe({
       next: (incidencias) => {
         this.incidencias = [...incidencias];
+        this.isLoadingIncidencias = false;
         this.cdr.detectChanges();
       },
       error: () => {
-        // Error handling
+        this.isLoadingIncidencias = false;
+        this.cdr.detectChanges();
       }
     });
   }

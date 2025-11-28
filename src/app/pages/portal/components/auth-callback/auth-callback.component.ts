@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import { AuthClienteService } from '../../services/auth-cliente.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-auth-callback',
@@ -13,7 +15,7 @@ import { LoadingSpinner } from '../../../../shared/components/loading-spinner/lo
         <app-loading-spinner></app-loading-spinner>
         <h2 class="mt-6 text-2xl font-semibold text-gray-800">Autenticando...</h2>
         <p class="mt-2 text-gray-600">Por favor espera un momento</p>
-        
+
         @if (errorMessage) {
           <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
             <p class="font-semibold">Error</p>
@@ -30,7 +32,8 @@ export class AuthCallbackComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private authClienteService: AuthClienteService
   ) { }
 
   ngOnInit() {
@@ -75,11 +78,50 @@ export class AuthCallbackComponent implements OnInit {
         console.log('🔒 Production environment: Using httpOnly cookie');
       }
 
-      console.log('✅ Authentication successful');
-      console.log('🔄 Redirecting to dashboard...');
+      // Validar el token con el backend
+      console.log('🔍 Validating token with backend...');
+      const startTime = Date.now();
+      const MIN_LOADING_TIME = 1500; // 1.5 segundos mínimo de carga
 
-      // Redirigir al dashboard
-      this.router.navigate(['/portal/registro-incidencia']);
+      this.authClienteService.checkToken().subscribe({
+        next: (response) => {
+          console.log('✅ Token is valid:', response);
+
+          // Calcular tiempo transcurrido
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+          // Esperar el tiempo restante antes de redirigir
+          setTimeout(() => {
+            console.log('🔄 Redirecting to dashboard...');
+            this.router.navigate(['/portal/registro-incidencia']);
+          }, remainingTime);
+        },
+        error: (error) => {
+          console.error('❌ Token validation failed:', error);
+
+          // Calcular tiempo transcurrido
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
+
+          // Esperar el tiempo restante antes de mostrar error
+          setTimeout(() => {
+            // Limpiar el token inválido
+            localStorage.removeItem('authToken');
+
+            // Mostrar error con SweetAlert2
+            Swal.fire({
+              icon: 'error',
+              title: 'Token Inválido',
+              text: 'Tu sesión ha expirado o el token no es válido. Por favor, inicia sesión nuevamente.',
+              confirmButtonColor: '#7c3aed',
+              confirmButtonText: 'Ir al Login'
+            }).then(() => {
+              this.router.navigate(['/portal/login']);
+            });
+          }, remainingTime);
+        }
+      });
     });
   }
 }
