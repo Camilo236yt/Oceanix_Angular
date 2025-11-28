@@ -183,8 +183,9 @@
       }
     </div>
 
-    <!-- Logout Button -->
+    <!-- Logout Section -->
     <div class="px-4 pb-5 flex-shrink-0 border-t border-[var(--sidebar-border)] pt-4 bg-[var(--sidebar-bg)]">
+      <!-- Logout Button -->
       <button (click)="logout()" class="flex items-center justify-center gap-2.5 px-4 py-3 w-full text-[var(--sidebar-text)] hover:bg-[var(--bg-hover)] hover:text-[var(--sidebar-text-hover)] transition-all duration-200 rounded-lg border border-[var(--border-primary)]">
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -334,10 +335,11 @@
       }
     </nav>
 
-    <!-- Logout Button -->
+    <!-- Logout Section -->
     <div [class]="isCollapsed ? 'px-2 pb-8 flex-shrink-0' : 'px-4 pb-8 flex-shrink-0'">
+      <!-- Logout Button -->
       <button (click)="logout()" [class]="isCollapsed ? 'flex items-center justify-center px-3 py-3 w-full text-[var(--sidebar-text)] hover:bg-[var(--bg-hover)] hover:text-[var(--sidebar-text-hover)] transition-all duration-200 rounded-xl focus:outline-none' : 'flex items-center gap-3 px-4 py-3 w-full text-[var(--sidebar-text)] hover:bg-[var(--bg-hover)] hover:text-[var(--sidebar-text-hover)] transition-all duration-200 rounded-xl focus:outline-none'" [title]="isCollapsed ? 'Cerrar sesión' : ''">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
         </svg>
         @if (!isCollapsed) {

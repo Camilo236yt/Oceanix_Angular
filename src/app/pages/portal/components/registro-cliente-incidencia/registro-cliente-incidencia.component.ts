@@ -10,6 +10,7 @@ import { AuthClienteService } from '../../services/auth-cliente.service';
 import { SecureImagePipe } from '../../../../shared/pipes/secure-image.pipe';
 import { NotificationsDropdown } from '../../../../features/crm/components/notifications-dropdown/notifications-dropdown';
 import { NotificationDetailModal } from '../../../../features/crm/components/notification-detail-modal/notification-detail-modal';
+import { UserProfileModal, UserProfile } from '../user-profile-modal/user-profile-modal';
 import { ClientNotificationsService } from '../../services/client-notifications.service';
 import { CRMNotification } from '../../../../features/crm/models/notification.model';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
@@ -18,7 +19,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal, LoadingSpinner],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal, UserProfileModal, LoadingSpinner],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -64,6 +65,19 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   isNotificationDetailModalOpen = false;
   selectedNotification: CRMNotification | null = null;
   clientNotificationsService = inject(ClientNotificationsService);
+
+  // User Profile Modal
+  isUserProfileModalOpen = false;
+  userProfile: UserProfile = {
+    fullName: 'María González Rodríguez',
+    email: 'maria.gonzalez@cliente.com',
+    createdAt: '20 de Enero, 2024'
+  };
+
+  // Obtener solo el primer nombre
+  get firstName(): string {
+    return this.userProfile.fullName.split(' ')[0];
+  }
 
   // Loading spinner para logout
   isLoggingOut = false;
@@ -742,6 +756,20 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   closeNotificationDetailModal(): void {
     this.isNotificationDetailModalOpen = false;
     this.selectedNotification = null;
+  }
+
+  /**
+   * Abrir modal de perfil de usuario
+   */
+  openUserProfileModal(): void {
+    this.isUserProfileModalOpen = true;
+  }
+
+  /**
+   * Cerrar modal de perfil de usuario
+   */
+  closeUserProfileModal(): void {
+    this.isUserProfileModalOpen = false;
   }
 
   /**

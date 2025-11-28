@@ -31,25 +31,16 @@
         }
       </button>
 
-      <!-- Botón Logout desktop -->
+      <!-- Botón User Profile desktop -->
       <button
-        (click)="logout()"
-        class="cursor-pointer hidden md:flex flex-shrink-0 p-1.5 rounded-xl hover:bg-white hover:shadow-sm active:scale-95 transition-all focus:outline-none"
-        title="Cerrar sesión"
+        (click)="openUserProfileModal()"
+        class="cursor-pointer hidden md:flex flex-shrink-0 items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white hover:shadow-sm active:scale-95 transition-all focus:outline-none"
+        title="{{ firstName }}"
       >
-        <svg class="w-5 h-5 text-oceanix-purple-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-            <path stroke-dasharray="36" stroke-dashoffset="36" d="M12 4h-7c-0.55 0 -1 0.45 -1 1v14c0 0.55 0.45 1 1 1h7">
-              <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="36;0"/>
-            </path>
-            <path stroke-dasharray="14" stroke-dashoffset="14" d="M9 12h11.5">
-              <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="14;0"/>
-            </path>
-            <path stroke-dasharray="6" stroke-dashoffset="6" d="M20.5 12l-3.5 -3.5M20.5 12l-3.5 3.5">
-              <animate fill="freeze" attributeName="stroke-dashoffset" begin="0.8s" dur="0.2s" values="6;0"/>
-            </path>
-          </g>
+        <svg class="w-5 h-5 text-oceanix-purple-600" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2a5 5 0 1 1-5 5l.005-.217A5 5 0 0 1 12 2m2 12a5 5 0 0 1 5 5v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-1a5 5 0 0 1 5-5z"/>
         </svg>
+        <span class="text-sm font-medium text-oceanix-purple-600 max-w-[120px] truncate">{{ firstName }}</span>
       </button>
 
       <!-- Notificaciones -->
@@ -768,6 +759,14 @@
     (markAsRead)="onMarkNotificationAsRead($event)"
     (delete)="onDeleteNotification($event)">
   </app-notification-detail-modal>
+
+  <!-- User Profile Modal -->
+  <app-user-profile-modal
+    [userProfile]="userProfile"
+    [isOpen]="isUserProfileModalOpen"
+    (close)="closeUserProfileModal()"
+    (logout)="logout()">
+  </app-user-profile-modal>
 
   <!-- Loading Spinner para logout -->
   @if (isLoggingOut) {
