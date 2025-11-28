@@ -66,10 +66,11 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
       });
 
       // Manejo de token expirado o no autorizado
-      // Excluir URLs de autenticación para evitar loops durante el login
+      // Excluir URLs de autenticación y de incidencias para evitar loops
       const isAuthUrl = req.url.includes('/auth/');
+      const isIncidenciaUrl = req.url.includes('/incidencias');
 
-      if (error.status === 401 && !isAuthUrl) {
+      if (error.status === 401 && !isAuthUrl && !isIncidenciaUrl) {
         handleTokenExpiration(router);
       }
 
