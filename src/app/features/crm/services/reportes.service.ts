@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 export class ReportesService {
   private apiUrl = `${environment.apiUrl}/reports/generate`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtiene los datos del reporte desde el backend
@@ -58,7 +58,7 @@ export class ReportesService {
    * @param endDate - Fecha de fin en formato YYYY-MM-DD (opcional)
    */
   getChartsData(startDate?: string, endDate?: string): Observable<any> {
-    const chartsUrl = 'https://backend-dev.oceanix.space/api/v1/reports';
+    const chartsUrl = `${environment.apiUrl}/reports`;
     const params: string[] = [];
 
     if (startDate) {
