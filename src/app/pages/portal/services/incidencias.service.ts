@@ -113,7 +113,7 @@ export class IncidenciasService {
    */
   eliminarIncidencia(id: number): Observable<void> {
     return this.http.delete<void>(
-      `${environment.apiUrl}/incidencias/${id}`,
+      `${environment.apiUrl}/incidencias/client/me/${id}`,
       { withCredentials: true }
     );
   }

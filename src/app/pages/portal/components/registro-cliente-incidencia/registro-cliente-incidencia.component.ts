@@ -691,7 +691,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
               Swal.fire({
                 icon: 'success',
                 title: 'Incidencia cancelada',
-                text: 'La incidencia ha sido eliminada correctamente.',
+                text: 'Tu incidencia ha sido cancelada exitosamente.',
                 confirmButtonColor: '#7c3aed',
                 timer: 3000,
                 timerProgressBar: true,
