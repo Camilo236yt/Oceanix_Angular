@@ -38,11 +38,16 @@ export class AuthCallbackComponent implements OnInit {
 
   ngOnInit() {
     console.log('🔄 AuthCallbackComponent initialized');
+    console.log('📍 Current URL:', window.location.href);
+    console.log('📍 Current pathname:', window.location.pathname);
 
     // Detectar si estamos en entorno local o producción
     const isLocal = window.location.hostname === 'localhost';
+    console.log('🔧 Environment:', isLocal ? 'LOCAL' : 'PRODUCTION');
 
     this.route.queryParams.subscribe(params => {
+      console.log('📦 Query params received:', params);
+
       const token = params['token'];
       const error = params['error'];
 
@@ -62,9 +67,12 @@ export class AuthCallbackComponent implements OnInit {
         // DESARROLLO LOCAL: Usar Bearer token en localStorage
         if (token) {
           console.log('🔧 Local environment: Saving token to localStorage for Bearer auth');
+          console.log('🔑 Token received (first 50 chars):', token.substring(0, 50) + '...');
           localStorage.setItem('authToken', token);
+          console.log('✅ Token saved to localStorage');
         } else {
           console.error('❌ No token received in local environment');
+          console.error('❌ Available query params:', Object.keys(params));
           this.errorMessage = 'No se recibió token de autenticación.';
           setTimeout(() => {
             this.router.navigate(['/portal/login'], {
@@ -76,6 +84,9 @@ export class AuthCallbackComponent implements OnInit {
       } else {
         // PRODUCCIÓN: Usar cookie httpOnly (ya seteada por el backend)
         console.log('🔒 Production environment: Using httpOnly cookie');
+        if (token) {
+          console.log('🔑 Token also received in production (will use cookie instead)');
+        }
       }
 
       // Validar el token con el backend
@@ -85,28 +96,37 @@ export class AuthCallbackComponent implements OnInit {
 
       this.authClienteService.checkToken().subscribe({
         next: (response) => {
-          console.log('✅ Token is valid:', response);
+          console.log('✅ Token validation SUCCESS:', response);
 
           // Calcular tiempo transcurrido
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
 
+          console.log(`⏱️ Elapsed time: ${elapsedTime}ms, waiting ${remainingTime}ms more...`);
+
           // Esperar el tiempo restante antes de redirigir
           setTimeout(() => {
-            console.log('🔄 Redirecting to dashboard...');
+            console.log('🔄 Redirecting to /portal/registro-incidencia...');
             this.router.navigate(['/portal/registro-incidencia']);
           }, remainingTime);
         },
         error: (error) => {
-          console.error('❌ Token validation failed:', error);
+          console.error('❌ Token validation FAILED');
+          console.error('❌ Error status:', error.status);
+          console.error('❌ Error message:', error.message);
+          console.error('❌ Error body:', error.error);
+          console.error('❌ Full error object:', error);
 
           // Calcular tiempo transcurrido
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
 
+          console.log(`⏱️ Elapsed time: ${elapsedTime}ms, waiting ${remainingTime}ms more before showing error...`);
+
           // Esperar el tiempo restante antes de mostrar error
           setTimeout(() => {
             // Limpiar el token inválido
+            console.log('🗑️ Removing invalid token from localStorage');
             localStorage.removeItem('authToken');
 
             // Mostrar error con SweetAlert2
@@ -117,6 +137,7 @@ export class AuthCallbackComponent implements OnInit {
               confirmButtonColor: '#7c3aed',
               confirmButtonText: 'Ir al Login'
             }).then(() => {
+              console.log('🔄 Redirecting to /portal/login...');
               this.router.navigate(['/portal/login']);
             });
           }, remainingTime);
