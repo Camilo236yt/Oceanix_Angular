@@ -93,15 +93,31 @@ export class VerificarCuenta implements OnInit {
   finalizandoVerificacion: boolean = false;
 
   siguientePaso(): void {
+    console.log('🔄 siguientePaso() llamado - pasoActual:', this.pasoActual);
+
     if (this.pasoActual < this.totalPasos - 1) {
-      if (this.validarPasoActual()) {
+      const esValido = this.validarPasoActual();
+      console.log('✅ Validación del paso actual:', esValido);
+
+      if (esValido) {
         // Si estamos en el paso 0 (Documentos), enviar documentos al backend
         if (this.pasoActual === 0) {
+          console.log('📤 Subiendo documentos al backend...');
           this.subirDocumentos();
         } else {
           this.guardarDatosPaso();
           this.pasoActual++;
         }
+      } else {
+        console.error('❌ Validación fallida - errores:', this.erroresPaso1);
+        // Mostrar mensaje de error si la validación falla
+        Swal.fire({
+          icon: 'warning',
+          title: 'Documentos Faltantes',
+          text: 'Por favor, sube todos los documentos obligatorios antes de continuar.',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#9333ea'
+        });
       }
     }
   }
@@ -112,32 +128,61 @@ export class VerificarCuenta implements OnInit {
   subirDocumentos(): void {
     const docs = this.datosVerificacion.paso1.documentosObligatorios;
 
+    console.log('📄 Documentos a subir:', {
+      doc0: docs[0],
+      doc1: docs[1],
+      doc2: docs[2]
+    });
+
     // Obtener los archivos (ya validados en validarPaso1)
     const taxId = docs[0].archivo!; // RUT/NIT/CUIT
     const chamberCommerce = docs[1].archivo!; // Cámara de Comercio
     const legalRepId = docs[2].archivo!; // Cédula Representante Legal
 
+    console.log('📦 Archivos preparados para subir:', {
+      taxId: taxId.name,
+      chamberCommerce: chamberCommerce.name,
+      legalRepId: legalRepId.name
+    });
+
     this.cargandoDocumentos = true;
 
     this.verificacionService.uploadDocuments(taxId, chamberCommerce, legalRepId).subscribe({
       next: (response) => {
-        console.log('Documentos subidos exitosamente:', response);
+        console.log('✅ Documentos subidos exitosamente:', response);
         this.cargandoDocumentos = false;
         this.documentosYaSubidos = true; // Marcar que los documentos ya fueron subidos
         this.guardarDatosPaso();
         this.pasoActual++; // Pasar al paso 2
+        console.log('✅ Avanzando al paso:', this.pasoActual);
       },
       error: (error) => {
-        console.error('Error al subir documentos:', error);
+        console.error('❌ Error al subir documentos:', error);
+        console.error('❌ Detalles del error:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.error?.message,
+          fullError: error
+        });
         this.cargandoDocumentos = false;
 
         // Mostrar error en SweetAlert
-        const errorMessage = error.error?.message || error.message || 'Ocurrió un error al subir los documentos';
+        let errorMessage = 'Ocurrió un error al subir los documentos';
+
+        if (error.status === 0) {
+          errorMessage = 'Error de conexión. Por favor verifica tu conexión a internet.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
         Swal.fire({
           icon: 'error',
           title: 'Error al subir documentos',
           text: errorMessage,
-          confirmButtonText: 'Aceptar'
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#9333ea'
         });
       }
     });
@@ -184,12 +229,27 @@ export class VerificarCuenta implements OnInit {
     const obligatorios = this.datosVerificacion.paso1.documentosObligatorios;
     let esValido = true;
 
+    console.log('🔍 Validando paso 1 - documentos obligatorios:', obligatorios);
+
     obligatorios.forEach((doc, index) => {
+      console.log(`📋 Documento ${index}:`, {
+        tipo: doc.tipo,
+        archivo: doc.archivo,
+        archivoUrl: doc.archivoUrl,
+        nombreArchivo: doc.nombreArchivo
+      });
+
       if (!doc.archivo && !doc.archivoUrl) {
+        console.error(`❌ Documento ${index} (${doc.tipo}) faltante`);
         this.erroresPaso1.set(index, 'Este documento es obligatorio');
         esValido = false;
+      } else {
+        console.log(`✅ Documento ${index} (${doc.tipo}) válido`);
       }
     });
+
+    console.log('🔍 Resultado de validación paso 1:', esValido);
+    console.log('🔍 Errores encontrados:', this.erroresPaso1);
 
     return esValido;
   }
@@ -242,14 +302,28 @@ export class VerificarCuenta implements OnInit {
   // ============================================
 
   onFileSelected(event: Event, index: number): void {
+    console.log('📂 onFileSelected() llamado - index:', index);
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      console.log('📄 Archivo seleccionado:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
 
       // Validar tamaño (10 MB máximo)
       const maxSize = 10 * 1024 * 1024; // 10MB en bytes
       if (file.size > maxSize) {
-        alert('El archivo excede el tamaño máximo de 10 MB');
+        console.error('❌ Archivo excede el tamaño máximo');
+        Swal.fire({
+          icon: 'error',
+          title: 'Archivo muy grande',
+          text: 'El archivo excede el tamaño máximo de 10 MB',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#9333ea'
+        });
         input.value = '';
         return;
       }
@@ -257,7 +331,14 @@ export class VerificarCuenta implements OnInit {
       // Validar tipo de archivo
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Tipo de archivo no permitido. Solo se aceptan PDF, JPG, PNG');
+        console.error('❌ Tipo de archivo no permitido:', file.type);
+        Swal.fire({
+          icon: 'error',
+          title: 'Tipo de archivo no permitido',
+          text: 'Solo se aceptan archivos PDF, JPG y PNG',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#9333ea'
+        });
         input.value = '';
         return;
       }
@@ -271,7 +352,10 @@ export class VerificarCuenta implements OnInit {
       // Limpiar error si existe
       this.erroresPaso1.delete(index);
 
-      console.log('Archivo seleccionado:', file.name, 'Tamaño:', this.formatBytes(file.size));
+      console.log('✅ Archivo asignado correctamente al documento', index);
+      console.log('📋 Estado del documento:', this.datosVerificacion.paso1.documentosObligatorios[index]);
+    } else {
+      console.error('❌ No se seleccionó ningún archivo');
     }
   }
 
@@ -458,6 +542,9 @@ export class VerificarCuenta implements OnInit {
       return;
     }
 
+    // Mostrar campo de código inmediatamente
+    this.mostrarCampoCodigoEmail = true;
+
     // Activar estado de carga
     this.enviandoCodigoEmail = true;
 
@@ -470,13 +557,14 @@ export class VerificarCuenta implements OnInit {
         // Extraer datos de la respuesta (puede venir envuelto en { success, data, statusCode })
         const data = response.data || response;
 
-        // Mostrar campo de código
-        this.mostrarCampoCodigoEmail = true;
         console.log('✅ Código enviado a:', data.emailSentTo);
       },
       error: (error) => {
         console.error('Error al enviar código:', error);
         this.enviandoCodigoEmail = false;
+
+        // Ocultar campo de código si hubo error
+        this.mostrarCampoCodigoEmail = false;
 
         // Mostrar error con SweetAlert
         const errorMessage = error.error?.message || error.message || 'Ocurrió un error al enviar el código de verificación';
@@ -484,7 +572,8 @@ export class VerificarCuenta implements OnInit {
           icon: 'error',
           title: 'Error al enviar código',
           text: errorMessage,
-          confirmButtonText: 'Aceptar'
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#9333ea'
         });
       }
     });
