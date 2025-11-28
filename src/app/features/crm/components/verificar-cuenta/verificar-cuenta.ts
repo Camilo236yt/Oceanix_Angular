@@ -145,6 +145,7 @@ export class VerificarCuenta implements OnInit {
       legalRepId: legalRepId.name
     });
 
+    // Activar estado de carga (deshabilita el botón y muestra "Subiendo documentos...")
     this.cargandoDocumentos = true;
 
     this.verificacionService.uploadDocuments(taxId, chamberCommerce, legalRepId).subscribe({

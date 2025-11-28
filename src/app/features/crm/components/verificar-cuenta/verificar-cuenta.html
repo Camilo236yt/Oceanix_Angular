@@ -312,7 +312,11 @@
 
       @if (pasoActual < totalPasos - 1) {
         <button (click)="siguientePaso()" class="btn-primary" [disabled]="cargandoDocumentos">
-          Siguiente →
+          @if (cargandoDocumentos) {
+            Subiendo documentos...
+          } @else {
+            Siguiente →
+          }
         </button>
       }
 
