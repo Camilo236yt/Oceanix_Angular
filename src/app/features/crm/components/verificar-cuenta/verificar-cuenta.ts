@@ -155,6 +155,10 @@ export class VerificarCuenta implements OnInit {
         this.guardarDatosPaso();
         this.pasoActual++; // Pasar al paso 2
         console.log('✅ Avanzando al paso:', this.pasoActual);
+
+        // Forzar detección de cambios para actualizar la vista
+        this.cdr.detectChanges();
+        console.log('✅ detectChanges() ejecutado después de cambiar paso');
       },
       error: (error) => {
         console.error('❌ Error al subir documentos:', error);
