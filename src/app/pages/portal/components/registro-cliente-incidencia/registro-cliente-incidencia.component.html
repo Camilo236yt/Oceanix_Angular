@@ -751,15 +751,6 @@
     </div>
   }
 
-  <!-- Notification Detail Modal -->
-  <app-notification-detail-modal
-    [notification]="selectedNotification"
-    [isOpen]="isNotificationDetailModalOpen"
-    (close)="closeNotificationDetailModal()"
-    (markAsRead)="onMarkNotificationAsRead($event)"
-    (delete)="onDeleteNotification($event)">
-  </app-notification-detail-modal>
-
   <!-- User Profile Modal -->
   <app-user-profile-modal
     [userProfile]="userProfile"

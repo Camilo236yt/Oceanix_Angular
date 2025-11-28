@@ -8,7 +8,6 @@ import { LoadingSpinner } from '../../../../shared/components/loading-spinner/lo
 import { NotificationToastComponent } from '../../../../shared/components/notification-toast/notification-toast.component';
 import { IncidenciaChatService, NewMessageNotification } from '../../../../shared/services/incidencia-chat.service';
 import { NotificationsDropdown } from '../../components/notifications-dropdown/notifications-dropdown';
-import { NotificationDetailModal } from '../../components/notification-detail-modal/notification-detail-modal';
 import { CrmNotificationsService } from '../../services/crm-notifications';
 import { CRMNotification } from '../../models/notification.model';
 import { Subscription } from 'rxjs';
@@ -26,7 +25,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown, NotificationDetailModal],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -46,8 +45,6 @@ export class CrmLayout implements OnInit, OnDestroy {
 
   // CRM Notifications (Dropdown)
   isNotificationDropdownOpen = false;
-  isNotificationDetailModalOpen = false;
-  selectedNotification: CRMNotification | null = null;
 
   // Servicios
   themeService = inject(ThemeService);
@@ -105,10 +102,22 @@ export class CrmLayout implements OnInit, OnDestroy {
       this.notifications.update(notifs => [...notifs, { id: Date.now(), ...notification }]);
     });
 
-    // Generar notificaciones de prueba al iniciar (solo si no hay notificaciones)
-    if (this.crmNotificationsService.notifications().length === 0) {
-      this.crmNotificationsService.generateTestNotifications();
-    }
+    // Cargar notificaciones del CRM desde el backend
+    this.loadCRMNotifications();
+  }
+
+  /**
+   * Cargar notificaciones del CRM desde el backend
+   */
+  private loadCRMNotifications(): void {
+    this.crmNotificationsService.getNotifications().subscribe({
+      next: (response) => {
+        console.log('Notificaciones cargadas:', response);
+      },
+      error: (error) => {
+        console.error('Error al cargar notificaciones:', error);
+      }
+    });
   }
 
   /**
@@ -327,9 +336,16 @@ export class CrmLayout implements OnInit, OnDestroy {
    * Manejar click en notificación CRM
    */
   onNotificationClick(notification: CRMNotification): void {
-    this.selectedNotification = notification;
-    this.isNotificationDetailModalOpen = true;
-    this.isNotificationDropdownOpen = false;
+    // Marcar como leída si no está leída
+    if (!notification.isRead) {
+      this.crmNotificationsService.markAsRead(notification.id);
+    }
+
+    // Navegar si tiene actionUrl
+    if (notification.actionUrl) {
+      this.router.navigateByUrl(notification.actionUrl);
+      this.isNotificationDropdownOpen = false;
+    }
   }
 
   /**
@@ -351,13 +367,5 @@ export class CrmLayout implements OnInit, OnDestroy {
    */
   onDeleteNotification(notificationId: string): void {
     this.crmNotificationsService.deleteNotification(notificationId);
-  }
-
-  /**
-   * Cerrar modal de detalle de notificación
-   */
-  closeNotificationDetailModal(): void {
-    this.isNotificationDetailModalOpen = false;
-    this.selectedNotification = null;
   }
 }

@@ -111,12 +111,11 @@ export class ClientNotificationsService {
         message: 'El equipo de soporte ha respondido a tu incidencia "Paquete dañado en transporte". Revisa el chat para ver los detalles.',
         priority: 'HIGH',
         isRead: false,
+        readAt: null,
         createdAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutos atrás
-        relatedEntityId: '1',
-        relatedEntityType: 'INCIDENT',
+        actionUrl: '/portal/incidencias/1',
         metadata: {
-          incidentName: 'Paquete dañado en transporte',
-          userName: 'Agente de Soporte'
+          ticketId: '1'
         }
       },
       {
@@ -126,13 +125,11 @@ export class ClientNotificationsService {
         message: 'Tu incidencia "Error en entrega" ha cambiado de estado.',
         priority: 'MEDIUM',
         isRead: false,
+        readAt: null,
         createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutos atrás
-        relatedEntityId: '2',
-        relatedEntityType: 'INCIDENT',
+        actionUrl: '/portal/incidencias/2',
         metadata: {
-          incidentName: 'Error en entrega',
-          previousStatus: 'Pendiente',
-          newStatus: 'En Progreso'
+          ticketId: '2'
         }
       },
       {
@@ -142,11 +139,11 @@ export class ClientNotificationsService {
         message: 'Necesitamos que proporciones evidencia adicional para tu incidencia "Pérdida de paquete". Por favor sube las imágenes solicitadas.',
         priority: 'URGENT',
         isRead: false,
+        readAt: null,
         createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hora atrás
-        relatedEntityId: '3',
-        relatedEntityType: 'INCIDENT',
+        actionUrl: '/portal/incidencias/3',
         metadata: {
-          incidentName: 'Pérdida de paquete'
+          ticketId: '3'
         }
       },
       {
@@ -156,11 +153,11 @@ export class ClientNotificationsService {
         message: 'Tu incidencia "Retraso en envío" ha sido resuelta exitosamente. Gracias por tu paciencia.',
         priority: 'LOW',
         isRead: true,
+        readAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 horas atrás
-        relatedEntityId: '4',
-        relatedEntityType: 'INCIDENT',
+        actionUrl: '/portal/incidencias/4',
         metadata: {
-          incidentName: 'Retraso en envío'
+          ticketId: '4'
         }
       },
       {
@@ -170,12 +167,11 @@ export class ClientNotificationsService {
         message: 'Hemos actualizado el estado de tu incidencia "Dirección incorrecta". Por favor revisa los comentarios del agente.',
         priority: 'MEDIUM',
         isRead: true,
+        readAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 día atrás
-        relatedEntityId: '5',
-        relatedEntityType: 'INCIDENT',
+        actionUrl: '/portal/incidencias/5',
         metadata: {
-          incidentName: 'Dirección incorrecta',
-          userName: 'Agente de Soporte'
+          ticketId: '5'
         }
       }
     ];

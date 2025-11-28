@@ -94,6 +94,7 @@ export class NotificationsDropdown {
       case 'HIGH':
         return 'bg-orange-50 text-orange-600 border border-orange-200';
       case 'MEDIUM':
+      case 'NORMAL':
         return 'bg-yellow-50 text-yellow-600 border border-yellow-200';
       case 'LOW':
         return 'bg-gray-50 text-gray-600 border border-gray-200';

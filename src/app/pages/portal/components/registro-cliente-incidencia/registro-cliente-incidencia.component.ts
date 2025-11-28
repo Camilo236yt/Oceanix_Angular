@@ -9,7 +9,6 @@ import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../../.
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import { SecureImagePipe } from '../../../../shared/pipes/secure-image.pipe';
 import { NotificationsDropdown } from '../../../../features/crm/components/notifications-dropdown/notifications-dropdown';
-import { NotificationDetailModal } from '../../../../features/crm/components/notification-detail-modal/notification-detail-modal';
 import { UserProfileModal, UserProfile } from '../user-profile-modal/user-profile-modal';
 import { ClientNotificationsService } from '../../services/client-notifications.service';
 import { CRMNotification } from '../../../../features/crm/models/notification.model';
@@ -19,7 +18,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal, UserProfileModal, LoadingSpinner],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, UserProfileModal, LoadingSpinner],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -62,8 +61,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   // Notificaciones
   isNotificationDropdownOpen = false;
-  isNotificationDetailModalOpen = false;
-  selectedNotification: CRMNotification | null = null;
   clientNotificationsService = inject(ClientNotificationsService);
 
   // User Profile Modal
@@ -724,8 +721,17 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
    * Manejar click en notificación
    */
   onNotificationClick(notification: CRMNotification): void {
-    this.selectedNotification = notification;
-    this.isNotificationDetailModalOpen = true;
+    // Marcar como leída si no está leída
+    if (!notification.isRead) {
+      this.clientNotificationsService.markAsRead(notification.id);
+    }
+
+    // Navegar si tiene actionUrl
+    if (notification.actionUrl) {
+      // TODO: Implementar navegación para el portal
+      console.log('Navegar a:', notification.actionUrl);
+    }
+
     this.isNotificationDropdownOpen = false;
   }
 
@@ -748,14 +754,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
    */
   onDeleteNotification(notificationId: string): void {
     this.clientNotificationsService.deleteNotification(notificationId);
-  }
-
-  /**
-   * Cerrar modal de detalle de notificación
-   */
-  closeNotificationDetailModal(): void {
-    this.isNotificationDetailModalOpen = false;
-    this.selectedNotification = null;
   }
 
   /**

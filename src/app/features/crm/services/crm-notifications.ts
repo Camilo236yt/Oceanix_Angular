@@ -1,11 +1,16 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { CRMNotification, NotificationStats } from '../models/notification.model';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap, map } from 'rxjs';
+import { CRMNotification, NotificationStats, NotificationsResponse, BackendNotification } from '../models/notification.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrmNotificationsService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/notifications`;
+
   // Signal para notificaciones
   private notificationsSignal = signal<CRMNotification[]>([]);
 
@@ -34,61 +39,116 @@ export class CrmNotificationsService {
   });
 
   constructor() {
-    // Cargar notificaciones desde localStorage si existen
-    this.loadNotificationsFromStorage();
+    // No cargar desde localStorage - ahora obtenemos del backend
   }
 
   /**
-   * Agregar una nueva notificación
+   * Obtener notificaciones desde el backend
    */
-  addNotification(notification: Omit<CRMNotification, 'id' | 'createdAt' | 'isRead'>): void {
-    const newNotification: CRMNotification = {
-      ...notification,
-      id: this.generateId(),
-      createdAt: new Date(),
-      isRead: false
+  getNotifications(page: number = 1, limit: number = 20): Observable<NotificationsResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    return this.http.get<NotificationsResponse>(`${this.apiUrl}`, { params }).pipe(
+      tap(response => {
+        // Mapear las notificaciones del backend al formato del frontend
+        const mappedNotifications = response.data.map(notification =>
+          this.mapBackendNotification(notification)
+        );
+        this.notificationsSignal.set(mappedNotifications);
+      })
+    );
+  }
+
+  /**
+   * Mapear notificación del backend al formato del frontend
+   */
+  private mapBackendNotification(backendNotification: BackendNotification): CRMNotification {
+    return {
+      id: backendNotification.id,
+      title: backendNotification.title,
+      message: backendNotification.message,
+      type: this.mapNotificationType(backendNotification.type),
+      priority: this.mapNotificationPriority(backendNotification.priority),
+      isRead: backendNotification.isRead,
+      readAt: backendNotification.readAt,
+      createdAt: new Date(backendNotification.createdAt),
+      actionUrl: backendNotification.actionUrl,
+      metadata: backendNotification.metadata
+    };
+  }
+
+  /**
+   * Mapear tipo de notificación del backend al frontend
+   */
+  private mapNotificationType(backendType: string): CRMNotification['type'] {
+    const typeMap: Record<string, CRMNotification['type']> = {
+      'TICKET_ASSIGNED': 'INCIDENT_ASSIGNED',
+      'TICKET_STATUS_CHANGED': 'INCIDENT_STATUS_CHANGED',
+      'TICKET_MESSAGE': 'INCIDENT_MESSAGE',
+      'TICKET_UPDATED': 'INCIDENT_UPDATED',
+      'TICKET_RESOLVED': 'INCIDENT_RESOLVED'
     };
 
-    this.notificationsSignal.update(notifs => [newNotification, ...notifs]);
-    this.saveNotificationsToStorage();
+    return typeMap[backendType] || 'INCIDENT_UPDATED';
   }
 
   /**
-   * Marcar notificación como leída
+   * Mapear prioridad del backend al frontend
+   */
+  private mapNotificationPriority(backendPriority: 'NORMAL' | 'HIGH' | 'URGENT'): CRMNotification['priority'] {
+    if (backendPriority === 'NORMAL') {
+      return 'MEDIUM';
+    }
+    return backendPriority;
+  }
+
+  /**
+   * Agregar una nueva notificación (para WebSocket/real-time)
+   */
+  addNotification(notification: CRMNotification): void {
+    this.notificationsSignal.update(notifs => [notification, ...notifs]);
+  }
+
+  /**
+   * Marcar notificación como leída (actualiza localmente y en backend)
    */
   markAsRead(notificationId: string): void {
+    // TODO: Implementar llamada al backend para marcar como leída
+    // Por ahora solo actualiza localmente
     this.notificationsSignal.update(notifs =>
-      notifs.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+      notifs.map(n => n.id === notificationId ? { ...n, isRead: true, readAt: new Date().toISOString() } : n)
     );
-    this.saveNotificationsToStorage();
   }
 
   /**
    * Marcar todas las notificaciones como leídas
    */
   markAllAsRead(): void {
+    // TODO: Implementar llamada al backend para marcar todas como leídas
+    const now = new Date().toISOString();
     this.notificationsSignal.update(notifs =>
-      notifs.map(n => ({ ...n, isRead: true }))
+      notifs.map(n => ({ ...n, isRead: true, readAt: now }))
     );
-    this.saveNotificationsToStorage();
   }
 
   /**
    * Eliminar una notificación
    */
   deleteNotification(notificationId: string): void {
+    // TODO: Implementar llamada al backend para eliminar
     this.notificationsSignal.update(notifs =>
       notifs.filter(n => n.id !== notificationId)
     );
-    this.saveNotificationsToStorage();
   }
 
   /**
    * Eliminar todas las notificaciones
    */
   clearAll(): void {
+    // TODO: Implementar llamada al backend para eliminar todas
     this.notificationsSignal.set([]);
-    this.saveNotificationsToStorage();
   }
 
   /**
@@ -96,138 +156,5 @@ export class CrmNotificationsService {
    */
   getNotificationById(id: string): CRMNotification | undefined {
     return this.notificationsSignal().find(n => n.id === id);
-  }
-
-  /**
-   * Generar notificaciones de prueba
-   */
-  generateTestNotifications(): void {
-    const testNotifications: Omit<CRMNotification, 'id' | 'createdAt' | 'isRead'>[] = [
-      {
-        type: 'INCIDENT_ASSIGNED',
-        title: 'Nueva incidencia asignada',
-        message: 'Se te ha asignado la incidencia "Falla en servidor principal". El cliente reporta problemas de conectividad intermitente desde esta mañana.',
-        priority: 'HIGH',
-        relatedEntityId: 'inc-001',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Falla en servidor principal',
-          assignedBy: 'Juan Pérez (Supervisor)',
-          incidentStatus: 'PENDING'
-        }
-      },
-      {
-        type: 'INCIDENT_STATUS_CHANGED',
-        title: 'Estado de incidencia actualizado',
-        message: 'La incidencia "Error en base de datos" cambió de estado de Pendiente a En Progreso. El equipo técnico ya está trabajando en la solución.',
-        priority: 'MEDIUM',
-        relatedEntityId: 'inc-002',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Error en base de datos',
-          previousStatus: 'Pendiente',
-          newStatus: 'En Progreso',
-          userName: 'María González'
-        }
-      },
-      {
-        type: 'INCIDENT_MESSAGE',
-        title: 'Nuevo mensaje en chat',
-        message: 'El cliente respondió en la incidencia "Problema con autenticación": "El problema persiste después del último reinicio. ¿Pueden revisar los logs del servidor?"',
-        priority: 'URGENT',
-        relatedEntityId: 'inc-003',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Problema con autenticación',
-          userName: 'Cliente - TechCorp S.A.',
-          incidentStatus: 'IN_PROGRESS'
-        }
-      },
-      {
-        type: 'INCIDENT_RESOLVED',
-        title: 'Incidencia resuelta',
-        message: 'La incidencia "Lentitud en el sistema" ha sido marcada como resuelta. Se optimizaron las consultas a la base de datos y se reinició el servicio de caché.',
-        priority: 'LOW',
-        relatedEntityId: 'inc-004',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Lentitud en el sistema',
-          userName: 'Carlos Rodríguez',
-          companyName: 'Innovatech Solutions'
-        }
-      },
-      {
-        type: 'INCIDENT_UPDATED',
-        title: 'Incidencia actualizada',
-        message: 'Se actualizó la información de la incidencia "Backup fallido". Se agregaron detalles adicionales sobre los logs de error y se cambió la prioridad a alta.',
-        priority: 'HIGH',
-        relatedEntityId: 'inc-005',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Backup fallido',
-          userName: 'Ana Martínez',
-          previousStatus: 'PENDING',
-          newStatus: 'IN_PROGRESS'
-        }
-      },
-      {
-        type: 'INCIDENT_ASSIGNED',
-        title: 'Incidencia reasignada',
-        message: 'La incidencia "Configuración de firewall" ha sido reasignada a tu equipo debido a la complejidad técnica del caso.',
-        priority: 'MEDIUM',
-        relatedEntityId: 'inc-006',
-        relatedEntityType: 'INCIDENT',
-        metadata: {
-          incidentName: 'Configuración de firewall',
-          assignedBy: 'Roberto Sánchez (Team Lead)',
-          companyName: 'SecureNet Corp'
-        }
-      }
-    ];
-
-    // Agregar notificaciones con un pequeño delay entre cada una
-    testNotifications.forEach((notif, index) => {
-      setTimeout(() => {
-        this.addNotification(notif);
-      }, index * 100);
-    });
-  }
-
-  /**
-   * Cargar notificaciones desde localStorage
-   */
-  private loadNotificationsFromStorage(): void {
-    try {
-      const stored = localStorage.getItem('crm_notifications');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Convertir las fechas de string a Date
-        const notifications = parsed.map((n: any) => ({
-          ...n,
-          createdAt: new Date(n.createdAt)
-        }));
-        this.notificationsSignal.set(notifications);
-      }
-    } catch (error) {
-      console.error('Error loading notifications from storage:', error);
-    }
-  }
-
-  /**
-   * Guardar notificaciones en localStorage
-   */
-  private saveNotificationsToStorage(): void {
-    try {
-      localStorage.setItem('crm_notifications', JSON.stringify(this.notificationsSignal()));
-    } catch (error) {
-      console.error('Error saving notifications to storage:', error);
-    }
-  }
-
-  /**
-   * Generar ID único para notificaciones
-   */
-  private generateId(): string {
-    return `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }

@@ -43,7 +43,10 @@
       "Bash(\"C:\\Users\\oseanix\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -m pip install python-docx)",
       "Bash(\"C:\\Users\\oseanix\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" generar_manual_usuario.py)",
       "Bash(git checkout:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(if exist \"c:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\components\\notification-detail-modal\" rmdir /s /q \"c:\\Users\\oseanix\\Documents\\Oseanix\\Oceanix_Angular\\src\\app\\features\\crm\\components\\notification-detail-modal\")",
+      "Bash(rm:*)",
+      "Bash(npx ng build:*)"
     ],
     "deny": [],
     "ask": []
