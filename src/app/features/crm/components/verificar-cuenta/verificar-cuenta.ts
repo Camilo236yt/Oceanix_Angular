@@ -86,7 +86,7 @@ export class VerificarCuenta implements OnInit {
       }
     }
   }
-
+ 
   /**
    * Sube los documentos al backend
    */
