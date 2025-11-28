@@ -63,15 +63,20 @@ export class AuthCallbackComponent implements OnInit {
         return;
       }
 
-      if (isLocal) {
-        // DESARROLLO LOCAL: Usar Bearer token en localStorage
-        if (token) {
-          console.log('🔧 Local environment: Saving token to localStorage for Bearer auth');
-          console.log('🔑 Token received (first 50 chars):', token.substring(0, 50) + '...');
-          localStorage.setItem('authToken', token);
-          console.log('✅ Token saved to localStorage');
-        } else {
-          console.error('❌ No token received in local environment');
+      // Guardar token en localStorage si viene en los query params
+      // Esto es necesario para que el guard authClienteGuard pueda verificar autenticación
+      if (token) {
+        console.log('🔑 Token received in query params (first 50 chars):', token.substring(0, 50) + '...');
+        console.log('💾 Saving token to localStorage for guard verification');
+        localStorage.setItem('authToken', token);
+        console.log('✅ Token saved to localStorage');
+      } else {
+        // En producción puede que no venga token en query params si solo usa cookie
+        console.warn('⚠️ No token in query params');
+
+        if (isLocal) {
+          // En local, el token es OBLIGATORIO
+          console.error('❌ No token received in local environment - this is an error');
           console.error('❌ Available query params:', Object.keys(params));
           this.errorMessage = 'No se recibió token de autenticación.';
           setTimeout(() => {
@@ -80,12 +85,9 @@ export class AuthCallbackComponent implements OnInit {
             });
           }, 2000);
           return;
-        }
-      } else {
-        // PRODUCCIÓN: Usar cookie httpOnly (ya seteada por el backend)
-        console.log('🔒 Production environment: Using httpOnly cookie');
-        if (token) {
-          console.log('🔑 Token also received in production (will use cookie instead)');
+        } else {
+          // En producción, intentar validar con cookie
+          console.log('🔒 Production: Will try to validate with httpOnly cookie');
         }
       }
 
@@ -98,6 +100,15 @@ export class AuthCallbackComponent implements OnInit {
         next: (response) => {
           console.log('✅ Token validation SUCCESS:', response);
 
+          // IMPORTANTE: En producción con httpOnly cookies, necesitamos marcar que está autenticado
+          // aunque no tengamos el token en localStorage
+          if (!token) {
+            console.log('🔒 No token in localStorage, setting temporary auth flag for guard');
+            // Crear un token temporal para que el guard lo detecte
+            // El verdadero token está en la cookie httpOnly
+            localStorage.setItem('authToken', 'cookie-based-auth');
+          }
+
           // Calcular tiempo transcurrido
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(0, MIN_LOADING_TIME - elapsedTime);
@@ -107,7 +118,13 @@ export class AuthCallbackComponent implements OnInit {
           // Esperar el tiempo restante antes de redirigir
           setTimeout(() => {
             console.log('🔄 Redirecting to /portal/registro-incidencia...');
-            this.router.navigate(['/portal/registro-incidencia']);
+            this.router.navigate(['/portal/registro-incidencia']).then(success => {
+              if (success) {
+                console.log('✅ Navigation successful');
+              } else {
+                console.error('❌ Navigation failed');
+              }
+            });
           }, remainingTime);
         },
         error: (error) => {
