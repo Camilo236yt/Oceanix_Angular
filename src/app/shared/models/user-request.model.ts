@@ -15,12 +15,13 @@ export interface CreateUserWithRolesRequest {
 }
 
 export interface UpdateUserRequest {
-  name: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
+  name?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
   password?: string;
   confirmPassword?: string;
+  isActive?: boolean;
 }
 
 export type IdentificationType = 'CC' | 'CE' | 'PASSPORT' | 'NIT';

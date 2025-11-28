@@ -347,6 +347,80 @@ export class Usuarios implements OnInit {
   }
 
   editUser(user: User) {
+    // Si el usuario está inactivo, mostrar modal para activarlo
+    if (user.estado === 'Inactivo') {
+      Swal.fire({
+        title: 'Usuario Inactivo',
+        text: `El usuario "${user.nombre}" está inactivo. ¿Deseas activarlo?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#9333ea',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, activar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Mostrar loading mientras se activa
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Activando usuario...',
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          // Log para debug
+          console.log('Activando usuario con ID:', user.id);
+          console.log('Payload:', { isActive: true });
+
+          // Activar el usuario usando PATCH
+          this.usuariosService.updateUser(user.id, { isActive: true }).subscribe({
+            next: (response) => {
+              console.log('Usuario activado exitosamente:', response);
+              this.loadUsuarios(); // Recargar la lista
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Usuario activado exitosamente',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.addEventListener('mouseenter', Swal.stopTimer);
+                  toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+              });
+            },
+            error: (error: any) => {
+              console.error('Error al activar usuario:', error);
+              console.error('Error completo:', JSON.stringify(error, null, 2));
+              console.error('User ID que falló:', user.id);
+
+              const errorMessage = error?.error?.error?.message || error?.error?.message || 'No se pudo activar el usuario. Por favor, intenta nuevamente.';
+
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error al activar el usuario',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+              });
+            }
+          });
+        }
+      });
+      return; // No continuar con la edición normal
+    }
+
+    // Usuario activo - proceder con edición normal
     // Show loading
     Swal.fire({
       toast: true,

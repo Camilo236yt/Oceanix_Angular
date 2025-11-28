@@ -165,8 +165,8 @@ export class AuthCallbackComponent implements OnInit {
                 backendMessage.toLowerCase().includes('verify your email') ||
                 backendMessage.toLowerCase().includes('contact with the admin')) {
               icon = 'warning';
-              title = 'Cuenta No Verificada';
-              message = 'Tu cuenta aún no está activa. Por favor, verifica tu correo electrónico o contacta al administrador para activar tu cuenta.';
+              title = 'Cuenta Desactivada';
+              message = 'Tu cuenta está desactivada. Contacta al administrador para activar tu cuenta.';
             }
             // Verificar si es un error de token expirado
             else if (error.status === 401 && (backendMessage.toLowerCase().includes('expired') ||
