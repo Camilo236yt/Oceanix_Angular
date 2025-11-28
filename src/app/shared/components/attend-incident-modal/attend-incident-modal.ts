@@ -197,16 +197,9 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   private preloadImages() {
     if (!this.incidentData?.images) return;
 
-    this.incidentData.images.forEach(image => {
-      if (!this.imageCache.has(image.url)) {
-        const img = new Image();
-        // image.url ya es una URL completa del backend
-        img.src = image.url;
-        img.onload = () => {
-          this.imageCache.set(image.url, img.src);
-        };
-      }
-    });
+    // NO precargar imágenes porque new Image() no puede enviar cookies
+    // El SecureImagePipe se encargará de cargarlas con HttpClient + withCredentials
+    console.log('ℹ️ [AttendModal] Skipping image preload - using SecureImagePipe instead');
   }
 
   private connectToChat(): void {
