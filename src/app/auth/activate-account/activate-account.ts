@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-activate-account',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSpinner],
   templateUrl: './activate-account.html',
   styleUrl: './activate-account.scss',
 })

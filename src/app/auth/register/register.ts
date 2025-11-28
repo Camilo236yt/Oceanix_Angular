@@ -18,6 +18,7 @@ import {
   markFormGroupTouched
 } from '../../utils/form-helpers';
 import { NumericOnlyDirective } from '../../utils/numeric-only.directive';
+import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
 import { RegisterEnterpriseRequest } from '../../interface/auth.interface';
 import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
@@ -345,18 +346,38 @@ export class Register implements OnInit {
 
           console.error('Detalles del error 500:', error.error);
 
-          alert(`❌ Error del Servidor (500)\n\n${errorMessage}\n\nEl backend tiene un problema procesando tu solicitud. Por favor contacta al administrador del sistema.`);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error del Servidor',
+            text: `${errorMessage}. El servidor tiene un problema procesando tu solicitud. Por favor, contacta al administrador del sistema.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#7c3aed',
+            footer: '<span style="color: #666;">Código de error: 500</span>'
+          });
           return;
         }
 
         if (error.status === 502 || error.status === 503 || error.status === 504) {
-          alert('❌ El servidor no está disponible temporalmente\n\nError 502 Bad Gateway - El servidor backend no responde.\n\nPor favor contacta al administrador del sistema o intenta nuevamente más tarde.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Servidor No Disponible',
+            text: 'El servidor no está disponible temporalmente. Por favor, intenta nuevamente más tarde o contacta al administrador del sistema.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#7c3aed',
+            footer: '<span style="color: #666;">Si el problema persiste, contacta a soporte técnico</span>'
+          });
           return;
         }
 
         // Manejar errores específicos
         if (error.status === 409) {
-          alert('El subdominio o email ya está en uso. Por favor, intenta con otros datos.');
+          Swal.fire({
+            icon: 'warning',
+            title: 'Datos en Uso',
+            text: 'El subdominio o email ya está registrado en nuestro sistema. Por favor, intenta con otros datos.',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#7c3aed'
+          });
         } else if (error.status === 400) {
           // Verificar si es error de subdominio duplicado
           const errorDetails = error.error?.error?.details;
@@ -364,16 +385,30 @@ export class Register implements OnInit {
           if (Array.isArray(errorDetails) && errorDetails.some(detail =>
             detail.toLowerCase().includes('subdomain') && detail.toLowerCase().includes('exist')
           )) {
-            alert('⚠️ El subdominio ingresado ya está en uso.\n\nPor favor, elige un subdominio diferente para tu empresa.');
-            // Volver al paso 1 para que pueda cambiar el subdominio
-            this.currentStep = 1;
-            setTimeout(() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 0);
+            Swal.fire({
+              icon: 'error',
+              title: 'Subdominio No Disponible',
+              text: 'El subdominio que ingresaste ya está en uso. Por favor, elige un subdominio diferente para tu empresa.',
+              confirmButtonText: 'Cambiar Subdominio',
+              confirmButtonColor: '#7c3aed',
+              allowOutsideClick: false
+            }).then(() => {
+              // Volver al paso 1 para que pueda cambiar el subdominio
+              this.currentStep = 1;
+              setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }, 0);
+            });
           } else if (Array.isArray(errorDetails) && errorDetails.some(detail =>
             detail.toLowerCase().includes('email') && detail.toLowerCase().includes('exist')
           )) {
-            alert('⚠️ El email ingresado ya está registrado.\n\nPor favor, usa un email diferente.');
+            Swal.fire({
+              icon: 'error',
+              title: 'Email Ya Registrado',
+              text: 'El email que ingresaste ya está registrado en nuestro sistema. Por favor, usa un email diferente o inicia sesión si ya tienes una cuenta.',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#7c3aed'
+            });
           } else {
             // Extraer el mensaje de error detallado
             let errorMsg = 'Datos inválidos';
@@ -381,15 +416,28 @@ export class Register implements OnInit {
             if (error.error?.error?.message) {
               errorMsg = error.error.error.message;
             } else if (Array.isArray(errorDetails)) {
-              errorMsg = errorDetails.join('\n');
+              errorMsg = errorDetails.join(', ');
             } else if (error.error?.message) {
               errorMsg = error.error.message;
             }
 
-            alert(`Error de validación:\n\n${errorMsg}\n\nPor favor verifica la información ingresada.`);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error de Validación',
+              text: `${errorMsg}. Por favor verifica la información ingresada.`,
+              confirmButtonText: 'Revisar Datos',
+              confirmButtonColor: '#7c3aed'
+            });
           }
         } else {
-          alert(`Error al registrar la empresa (Código: ${error.status || 'desconocido'}).\n\nPor favor intenta nuevamente o contacta al soporte técnico.`);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en el Registro',
+            text: `Ocurrió un error al registrar la empresa. Por favor, intenta nuevamente o contacta a soporte técnico si el problema persiste.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#7c3aed',
+            footer: `<span style="color: #666;">Código de error: ${error.status || 'desconocido'}</span>`
+          });
         }
       }
     });
