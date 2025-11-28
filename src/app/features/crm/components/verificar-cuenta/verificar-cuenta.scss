@@ -1271,6 +1271,10 @@ $gray-900: #212121;
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
   }
 
+  &.verified-icon {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  }
+
   @media (max-width: 768px) {
     width: 44px;
     height: 44px;

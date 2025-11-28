@@ -61,7 +61,8 @@ export class VerificarCuenta implements OnInit {
 
   ngOnInit(): void {
     console.log('🚀 Iniciando componente VerificarCuenta - pasoActual inicial:', this.pasoActual);
-    // Cargar estado del backend
+    // Cargar email primero, luego el estado del backend
+    this.cargarEmailUsuario();
     this.cargarEstadoBackend();
   }
 
@@ -70,6 +71,7 @@ export class VerificarCuenta implements OnInit {
   // ============================================
 
   cargandoDocumentos: boolean = false;
+  finalizandoVerificacion: boolean = false;
 
   siguientePaso(): void {
     if (this.pasoActual < this.totalPasos - 1) {
@@ -400,7 +402,7 @@ export class VerificarCuenta implements OnInit {
   errorCodigoEmail: string = '';
   errorCodigoTelefono: string = '';
 
-  async enviarCodigoEmail(): Promise<void> {
+  enviarCodigoEmail(): void {
     const email = this.datosVerificacion.paso3.email.trim();
     this.errorEmail = '';
 
@@ -417,13 +419,39 @@ export class VerificarCuenta implements OnInit {
       return;
     }
 
-    // Mostrar campo de código inmediatamente
-    this.mostrarCampoCodigoEmail = true;
-    console.log('Código enviado a:', email);
+    // Activar estado de carga
+    this.enviandoCodigoEmail = true;
 
-    // Simular envío de código (aquí iría la llamada al backend)
-    // await this.verificacionService.enviarCodigoEmail(email);
+    // Enviar código al backend
+    this.verificacionService.sendEmailVerification().subscribe({
+      next: (response: any) => {
+        console.log('Código enviado exitosamente:', response);
+        this.enviandoCodigoEmail = false;
+
+        // Extraer datos de la respuesta (puede venir envuelto en { success, data, statusCode })
+        const data = response.data || response;
+
+        // Mostrar campo de código
+        this.mostrarCampoCodigoEmail = true;
+        console.log('✅ Código enviado a:', data.emailSentTo);
+      },
+      error: (error) => {
+        console.error('Error al enviar código:', error);
+        this.enviandoCodigoEmail = false;
+
+        // Mostrar error con SweetAlert
+        const errorMessage = error.error?.message || error.message || 'Ocurrió un error al enviar el código de verificación';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al enviar código',
+          text: errorMessage,
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
   }
+
+  verificandoCodigoEmail: boolean = false;
 
   verificarCodigoEmail(): void {
     const codigoIngresado = this.datosVerificacion.paso3.codigoEmail?.trim();
@@ -447,11 +475,42 @@ export class VerificarCuenta implements OnInit {
       return;
     }
 
-    // Simular verificación (aquí iría la llamada al backend)
-    // Por ahora, cualquier código de 6 dígitos es válido
-    this.datosVerificacion.paso3.emailVerificado = true;
-    this.mostrarCampoCodigoEmail = false;
-    console.log('¡Correo verificado exitosamente!');
+    // Activar estado de carga
+    this.verificandoCodigoEmail = true;
+
+    // Verificar código en el backend
+    this.verificacionService.verifyEmailCode(codigoIngresado).subscribe({
+      next: (response: any) => {
+        console.log('Código verificado exitosamente:', response);
+        this.verificandoCodigoEmail = false;
+
+        // Extraer datos de la respuesta (puede venir envuelto en { success, data, statusCode })
+        const data = response.data || response;
+
+        if (data.verified) {
+          // Marcar email como verificado
+          this.datosVerificacion.paso3.emailVerificado = true;
+          this.mostrarCampoCodigoEmail = false;
+          console.log('✅ ¡Correo verificado exitosamente!');
+        } else {
+          // Si el backend dice que no está verificado
+          this.errorCodigoEmail = 'El código ingresado no es válido';
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar código:', error);
+        this.verificandoCodigoEmail = false;
+
+        // Mostrar error con SweetAlert
+        const errorMessage = error.error?.message || error.message || 'El código ingresado no es válido';
+        Swal.fire({
+          icon: 'error',
+          title: 'Código incorrecto',
+          text: errorMessage,
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
   }
 
   async enviarCodigoTelefono(): Promise<void> {
@@ -538,10 +597,20 @@ export class VerificarCuenta implements OnInit {
         // o directamente los campos
         const status: EnterpriseConfigStatus = response.data || response;
 
+        // Guardar el email actual antes de cargar desde localStorage
+        const emailDelBackend = this.datosVerificacion.paso3.email;
+        console.log('💾 Email antes de cargar localStorage:', emailDelBackend);
+
         // IMPORTANTE: Primero cargar datos guardados localmente (para tener los archivos seleccionados)
         // DESPUÉS mapear el estado del backend (para determinar el paso correcto)
         this.cargarDatosGuardados();
         this.mapearEstadoAComponente(status);
+
+        // Restaurar el email del backend después de cargar desde localStorage
+        if (emailDelBackend) {
+          this.datosVerificacion.paso3.email = emailDelBackend;
+          console.log('💾 Email restaurado del backend:', this.datosVerificacion.paso3.email);
+        }
 
         // Indicar que ya terminó de cargar el estado inicial
         this.cargandoEstadoInicial = false;
@@ -555,6 +624,52 @@ export class VerificarCuenta implements OnInit {
         // Indicar que ya terminó de cargar (aunque haya fallado)
         this.cargandoEstadoInicial = false;
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Carga el email del usuario registrado
+   */
+  cargarEmailUsuario(): void {
+    this.verificacionService.getCurrentEmail().subscribe({
+      next: (response: any) => {
+        console.log('📧 Respuesta completa del backend:', response);
+
+        // El backend puede devolver la respuesta en formato { success, data, statusCode }
+        // o directamente los campos
+        const emailData = response.data || response;
+        console.log('📧 Datos extraídos:', emailData);
+
+        if (emailData.hasEmail && emailData.email) {
+          // Asignar el email al modelo
+          this.datosVerificacion.paso3.email = emailData.email;
+          console.log('✅ Email asignado a datosVerificacion.paso3.email:', this.datosVerificacion.paso3.email);
+          console.log('✅ Valor actual de datosVerificacion.paso3:', this.datosVerificacion.paso3);
+
+          // Forzar detección de cambios para que se actualice el input
+          this.cdr.detectChanges();
+
+          console.log('✅ detectChanges() ejecutado');
+        } else {
+          // Si no tiene email, mostrar error
+          console.error('❌ El usuario no tiene email registrado');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontró un email registrado para este usuario',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar email del usuario:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al cargar email',
+          text: error.error?.message || 'No se pudo cargar el email del usuario',
+          confirmButtonText: 'Aceptar'
+        });
       }
     });
   }
@@ -611,7 +726,15 @@ export class VerificarCuenta implements OnInit {
     const datosGuardados = localStorage.getItem('verificacion-cuenta');
     if (datosGuardados) {
       try {
-        this.datosVerificacion = JSON.parse(datosGuardados);
+        const datosParseados = JSON.parse(datosGuardados);
+        // No sobrescribir el email que viene del backend
+        const emailActual = this.datosVerificacion.paso3.email;
+        this.datosVerificacion = datosParseados;
+        // Restaurar el email del backend si existe
+        if (emailActual) {
+          this.datosVerificacion.paso3.email = emailActual;
+          console.log('🔄 Email restaurado después de cargar localStorage:', emailActual);
+        }
       } catch (error) {
         console.error('Error al cargar datos guardados:', error);
       }
@@ -624,12 +747,43 @@ export class VerificarCuenta implements OnInit {
 
   finalizar(): void {
     if (this.validarPasoActual()) {
-      this.guardarDatosPaso();
-      console.log('Verificación finalizada:', this.datosVerificacion);
-      alert('¡Verificación completada! Los datos han sido guardados.');
-      // Aquí iría la llamada al backend
-      // this.verificacionService.enviarVerificacion(this.datosVerificacion).subscribe(...)
+      // Enviar dominios de email al backend
+      this.actualizarDominiosEmail();
     }
+  }
+
+  /**
+   * Actualiza los dominios de email corporativo en el backend
+   */
+  actualizarDominiosEmail(): void {
+    const dominios = this.datosVerificacion.paso3.dominios || [];
+    const requireCorporateEmail = false; // Siempre false según requerimiento
+
+    this.finalizandoVerificacion = true;
+
+    this.verificacionService.updateEmailDomains(dominios, requireCorporateEmail).subscribe({
+      next: (response) => {
+        console.log('Dominios de email actualizados exitosamente:', response);
+        this.finalizandoVerificacion = false;
+        this.guardarDatosPaso();
+
+        // TODO: Aquí se definirá qué hacer después de finalizar exitosamente
+        console.log('✅ Verificación completada exitosamente');
+      },
+      error: (error) => {
+        console.error('Error al actualizar dominios de email:', error);
+        this.finalizandoVerificacion = false;
+
+        // Mostrar error en SweetAlert
+        const errorMessage = error.error?.message || error.message || 'Ocurrió un error al actualizar los dominios de email';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al finalizar verificación',
+          text: errorMessage,
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
   }
 
   // ============================================

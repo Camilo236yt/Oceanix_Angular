@@ -27,6 +27,42 @@ export interface DocumentUploadResponse {
 }
 
 /**
+ * Interfaz para la respuesta de actualización de dominios de email
+ */
+export interface EmailDomainsResponse {
+  message: string;
+  config: {
+    id: string;
+    emailDomains: string[];
+    requireCorporateEmail: boolean;
+  };
+}
+
+/**
+ * Interfaz para la respuesta del email actual del usuario
+ */
+export interface CurrentEmailResponse {
+  email: string;
+  hasEmail: boolean;
+}
+
+/**
+ * Interfaz para la respuesta de envío de código de verificación
+ */
+export interface SendEmailVerificationResponse {
+  message: string;
+  emailSentTo: string;
+}
+
+/**
+ * Interfaz para la respuesta de verificación de código de email
+ */
+export interface VerifyEmailCodeResponse {
+  message: string;
+  verified: boolean;
+}
+
+/**
  * Servicio para manejar las operaciones de verificación de cuenta empresarial
  */
 @Injectable({
@@ -73,6 +109,74 @@ export class VerificacionService {
     return this.http.post<DocumentUploadResponse>(
       `${this.API_URL}/enterprise-config/documents/upload`,
       formData
+    );
+  }
+
+  /**
+   * Actualiza los dominios de email corporativo
+   * @param emailDomains Array de dominios permitidos (opcional, puede ser vacío)
+   * @param requireCorporateEmail Si requiere email corporativo
+   * @returns Observable con la respuesta de actualización
+   */
+  updateEmailDomains(emailDomains: string[], requireCorporateEmail: boolean = false): Observable<EmailDomainsResponse> {
+    const body = {
+      emailDomains,
+      requireCorporateEmail
+    };
+
+    // El interceptor ya agrega automáticamente:
+    // - X-Subdomain header
+    // - Authorization header
+    // - Content-Type: application/json
+    return this.http.patch<EmailDomainsResponse>(
+      `${this.API_URL}/enterprise-config/email-domains`,
+      body
+    );
+  }
+
+  /**
+   * Obtiene el email actual del usuario registrado
+   * @returns Observable con el email del usuario
+   */
+  getCurrentEmail(): Observable<CurrentEmailResponse> {
+    // El interceptor ya agrega automáticamente:
+    // - X-Subdomain header
+    // - Authorization header
+    return this.http.get<CurrentEmailResponse>(
+      `${this.API_URL}/enterprise-config/current-email`
+    );
+  }
+
+  /**
+   * Envía el código de verificación al email del usuario
+   * @returns Observable con la respuesta del envío
+   */
+  sendEmailVerification(): Observable<SendEmailVerificationResponse> {
+    // El interceptor ya agrega automáticamente:
+    // - X-Subdomain header
+    // - Authorization header
+    // - Content-Type: application/json
+    return this.http.post<SendEmailVerificationResponse>(
+      `${this.API_URL}/enterprise-config/send-email-verification`,
+      {} // Body vacío
+    );
+  }
+
+  /**
+   * Verifica el código de email ingresado por el usuario
+   * @param code Código de 6 dígitos enviado al email
+   * @returns Observable con la respuesta de verificación
+   */
+  verifyEmailCode(code: string): Observable<VerifyEmailCodeResponse> {
+    const body = { code };
+
+    // El interceptor ya agrega automáticamente:
+    // - X-Subdomain header
+    // - Authorization header
+    // - Content-Type: application/json
+    return this.http.post<VerifyEmailCodeResponse>(
+      `${this.API_URL}/enterprise-config/verify-email-code`,
+      body
     );
   }
 }

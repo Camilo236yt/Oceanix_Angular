@@ -181,10 +181,17 @@
           <!-- Verificación de Email -->
           <div class="verificacion-card">
             <div class="verificacion-header">
-              <div class="icon-wrapper email-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+              <div class="icon-wrapper" [class.email-icon]="!datosVerificacion.paso3.emailVerificado" [class.verified-icon]="datosVerificacion.paso3.emailVerificado">
+                @if (!datosVerificacion.paso3.emailVerificado) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                }
+                @if (datosVerificacion.paso3.emailVerificado) {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                }
               </div>
               <div class="verificacion-info">
                 <h3 class="verificacion-titulo">Correo Electrónico</h3>
@@ -204,22 +211,17 @@
               <div class="input-with-button" [class.error]="errorEmail">
                 <input
                   type="email"
-                  [(ngModel)]="datosVerificacion.paso3.email"
-                  [disabled]="datosVerificacion.paso3.emailVerificado"
+                  [value]="datosVerificacion.paso3.email || 'Cargando email...'"
+                  readonly
                   class="form-input-verificacion"
                   [class.error]="errorEmail"
-                  placeholder="correo@ejemplo.com">
+                  style="background-color: #f5f5f5; cursor: not-allowed;">
                 <button
                   type="button"
                   (click)="enviarCodigoEmail()"
                   [disabled]="enviandoCodigoEmail || datosVerificacion.paso3.emailVerificado"
                   class="btn-enviar-codigo">
-                  @if (!enviandoCodigoEmail) {
-                    <span>Enviar código</span>
-                  }
-                  @if (enviandoCodigoEmail) {
-                    <span>Enviando...</span>
-                  }
+                  <span>Enviar código</span>
                 </button>
               </div>
 
@@ -251,11 +253,17 @@
                     <button
                       type="button"
                       (click)="verificarCodigoEmail()"
+                      [disabled]="verificandoCodigoEmail"
                       class="btn-verificar-codigo">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Verificar
+                      @if (!verificandoCodigoEmail) {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Verificar
+                      }
+                      @if (verificandoCodigoEmail) {
+                        <span>Verificando...</span>
+                      }
                     </button>
                   </div>
                   @if (errorCodigoEmail) {
@@ -293,17 +301,17 @@
 
       @if (pasoActual < totalPasos - 1) {
         <button (click)="siguientePaso()" class="btn-primary" [disabled]="cargandoDocumentos">
-          @if (cargandoDocumentos) {
-            Subiendo documentos...
-          } @else {
-            Siguiente →
-          }
+          Siguiente →
         </button>
       }
 
       @if (pasoActual === totalPasos - 1) {
-        <button (click)="finalizar()" class="btn-success">
-          Finalizar ✓
+        <button (click)="finalizar()" class="btn-success" [disabled]="finalizandoVerificacion">
+          @if (finalizandoVerificacion) {
+            Finalizando...
+          } @else {
+            Finalizar ✓
+          }
         </button>
       }
     </div>
