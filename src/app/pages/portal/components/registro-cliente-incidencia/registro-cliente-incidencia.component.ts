@@ -326,24 +326,29 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   verDetalles(incidencia: Incidencia): void {
-    // Hacer petición para obtener datos completos con imágenes
+    // Abrir modal inmediatamente con los datos básicos
+    this.selectedIncidencia = incidencia;
+    this.isModalOpen.set(true);
+    document.body.style.overflow = 'hidden';
+
+    // Inicializar array vacío de mensajes para mostrar UI inmediatamente
+    this.messages = [];
+    this.isLoadingMessages = false; // Inicializar como false para mostrar "No hay mensajes"
+    this.cdr.detectChanges(); // Forzar detección de cambios
+
+    // Cargar mensajes y conectar chat inmediatamente en paralelo
+    this.loadMessages();
+    this.connectToChat();
+
+    // Cargar datos completos en segundo plano
     this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
       next: (incidenciaCompleta) => {
         this.selectedIncidencia = incidenciaCompleta;
-        this.isModalOpen.set(true);
-        document.body.style.overflow = 'hidden';
-        this.loadMessages();
-        this.connectToChat();
         this.cdr.detectChanges();
       },
       error: () => {
-        // Si falla, usar los datos que ya tenemos
-        this.selectedIncidencia = incidencia;
-        this.isModalOpen.set(true);
-        document.body.style.overflow = 'hidden';
-        this.loadMessages();
-        this.connectToChat();
-        this.cdr.detectChanges();
+        // Si falla, mantener los datos básicos que ya tenemos
+        console.warn('No se pudieron cargar los detalles completos de la incidencia');
       }
     });
   }
@@ -389,31 +394,31 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     if (!this.selectedIncidencia) return;
 
     this.isLoadingMessages = true;
-    console.log('Cargando mensajes para incidencia:', this.selectedIncidencia.id);
 
-    // Timeout de seguridad para evitar que se quede cargando indefinidamente
+    // Timeout de seguridad reducido a 3 segundos
     const loadingTimeout = setTimeout(() => {
       if (this.isLoadingMessages) {
         console.warn('Timeout: Los mensajes tardaron demasiado en cargar');
         this.isLoadingMessages = false;
+        this.messages = [];
         this.cdr.detectChanges();
       }
-    }, 10000); // 10 segundos
+    }, 3000); // 3 segundos
 
     this.incidenciasService.getMessages(this.selectedIncidencia.id.toString()).subscribe({
       next: (messages) => {
         clearTimeout(loadingTimeout);
-        console.log('Mensajes cargados:', messages);
         this.messages = messages;
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
-        this.scrollToBottom();
+        // Usar requestAnimationFrame para scroll más suave
+        requestAnimationFrame(() => this.scrollToBottom());
       },
       error: (error) => {
         clearTimeout(loadingTimeout);
         console.error('Error al cargar mensajes:', error);
         this.isLoadingMessages = false;
-        this.messages = []; // Asegurar que se muestra el estado vacío
+        this.messages = [];
         this.cdr.detectChanges();
       }
     });
@@ -621,7 +626,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       confirmButtonColor: '#dc2626',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Sí, cancelar',
-      cancelButtonText: 'No, mantener'
+      cancelButtonText: 'No, mantener',
+      customClass: {
+        container: 'swal-high-zindex'
+      }
     }).then((result) => {
       if (result.isConfirmed && this.selectedIncidencia) {
         const incidenciaId = this.selectedIncidencia.id;
@@ -648,7 +656,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
                 text: 'La incidencia ha sido eliminada correctamente.',
                 confirmButtonColor: '#7c3aed',
                 timer: 3000,
-                timerProgressBar: true
+                timerProgressBar: true,
+                customClass: {
+                  container: 'swal-high-zindex'
+                }
               });
             }, 400);
           },
@@ -657,7 +668,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
               icon: 'error',
               title: 'Error',
               text: error.error?.message || 'No se pudo cancelar la incidencia. Por favor intenta nuevamente.',
-              confirmButtonColor: '#7c3aed'
+              confirmButtonColor: '#7c3aed',
+              customClass: {
+                container: 'swal-high-zindex'
+              }
             });
           }
         });

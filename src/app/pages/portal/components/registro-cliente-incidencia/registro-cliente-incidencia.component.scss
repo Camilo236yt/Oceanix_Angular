@@ -177,3 +177,8 @@ input[type="file"] {
     transform: scale(1);
   }
 }
+
+// SweetAlert2 con z-index alto para aparecer sobre el modal de detalles
+::ng-deep .swal-high-zindex {
+  z-index: 99999 !important;
+}
