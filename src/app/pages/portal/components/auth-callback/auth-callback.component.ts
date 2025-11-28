@@ -101,12 +101,13 @@ export class AuthCallbackComponent implements OnInit {
           console.log('✅ Token validation SUCCESS:', response);
 
           // IMPORTANTE: En producción con httpOnly cookies, necesitamos marcar que está autenticado
-          // aunque no tengamos el token en localStorage
-          if (!token) {
-            console.log('🔒 No token in localStorage, setting temporary auth flag for guard');
-            // Crear un token temporal para que el guard lo detecte
-            // El verdadero token está en la cookie httpOnly
-            localStorage.setItem('authToken', 'cookie-based-auth');
+          // aunque no tengamos el token real en localStorage
+          if (!token && !isLocal) {
+            console.log('🔒 Production: No token in query params, setting auth flag for guard');
+            console.log('🔒 Real token is in httpOnly cookie, setting placeholder in localStorage');
+            // Crear un marcador para que el guard detecte autenticación
+            // El verdadero token está en la cookie httpOnly y será usado por el interceptor
+            localStorage.setItem('authToken', 'authenticated-via-cookie');
           }
 
           // Calcular tiempo transcurrido

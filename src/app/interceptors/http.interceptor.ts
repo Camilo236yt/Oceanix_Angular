@@ -38,8 +38,12 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   const isLocalhost = window.location.hostname === 'localhost';
 
   // DESARROLLO LOCAL: Usar Bearer token desde localStorage
-  if (isLocalhost && token) {
+  // Nota: No usar tokens placeholder como 'authenticated-via-cookie'
+  if (isLocalhost && token && token !== 'authenticated-via-cookie') {
     headers['Authorization'] = `Bearer ${token}`;
+    console.log('🔑 [Interceptor] Using Bearer token from localStorage (local dev)');
+  } else if (!isLocalhost) {
+    console.log('🔒 [Interceptor] Using httpOnly cookie for auth (production)');
   }
 
   // Clonar la petición con headers y configuración apropiada
