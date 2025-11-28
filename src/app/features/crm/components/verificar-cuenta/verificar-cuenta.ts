@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DatosVerificacion, Paso1Documentos, Paso2Marca, Paso3EmailVerificacion, TipoDocumento } from './verificar-cuenta.models';
+import { VerificacionService, EnterpriseConfigStatus } from '../../services/verificacion.service';
 
 @Component({
   selector: 'app-verificar-cuenta',
@@ -48,11 +49,11 @@ export class VerificarCuenta implements OnInit {
     { label: 'Verificación', icon: 'phone' }
   ];
 
-  constructor() {}
+  constructor(private verificacionService: VerificacionService) {}
 
   ngOnInit(): void {
-    // Cargar datos guardados si existen
-    this.cargarDatosGuardados();
+    // Cargar estado del backend
+    this.cargarEstadoBackend();
   }
 
   // ============================================
@@ -468,6 +469,58 @@ export class VerificarCuenta implements OnInit {
     // Guardar en localStorage (simular guardado automático)
     localStorage.setItem('verificacion-cuenta', JSON.stringify(this.datosVerificacion));
     console.log('Datos guardados:', this.datosVerificacion);
+  }
+
+  /**
+   * Carga el estado de verificación desde el backend
+   * Esto permite recuperar el progreso del usuario si salió y volvió a entrar
+   */
+  cargarEstadoBackend(): void {
+    this.verificacionService.getEnterpriseConfigStatus().subscribe({
+      next: (status: EnterpriseConfigStatus) => {
+        console.log('Estado de configuración empresarial:', status);
+        this.mapearEstadoAComponente(status);
+        // Cargar también datos guardados localmente para complementar
+        this.cargarDatosGuardados();
+      },
+      error: (error) => {
+        console.error('Error al cargar estado del backend:', error);
+        // Si falla, cargar datos guardados localmente
+        this.cargarDatosGuardados();
+      }
+    });
+  }
+
+  /**
+   * Mapea la respuesta del backend al estado del componente
+   * Permite determinar en qué paso quedó el usuario
+   */
+  mapearEstadoAComponente(status: EnterpriseConfigStatus): void {
+    // Determinar el paso actual basado en qué ya completó el usuario
+
+    // Paso 0: Documentos (índice 0)
+    // Paso 1: Verificación (índice 1)
+
+    // Si NO ha subido documentos, debe empezar en el Paso 0 (Documentos)
+    if (!status.documentsUploaded) {
+      this.pasoActual = 0;
+      console.log('Paso actual: 0 - Documentos pendientes');
+      return;
+    }
+
+    // Si YA subió documentos, debe continuar con el Paso 1 (Verificación)
+    if (status.documentsUploaded && !status.emailDomainsConfigured) {
+      this.pasoActual = 1;
+      console.log('Paso actual: 1 - Documentos completados, continuar con verificación');
+      return;
+    }
+
+    // Si YA completó todo (documentos Y verificación de email)
+    if (status.documentsUploaded && status.emailDomainsConfigured) {
+      this.pasoActual = 1; // Mantenerse en el último paso
+      console.log('Paso actual: 1 - Todo completado');
+      return;
+    }
   }
 
   cargarDatosGuardados(): void {
