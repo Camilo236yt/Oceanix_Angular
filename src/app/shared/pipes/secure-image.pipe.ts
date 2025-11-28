@@ -35,18 +35,22 @@ export class SecureImagePipe implements PipeTransform {
       }
     }
 
+    console.log('🖼️ [SecureImagePipe] Loading image:', { original: url, request: requestUrl, isClient });
+
     // Hacer la petición con credenciales para que envíe cookies o JWT
     return this.http.get(requestUrl, {
       responseType: 'blob',
       withCredentials: true // Importante para cookies
     }).pipe(
       map(blob => {
+        console.log('✅ [SecureImagePipe] Image loaded successfully:', requestUrl);
         const objectUrl = URL.createObjectURL(blob);
         return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
       }),
       startWith(null as any), // Emitir null primero para mostrar skeleton
-      catchError(() => {
+      catchError((error) => {
         // En caso de error, retornar una imagen placeholder
+        console.error('❌ [SecureImagePipe] Error loading image:', requestUrl, error);
         return of('');
       })
     );
