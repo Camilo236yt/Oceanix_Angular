@@ -19,7 +19,11 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   const isLocalhost = window.location.hostname === 'localhost';
 
   // Obtener token de autenticación desde localStorage
-  const token = localStorage.getItem('authToken');
+  // Intentar varias keys comunes
+  const token = localStorage.getItem('authToken')
+    || localStorage.getItem('auth_token')
+    || localStorage.getItem('token')
+    || localStorage.getItem('access_token');
 
   console.log('🔍 [Interceptor] Debug:', {
     url: req.url,
