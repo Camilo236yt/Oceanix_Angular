@@ -15,11 +15,15 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   // Obtener subdomain (en localhost lee de localStorage, en producción de la URL)
   const subdomain = subdomainService.getSubdomain();
 
+  // Detectar si estamos en localhost (desarrollo local) o producción/dev
+  const isLocalhost = window.location.hostname === 'localhost';
+
   // Obtener token de autenticación desde localStorage
   const token = localStorage.getItem('authToken');
 
   console.log('🔍 [Interceptor] Debug:', {
     url: req.url,
+    isLocalhost,
     hasToken: !!token,
     tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
     isTokenValid: token && token.startsWith('eyJ')
@@ -41,20 +45,17 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     headers['X-Subdomain'] = subdomain;
   }
 
-  // Detectar si estamos en localhost (desarrollo) o producción
-  const isLocalhost = window.location.hostname === 'localhost';
-
-  // Usar Bearer token desde localStorage si existe y es válido
-  // JWT tokens siempre empiezan con 'eyJ'
+  // SOLO en localhost: Usar Bearer token desde localStorage
+  // En producción/dev: Usar cookies httpOnly (withCredentials: true)
   const isTokenValid = token && token.startsWith('eyJ');
 
-  if (isTokenValid) {
+  if (isLocalhost && isTokenValid) {
     headers['Authorization'] = `Bearer ${token}`;
-    console.log('🔑 [Interceptor] Using Bearer token from localStorage');
-  } else if (!isLocalhost) {
-    console.log('🔒 [Interceptor] Using httpOnly cookie for auth (production) - NO TOKEN FOUND');
+    console.log('🔑 [Interceptor] LOCALHOST: Using Bearer token from localStorage');
+  } else if (isLocalhost && !isTokenValid) {
+    console.warn('⚠️ [Interceptor] LOCALHOST: NO VALID TOKEN - Request may fail if auth required');
   } else {
-    console.warn('⚠️ [Interceptor] NO VALID TOKEN - Request will fail if auth required');
+    console.log('🔒 [Interceptor] PRODUCTION/DEV: Using httpOnly cookies (withCredentials: true)');
   }
 
   // Clonar la petición con headers y configuración apropiada
