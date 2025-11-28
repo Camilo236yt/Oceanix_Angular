@@ -59,7 +59,7 @@ export class AuthService {
   private permissionsSubject = new BehaviorSubject<string[]>(this.getStoredPermissions());
   public permissions$ = this.permissionsSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Register a new enterprise with admin user
@@ -551,10 +551,10 @@ export class AuthService {
   redirectToSubdomain(subdomain: string): void {
     const protocol = window.location.protocol; // http: or https:
     const domain = environment.appDomain; // oceanix.space
-    const newUrl = `${protocol}//${subdomain}.${domain}/crm/dashboard`;
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
     // En localhost, guardar subdomain para desarrollo y navegar al dashboard
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    if (isLocalhost) {
       // Guardar subdomain SOLO para modo desarrollo (usado por HTTP Interceptor)
       localStorage.setItem('subdomain', subdomain);
       localStorage.setItem('dev_subdomain', subdomain);
@@ -564,15 +564,17 @@ export class AuthService {
       return;
     }
 
-    // Si la redirección de subdominio está deshabilitada (desarrollo)
+    // Si la redirección de subdominio está deshabilitada (solo en desarrollo)
     if (!environment.enableSubdomainRedirect) {
-      // En desarrollo, navegar al dashboard sin cambiar de dominio
+      // En desarrollo sin subdomains, navegar al dashboard sin cambiar de dominio
+      // NO guardamos en localStorage en producción
       window.location.href = '/crm/dashboard';
       return;
     }
 
     // En producción, redirigir al subdominio real
-    // NO guardamos en localStorage porque el subdomain ya está en la URL
+    // El subdomain está en la URL, NO en localStorage
+    const newUrl = `${protocol}//${subdomain}.${domain}/crm/dashboard`;
     window.location.href = newUrl;
   }
 }
