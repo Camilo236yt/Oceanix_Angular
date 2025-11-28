@@ -104,10 +104,11 @@ export class AuthCallbackComponent implements OnInit {
           // aunque no tengamos el token real en localStorage
           if (!token && !isLocal) {
             console.log('🔒 Production: No token in query params, setting auth flag for guard');
-            console.log('🔒 Real token is in httpOnly cookie, setting placeholder in localStorage');
-            // Crear un marcador para que el guard detecte autenticación
-            // El verdadero token está en la cookie httpOnly y será usado por el interceptor
-            localStorage.setItem('authToken', 'authenticated-via-cookie');
+            console.log('🔒 Real token is in httpOnly cookie, setting session marker');
+            // Guardar timestamp de la sesión como marcador para el guard
+            // El verdadero token JWT está en la cookie httpOnly (más seguro)
+            const sessionTimestamp = new Date().toISOString();
+            localStorage.setItem('authToken', sessionTimestamp);
           }
 
           // Calcular tiempo transcurrido

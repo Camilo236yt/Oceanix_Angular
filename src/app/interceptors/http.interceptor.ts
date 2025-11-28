@@ -38,8 +38,11 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   const isLocalhost = window.location.hostname === 'localhost';
 
   // DESARROLLO LOCAL: Usar Bearer token desde localStorage
-  // Nota: No usar tokens placeholder como 'authenticated-via-cookie'
-  if (isLocalhost && token && token !== 'authenticated-via-cookie') {
+  // En producción el token en localStorage es solo un timestamp de sesión
+  // El token JWT real está en la cookie httpOnly
+  const isTokenValid = token && token.startsWith('eyJ'); // JWT tokens siempre empiezan con 'eyJ'
+
+  if (isLocalhost && isTokenValid) {
     headers['Authorization'] = `Bearer ${token}`;
     console.log('🔑 [Interceptor] Using Bearer token from localStorage (local dev)');
   } else if (!isLocalhost) {
