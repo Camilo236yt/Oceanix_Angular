@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
-import { CRMNotification, NotificationStats, NotificationsResponse, BackendNotification } from '../models/notification.model';
+import { CRMNotification, NotificationStats, NotificationsResponse, BackendNotification, UnreadCountResponse } from '../models/notification.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -14,8 +14,12 @@ export class CrmNotificationsService {
   // Signal para notificaciones
   private notificationsSignal = signal<CRMNotification[]>([]);
 
+  // Signal para el contador de no leídas desde el backend
+  private unreadCountSignal = signal<number>(0);
+
   // Exponer señal como readonly
   public readonly notifications = this.notificationsSignal.asReadonly();
+  public readonly unreadCountFromBackend = this.unreadCountSignal.asReadonly();
 
   // Computed signals
   public readonly unreadCount = computed(() =>
@@ -156,5 +160,16 @@ export class CrmNotificationsService {
    */
   getNotificationById(id: string): CRMNotification | undefined {
     return this.notificationsSignal().find(n => n.id === id);
+  }
+
+  /**
+   * Obtener el contador de notificaciones no leídas desde el backend
+   */
+  getUnreadCount(): Observable<UnreadCountResponse> {
+    return this.http.get<UnreadCountResponse>(`${this.apiUrl}/unread-count`).pipe(
+      tap(response => {
+        this.unreadCountSignal.set(response.count);
+      })
+    );
   }
 }

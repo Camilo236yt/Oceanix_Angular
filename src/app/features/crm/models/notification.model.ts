@@ -74,3 +74,7 @@ export interface NotificationStats {
     low: number;
   };
 }
+
+export interface UnreadCountResponse {
+  count: number;
+}

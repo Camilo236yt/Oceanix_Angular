@@ -39,6 +39,7 @@ export class CrmLayout implements OnInit, OnDestroy {
   currentDate: string = '';
   private midnightTimer: any;
   private notificationSubscription?: Subscription;
+  private unreadCountPolling?: any;
 
   // Chat Notifications (Toast)
   notifications = signal<Array<NewMessageNotification & { id: number }>>([]);
@@ -104,6 +105,12 @@ export class CrmLayout implements OnInit, OnDestroy {
 
     // Cargar notificaciones del CRM desde el backend
     this.loadCRMNotifications();
+
+    // Cargar contador de no leídas
+    this.loadUnreadCount();
+
+    // Configurar polling para actualizar contador cada 60 segundos
+    this.startUnreadCountPolling();
   }
 
   /**
@@ -118,6 +125,29 @@ export class CrmLayout implements OnInit, OnDestroy {
         console.error('Error al cargar notificaciones:', error);
       }
     });
+  }
+
+  /**
+   * Cargar contador de notificaciones no leídas
+   */
+  private loadUnreadCount(): void {
+    this.crmNotificationsService.getUnreadCount().subscribe({
+      next: (response) => {
+        console.log('Contador de no leídas:', response.count);
+      },
+      error: (error) => {
+        console.error('Error al cargar contador de no leídas:', error);
+      }
+    });
+  }
+
+  /**
+   * Iniciar polling para actualizar el contador cada 60 segundos
+   */
+  private startUnreadCountPolling(): void {
+    this.unreadCountPolling = setInterval(() => {
+      this.loadUnreadCount();
+    }, 60000); // 60 segundos
   }
 
   /**
@@ -150,6 +180,11 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Cancelar suscripción a notificaciones
     if (this.notificationSubscription) {
       this.notificationSubscription.unsubscribe();
+    }
+
+    // Limpiar polling de contador de no leídas
+    if (this.unreadCountPolling) {
+      clearInterval(this.unreadCountPolling);
     }
   }
 
