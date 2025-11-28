@@ -37,14 +37,13 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   // Detectar si estamos en localhost (desarrollo) o producción
   const isLocalhost = window.location.hostname === 'localhost';
 
-  // DESARROLLO LOCAL: Usar Bearer token desde localStorage
-  // En producción el token en localStorage es solo un timestamp de sesión
-  // El token JWT real está en la cookie httpOnly
-  const isTokenValid = token && token.startsWith('eyJ'); // JWT tokens siempre empiezan con 'eyJ'
+  // Usar Bearer token desde localStorage si existe y es válido
+  // JWT tokens siempre empiezan con 'eyJ'
+  const isTokenValid = token && token.startsWith('eyJ');
 
-  if (isLocalhost && isTokenValid) {
+  if (isTokenValid) {
     headers['Authorization'] = `Bearer ${token}`;
-    console.log('🔑 [Interceptor] Using Bearer token from localStorage (local dev)');
+    console.log('🔑 [Interceptor] Using Bearer token from localStorage');
   } else if (!isLocalhost) {
     console.log('🔒 [Interceptor] Using httpOnly cookie for auth (production)');
   }

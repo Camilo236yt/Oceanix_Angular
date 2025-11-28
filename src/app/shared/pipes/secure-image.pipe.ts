@@ -24,16 +24,9 @@ export class SecureImagePipe implements PipeTransform {
       return of(this.sanitizer.bypassSecurityTrustUrl(url));
     }
 
-    // Si es cliente, modificar la URL para usar el endpoint /client
+    // La URL viene completa del backend (ej: https://backend.../api/v1/incidencias/images/{id})
+    // Solo necesitamos usarla directamente
     let requestUrl = url;
-    if (isClient && url.includes('/incidencias/images/') && !url.includes('/client')) {
-      requestUrl = url.replace('/incidencias/images/', '/incidencias/images/') + '/client';
-      // Mejor forma: insertar /client antes del ID
-      const parts = url.split('/images/');
-      if (parts.length === 2) {
-        requestUrl = `${parts[0]}/images/${parts[1]}/client`;
-      }
-    }
 
     console.log('🖼️ [SecureImagePipe] Loading image:', { original: url, request: requestUrl, isClient });
 
