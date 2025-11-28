@@ -15,8 +15,15 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
   // Obtener subdomain (en localhost lee de localStorage, en producción de la URL)
   const subdomain = subdomainService.getSubdomain();
 
-  // Obtener token de autenticación desde localStorage (solo para desarrollo local)
+  // Obtener token de autenticación desde localStorage
   const token = localStorage.getItem('authToken');
+
+  console.log('🔍 [Interceptor] Debug:', {
+    url: req.url,
+    hasToken: !!token,
+    tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
+    isTokenValid: token && token.startsWith('eyJ')
+  });
 
   // Preparar headers
   const headers: { [key: string]: string } = {
@@ -45,7 +52,9 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
     headers['Authorization'] = `Bearer ${token}`;
     console.log('🔑 [Interceptor] Using Bearer token from localStorage');
   } else if (!isLocalhost) {
-    console.log('🔒 [Interceptor] Using httpOnly cookie for auth (production)');
+    console.log('🔒 [Interceptor] Using httpOnly cookie for auth (production) - NO TOKEN FOUND');
+  } else {
+    console.warn('⚠️ [Interceptor] NO VALID TOKEN - Request will fail if auth required');
   }
 
   // Clonar la petición con headers y configuración apropiada
