@@ -15,6 +15,8 @@ import { AuthService } from '../../../services/auth.service';
 export class VerificationBannerComponent implements OnInit, OnDestroy {
   // Property to control visibility of the banner
   showBanner = false;
+  bannerMessage = '';
+  showLink = true;
   private routerSubscription?: Subscription;
 
   // Permisos requeridos para ver el banner de verificación
@@ -60,6 +62,18 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   private checkRoute(url: string) {
     // Verificar si tiene permisos de verificación
     const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
+
+    // Verificar el estado de verificación en localStorage
+    const verificationStatus = localStorage.getItem('verificationStatus');
+
+    // Determinar el mensaje del banner según el estado
+    if (verificationStatus === 'pending_review') {
+      this.bannerMessage = 'Estamos verificando tus datos, pronto recibirás una confirmación';
+      this.showLink = false; // No mostrar el link cuando está en revisión
+    } else {
+      this.bannerMessage = 'No has completado tu verificación, haz click';
+      this.showLink = true;
+    }
 
     // Hide banner if we're on the verification page or don't have permissions
     this.showBanner = hasVerificationPermission && !url.includes('/verificar-cuenta');

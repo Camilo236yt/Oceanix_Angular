@@ -165,11 +165,22 @@
             <input
               type="text"
               class="form-input"
+              [class.error]="errorDominio"
               placeholder="Agregar nuevo dominio"
               [(ngModel)]="nuevoDominio"
-              (keyup.enter)="agregarDominio()">
+              (keyup.enter)="agregarDominio()"
+              (input)="errorDominio = ''">
             <button type="button" (click)="agregarDominio()" class="btn-primary">+ Agregar</button>
           </div>
+
+          @if (errorDominio) {
+            <div class="error-message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{{ errorDominio }}</span>
+            </div>
+          }
 
           <p class="example-text">Ejemplo: empresa.com (sin @ ni espacios)</p>
         </div>
@@ -195,7 +206,7 @@
               </div>
               <div class="verificacion-info">
                 <h3 class="verificacion-titulo">Correo Electrónico</h3>
-                <p class="verificacion-descripcion">Ingresa tu correo para recibir el código de verificación</p>
+                <p class="verificacion-descripcion">Verifica tu correo electrónico para continuar</p>
               </div>
               @if (datosVerificacion.paso3.emailVerificado) {
                 <div class="badge-verificado">

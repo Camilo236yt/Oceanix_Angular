@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DatosVerificacion, Paso1Documentos, Paso2Marca, Paso3EmailVerificacion, TipoDocumento } from './verificar-cuenta.models';
 import { VerificacionService, EnterpriseConfigStatus } from '../../services/verificacion.service';
 import Swal from 'sweetalert2';
@@ -54,13 +55,31 @@ export class VerificarCuenta implements OnInit {
     { label: 'Verificación', icon: 'phone' }
   ];
 
+  // Ruta desde donde se ingresó al componente
+  private previousRoute: string = '/crm/dashboard';
+
   constructor(
     private verificacionService: VerificacionService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     console.log('🚀 Iniciando componente VerificarCuenta - pasoActual inicial:', this.pasoActual);
+
+    // Guardar la ruta anterior desde localStorage o usar la navegación del router
+    const savedRoute = localStorage.getItem('previousRouteBeforeVerification');
+    if (savedRoute) {
+      this.previousRoute = savedRoute;
+    } else {
+      // Si no hay ruta guardada, guardar la ruta actual antes de entrar
+      const currentUrl = this.router.url;
+      if (!currentUrl.includes('verificar-cuenta')) {
+        localStorage.setItem('previousRouteBeforeVerification', currentUrl);
+        this.previousRoute = currentUrl;
+      }
+    }
+
     // Cargar email primero, luego el estado del backend
     this.cargarEmailUsuario();
     this.cargarEstadoBackend();
@@ -363,26 +382,46 @@ export class VerificarCuenta implements OnInit {
   // ============================================
 
   nuevoDominio: string = '';
+  errorDominio: string = '';
 
   agregarDominio(): void {
     const dominio = this.nuevoDominio.trim().toLowerCase();
 
+    // Validar que no esté vacío
+    if (!dominio) {
+      this.errorDominio = 'El dominio no puede estar vacío';
+      return;
+    }
+
+    // Validar que no tenga @
+    if (dominio.includes('@')) {
+      this.errorDominio = 'El dominio no debe contener el símbolo @';
+      return;
+    }
+
+    // Validar que no tenga espacios
+    if (dominio.includes(' ')) {
+      this.errorDominio = 'El dominio no debe contener espacios';
+      return;
+    }
+
     // Validar formato de dominio
     const dominioRegex = /^[a-z0-9-]+\.[a-z]{2,}$/;
     if (!dominioRegex.test(dominio)) {
-      alert('Formato de dominio inválido. Ejemplo: empresa.com');
+      this.errorDominio = 'Formato de dominio inválido. Ejemplo: empresa.com';
       return;
     }
 
     // Validar que no esté duplicado
     if (this.datosVerificacion.paso3.dominios.includes(dominio)) {
-      alert('Este dominio ya ha sido agregado');
+      this.errorDominio = 'Este dominio ya ha sido agregado';
       return;
     }
 
     // Agregar dominio
     this.datosVerificacion.paso3.dominios.push(dominio);
     this.nuevoDominio = '';
+    this.errorDominio = '';
   }
 
   eliminarDominio(index: number): void {
@@ -767,8 +806,24 @@ export class VerificarCuenta implements OnInit {
         this.finalizandoVerificacion = false;
         this.guardarDatosPaso();
 
-        // TODO: Aquí se definirá qué hacer después de finalizar exitosamente
-        console.log('✅ Verificación completada exitosamente');
+        // Mostrar mensaje de éxito
+        Swal.fire({
+          icon: 'success',
+          title: '¡Verificación Completada!',
+          text: 'Tu información ha sido enviada correctamente. Estamos verificando tus datos, pronto recibirás una confirmación.',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#9333ea'
+        }).then(() => {
+          // Actualizar el mensaje del banner en localStorage
+          localStorage.setItem('verificationStatus', 'pending_review');
+
+          // Limpiar la ruta guardada
+          localStorage.removeItem('previousRouteBeforeVerification');
+
+          // Redirigir a la ruta anterior
+          console.log('✅ Redirigiendo a:', this.previousRoute);
+          this.router.navigate([this.previousRoute]);
+        });
       },
       error: (error) => {
         console.error('Error al actualizar dominios de email:', error);
