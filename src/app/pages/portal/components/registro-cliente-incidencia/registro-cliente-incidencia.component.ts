@@ -1,7 +1,6 @@
 import { Component, signal, OnInit, OnDestroy, ChangeDetectorRef, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Incidencia } from '../../models/incidencia.model';
 import { IncidenciasService, Message } from '../../services/incidencias.service';
@@ -13,12 +12,13 @@ import { NotificationsDropdown } from '../../../../features/crm/components/notif
 import { NotificationDetailModal } from '../../../../features/crm/components/notification-detail-modal/notification-detail-modal';
 import { ClientNotificationsService } from '../../services/client-notifications.service';
 import { CRMNotification } from '../../../../features/crm/models/notification.model';
+import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, NotificationDetailModal, LoadingSpinner],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -65,8 +65,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   selectedNotification: CRMNotification | null = null;
   clientNotificationsService = inject(ClientNotificationsService);
 
+  // Loading spinner para logout
+  isLoggingOut = false;
+
   constructor(
-    private router: Router,
     private incidenciasService: IncidenciasService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
@@ -323,10 +325,31 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancelar(): void {
-    if (confirm('¿Estás seguro de cancelar el registro?')) {
-      this.router.navigate(['/portal/login']);
-    }
+  logout(): void {
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: '¿Estás seguro de que deseas cerrar tu sesión?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#7c3aed',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Cerrar el modal de SweetAlert
+        Swal.close();
+
+        // Mostrar loading spinner
+        this.isLoggingOut = true;
+        this.cdr.detectChanges();
+
+        // Simular tiempo de carga estándar (1 segundo) antes de cerrar sesión
+        setTimeout(() => {
+          this.authClienteService.logout();
+        }, 1000);
+      }
+    });
   }
 
   verDetalles(incidencia: Incidencia): void {
