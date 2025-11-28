@@ -148,13 +148,56 @@ export class AuthCallbackComponent implements OnInit {
             console.log('🗑️ Removing invalid token from localStorage');
             localStorage.removeItem('authToken');
 
+            // Determinar el mensaje de error según el tipo de problema
+            let title = 'Error de Autenticación';
+            let message = 'No se pudo completar la autenticación. Por favor, intenta nuevamente.';
+            let icon: 'error' | 'warning' = 'error';
+
+            // Extraer el mensaje de error del backend
+            const backendMessage = error.error?.error?.message || error.error?.message || '';
+            const errorCode = error.error?.error?.code || error.error?.code || '';
+
+            console.log('🔍 Backend error message:', backendMessage);
+            console.log('🔍 Backend error code:', errorCode);
+
+            // Verificar si es un error de cuenta no activa o email no verificado
+            if (backendMessage.toLowerCase().includes('not active') ||
+                backendMessage.toLowerCase().includes('verify your email') ||
+                backendMessage.toLowerCase().includes('contact with the admin')) {
+              icon = 'warning';
+              title = 'Cuenta No Verificada';
+              message = 'Tu cuenta aún no está activa. Por favor, verifica tu correo electrónico o contacta al administrador para activar tu cuenta.';
+            }
+            // Verificar si es un error de token expirado
+            else if (error.status === 401 && (backendMessage.toLowerCase().includes('expired') ||
+                     backendMessage.toLowerCase().includes('invalid token'))) {
+              title = 'Sesión Expirada';
+              message = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+            }
+            // Verificar si es un error de permisos
+            else if (error.status === 403) {
+              title = 'Acceso Denegado';
+              message = 'No tienes permisos para acceder a esta sección. Contacta al administrador si necesitas ayuda.';
+            }
+            // Verificar si es un error del servidor
+            else if (error.status >= 500) {
+              title = 'Error del Servidor';
+              message = 'Ocurrió un problema en el servidor. Por favor, intenta nuevamente más tarde o contacta a soporte técnico.';
+            }
+            // Para otros errores 401 (no autorizados)
+            else if (error.status === 401) {
+              title = 'Autenticación Inválida';
+              message = 'Las credenciales no son válidas. Por favor, inicia sesión nuevamente.';
+            }
+
             // Mostrar error con SweetAlert2
             Swal.fire({
-              icon: 'error',
-              title: 'Token Inválido',
-              text: 'Tu sesión ha expirado o el token no es válido. Por favor, inicia sesión nuevamente.',
+              icon: icon,
+              title: title,
+              text: message,
               confirmButtonColor: '#7c3aed',
-              confirmButtonText: 'Ir al Login'
+              confirmButtonText: 'Ir al Login',
+              footer: error.status >= 500 ? '<span style="color: #666;">Si el problema persiste, contacta a soporte técnico</span>' : undefined
             }).then(() => {
               console.log('🔄 Redirecting to /portal/login...');
               this.router.navigate(['/portal/login']);
