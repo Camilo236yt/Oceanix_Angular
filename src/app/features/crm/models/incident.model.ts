@@ -14,6 +14,26 @@ export interface IncidentImage {
   createdAt: string;
 }
 
+export interface User {
+  id: string;
+  enterpriseId: string;
+  userType: string;
+  name: string;
+  phoneNumber: string;
+  lastName: string;
+  email: string;
+  password: string;
+  addressId: string | null;
+  address: any | null;
+  identificationType: string | null;
+  identificationNumber: string | null;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  isLegalRepresentative: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IncidentData {
   id: string;
   tipo: string;
@@ -23,7 +43,9 @@ export interface IncidentData {
   ProducReferenceId: string;
   enterpriseId: string;
   createdByUserId: string | null;
+  createdBy?: User;
   assignedEmployeeId: string | null;
+  assignedEmployee?: User;
   isActive: boolean;
   alertLevel: string;
   createdAt: string;

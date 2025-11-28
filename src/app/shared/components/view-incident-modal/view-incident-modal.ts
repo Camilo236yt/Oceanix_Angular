@@ -15,12 +15,19 @@ export class ViewIncidentModalComponent implements OnChanges {
   @Input() incidentData: IncidentData | null = null;
   @Output() onClose = new EventEmitter<void>();
 
+  // Image viewer state
+  selectedImageUrl: string | null = null;
+  selectedImageName: string | null = null;
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isOpen']) {
       if (this.isOpen) {
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = '';
+        // Reset image viewer when modal closes
+        this.selectedImageUrl = null;
+        this.selectedImageName = null;
       }
     }
   }
@@ -88,6 +95,7 @@ export class ViewIncidentModalComponent implements OnChanges {
     const colorMap: { [key: string]: string } = {
       'GREEN': '#22c55e',
       'YELLOW': '#eab308',
+      'ORANGE': '#f97316',
       'RED': '#ef4444'
     };
     return colorMap[this.incidentData?.alertLevel || ''] || '#9ca3af';
@@ -97,9 +105,28 @@ export class ViewIncidentModalComponent implements OnChanges {
     const labelMap: { [key: string]: string } = {
       'GREEN': 'Bajo',
       'YELLOW': 'Medio',
-      'RED': 'Alto'
+      'ORANGE': 'Alto',
+      'RED': 'Crítico'
     };
     return labelMap[this.incidentData?.alertLevel || ''] || 'N/A';
+  }
+
+  get assignedToName(): string {
+    if (!this.incidentData?.assignedEmployee) {
+      return 'Sin asignar';
+    }
+    const employee = this.incidentData.assignedEmployee;
+    const fullName = `${employee.name} ${employee.lastName}`.trim();
+    return fullName || employee.email || 'Sin asignar';
+  }
+
+  get createdByName(): string {
+    if (!this.incidentData?.createdBy) {
+      return 'Sistema';
+    }
+    const creator = this.incidentData.createdBy;
+    const fullName = `${creator.name} ${creator.lastName}`.trim();
+    return fullName || creator.email || 'Sistema';
   }
 
   get tipoIcon(): string {
@@ -144,5 +171,21 @@ export class ViewIncidentModalComponent implements OnChanges {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
+  }
+
+  openImageViewer(imageUrl: string, imageName: string) {
+    this.selectedImageUrl = imageUrl;
+    this.selectedImageName = imageName;
+  }
+
+  closeImageViewer() {
+    this.selectedImageUrl = null;
+    this.selectedImageName = null;
+  }
+
+  handleImageViewerBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      this.closeImageViewer();
+    }
   }
 }

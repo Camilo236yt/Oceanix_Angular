@@ -29,11 +29,13 @@
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">Nivel de Alerta</label>
               <div class="flex items-center gap-1.5 bg-[var(--bg-tertiary)] rounded-full px-3 py-1.5">
                 <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-[var(--text-muted)]'"></div>
+                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-[var(--text-muted)]'"></div>
                 <div class="w-3 h-3 rounded-full"
                      [class]="incidentData.alertLevel === 'YELLOW' ? 'bg-yellow-400' : 'bg-[var(--text-muted)]'"></div>
                 <div class="w-3 h-3 rounded-full"
-                     [class]="incidentData.alertLevel === 'GREEN' ? 'bg-green-500' : 'bg-[var(--text-muted)]'"></div>
+                     [class]="incidentData.alertLevel === 'ORANGE' ? 'bg-orange-500' : 'bg-[var(--text-muted)]'"></div>
+                <div class="w-3 h-3 rounded-full"
+                     [class]="incidentData.alertLevel === 'RED' ? 'bg-red-500' : 'bg-[var(--text-muted)]'"></div>
               </div>
             </div>
           </div>
@@ -66,11 +68,11 @@
           <div class="grid grid-cols-2 gap-8 mb-8">
             <div>
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Asignado a</label>
-              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ incidentData.assignedEmployeeId || 'Sin asignar' }}</p>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ assignedToName }}</p>
             </div>
             <div>
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Creado por</label>
-              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ incidentData.createdByUserId || 'Sistema' }}</p>
+              <p class="mt-1 text-sm text-[var(--text-primary)]">{{ createdByName }}</p>
             </div>
             <div>
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">Fecha de creación</label>
@@ -88,7 +90,8 @@
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2 block">Imágenes de Evidencia ({{ incidentData.images.length }})</label>
               <div class="grid grid-cols-3 gap-2">
                 @for (image of incidentData.images; track image.id) {
-                  <div class="relative group cursor-pointer rounded overflow-hidden border border-[var(--border-primary)]">
+                  <div class="relative group cursor-pointer rounded overflow-hidden border border-[var(--border-primary)]"
+                       (click)="openImageViewer(image.url, image.originalName)">
                     <img [src]="image.url" [alt]="image.originalName" class="w-full h-32 object-cover">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span class="text-white text-xs">Ver imagen</span>
@@ -113,6 +116,36 @@
         </div>
       }
 
+    </div>
+  </div>
+}
+
+<!-- Image Viewer Modal -->
+@if (selectedImageUrl) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+       (click)="handleImageViewerBackdropClick($event)">
+    <div class="relative max-w-6xl max-h-[90vh] w-full">
+      <!-- Close Button -->
+      <button (click)="closeImageViewer()"
+              class="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+
+      <!-- Image Name -->
+      @if (selectedImageName) {
+        <div class="absolute -top-12 left-0 text-white text-sm font-medium">
+          {{ selectedImageName }}
+        </div>
+      }
+
+      <!-- Image Container -->
+      <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
+        <img [src]="selectedImageUrl"
+             [alt]="selectedImageName || 'Imagen de evidencia'"
+             class="w-full h-full object-contain max-h-[85vh]">
+      </div>
     </div>
   </div>
 }
