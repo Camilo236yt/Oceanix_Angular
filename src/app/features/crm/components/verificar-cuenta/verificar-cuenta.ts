@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DatosVerificacion, Paso1Documentos, Paso2Marca, Paso3EmailVerificacion, TipoDocumento } from './verificar-cuenta.models';
 import { VerificacionService, EnterpriseConfigStatus } from '../../services/verificacion.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-verificar-cuenta',
@@ -15,6 +16,10 @@ export class VerificarCuenta implements OnInit {
   // Estado del stepper
   pasoActual: number = 0;
   totalPasos: number = 2;
+
+  // Estado de progreso del backend
+  documentosYaSubidos: boolean = false;
+  cargandoEstadoInicial: boolean = true; // Indica si está cargando el estado inicial
 
   // Datos de cada paso
   datosVerificacion: DatosVerificacion = {
@@ -49,9 +54,13 @@ export class VerificarCuenta implements OnInit {
     { label: 'Verificación', icon: 'phone' }
   ];
 
-  constructor(private verificacionService: VerificacionService) {}
+  constructor(
+    private verificacionService: VerificacionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    console.log('🚀 Iniciando componente VerificarCuenta - pasoActual inicial:', this.pasoActual);
     // Cargar estado del backend
     this.cargarEstadoBackend();
   }
@@ -60,17 +69,62 @@ export class VerificarCuenta implements OnInit {
   // NAVEGACIÓN
   // ============================================
 
+  cargandoDocumentos: boolean = false;
+
   siguientePaso(): void {
     if (this.pasoActual < this.totalPasos - 1) {
       if (this.validarPasoActual()) {
-        this.guardarDatosPaso();
-        this.pasoActual++;
+        // Si estamos en el paso 0 (Documentos), enviar documentos al backend
+        if (this.pasoActual === 0) {
+          this.subirDocumentos();
+        } else {
+          this.guardarDatosPaso();
+          this.pasoActual++;
+        }
       }
     }
   }
 
+  /**
+   * Sube los documentos al backend
+   */
+  subirDocumentos(): void {
+    const docs = this.datosVerificacion.paso1.documentosObligatorios;
+
+    // Obtener los archivos (ya validados en validarPaso1)
+    const taxId = docs[0].archivo!; // RUT/NIT/CUIT
+    const chamberCommerce = docs[1].archivo!; // Cámara de Comercio
+    const legalRepId = docs[2].archivo!; // Cédula Representante Legal
+
+    this.cargandoDocumentos = true;
+
+    this.verificacionService.uploadDocuments(taxId, chamberCommerce, legalRepId).subscribe({
+      next: (response) => {
+        console.log('Documentos subidos exitosamente:', response);
+        this.cargandoDocumentos = false;
+        this.documentosYaSubidos = true; // Marcar que los documentos ya fueron subidos
+        this.guardarDatosPaso();
+        this.pasoActual++; // Pasar al paso 2
+      },
+      error: (error) => {
+        console.error('Error al subir documentos:', error);
+        this.cargandoDocumentos = false;
+
+        // Mostrar error en SweetAlert
+        const errorMessage = error.error?.message || error.message || 'Ocurrió un error al subir los documentos';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al subir documentos',
+          text: errorMessage,
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
+  }
+
   pasoAnterior(): void {
-    if (this.pasoActual > 0) {
+    // No permitir volver al paso 0 si ya se subieron documentos
+    if (this.pasoActual > 0 && !this.documentosYaSubidos) {
       this.pasoActual--;
     }
   }
@@ -477,16 +531,30 @@ export class VerificarCuenta implements OnInit {
    */
   cargarEstadoBackend(): void {
     this.verificacionService.getEnterpriseConfigStatus().subscribe({
-      next: (status: EnterpriseConfigStatus) => {
-        console.log('Estado de configuración empresarial:', status);
-        this.mapearEstadoAComponente(status);
-        // Cargar también datos guardados localmente para complementar
+      next: (response: any) => {
+        console.log('Estado de configuración empresarial:', response);
+
+        // El backend puede devolver la respuesta en formato { success, data, statusCode }
+        // o directamente los campos
+        const status: EnterpriseConfigStatus = response.data || response;
+
+        // IMPORTANTE: Primero cargar datos guardados localmente (para tener los archivos seleccionados)
+        // DESPUÉS mapear el estado del backend (para determinar el paso correcto)
         this.cargarDatosGuardados();
+        this.mapearEstadoAComponente(status);
+
+        // Indicar que ya terminó de cargar el estado inicial
+        this.cargandoEstadoInicial = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar estado del backend:', error);
         // Si falla, cargar datos guardados localmente
         this.cargarDatosGuardados();
+
+        // Indicar que ya terminó de cargar (aunque haya fallado)
+        this.cargandoEstadoInicial = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -496,6 +564,16 @@ export class VerificarCuenta implements OnInit {
    * Permite determinar en qué paso quedó el usuario
    */
   mapearEstadoAComponente(status: EnterpriseConfigStatus): void {
+    console.log('📊 Mapeando estado del backend:', {
+      documentsUploaded: status.documentsUploaded,
+      brandingConfigured: status.brandingConfigured,
+      emailDomainsConfigured: status.emailDomainsConfigured
+    });
+    console.log('📍 pasoActual ANTES de mapear:', this.pasoActual);
+
+    // Guardar el estado de documentos subidos
+    this.documentosYaSubidos = status.documentsUploaded;
+
     // Determinar el paso actual basado en qué ya completó el usuario
 
     // Paso 0: Documentos (índice 0)
@@ -504,21 +582,27 @@ export class VerificarCuenta implements OnInit {
     // Si NO ha subido documentos, debe empezar en el Paso 0 (Documentos)
     if (!status.documentsUploaded) {
       this.pasoActual = 0;
-      console.log('Paso actual: 0 - Documentos pendientes');
+      console.log('✅ Paso asignado: 0 - Documentos pendientes');
+      console.log('📍 pasoActual DESPUÉS de mapear:', this.pasoActual);
+      this.cdr.detectChanges(); // Forzar detección de cambios
       return;
     }
 
     // Si YA subió documentos, debe continuar con el Paso 1 (Verificación)
     if (status.documentsUploaded && !status.emailDomainsConfigured) {
       this.pasoActual = 1;
-      console.log('Paso actual: 1 - Documentos completados, continuar con verificación');
+      console.log('✅ Paso asignado: 1 - Documentos completados, continuar con verificación');
+      console.log('📍 pasoActual DESPUÉS de mapear:', this.pasoActual);
+      this.cdr.detectChanges(); // Forzar detección de cambios
       return;
     }
 
     // Si YA completó todo (documentos Y verificación de email)
     if (status.documentsUploaded && status.emailDomainsConfigured) {
       this.pasoActual = 1; // Mantenerse en el último paso
-      console.log('Paso actual: 1 - Todo completado');
+      console.log('✅ Paso asignado: 1 - Todo completado');
+      console.log('📍 pasoActual DESPUÉS de mapear:', this.pasoActual);
+      this.cdr.detectChanges(); // Forzar detección de cambios
       return;
     }
   }
@@ -565,7 +649,8 @@ export class VerificarCuenta implements OnInit {
   }
 
   get mostrarBotonAnterior(): boolean {
-    return this.pasoActual > 0;
+    // Solo mostrar el botón "Anterior" si estamos en paso > 0 Y no se han subido documentos
+    return this.pasoActual > 0 && !this.documentosYaSubidos;
   }
 
   get textoBotonPrincipal(): string {

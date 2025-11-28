@@ -34,8 +34,18 @@
 
   <!-- Card Container -->
   <div class="card-container">
+    <!-- Indicador de carga inicial -->
+    @if (cargandoEstadoInicial) {
+      <div class="paso-content">
+        <div class="loading-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px;">
+          <div style="width: 50px; height: 50px; border: 4px solid #f3f4f6; border-top: 4px solid #9333ea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+          <p style="margin-top: 20px; color: #6b7280; font-size: 14px;">Cargando información...</p>
+        </div>
+      </div>
+    }
+
     <!-- Paso 1: Documentos -->
-    @if (pasoActual === 0) {
+    @if (!cargandoEstadoInicial && pasoActual === 0) {
       <div class="paso-content">
         <div class="paso-header">
           <h2 class="paso-titulo">{{ textoPaso }}: DOCUMENTOS LEGALES</h2>
@@ -122,7 +132,7 @@
     }
 
     <!-- Paso 2: Verificación -->
-    @if (pasoActual === 1) {
+    @if (!cargandoEstadoInicial && pasoActual === 1) {
       <div class="paso-content">
         <div class="paso-header">
           <h2 class="paso-titulo">{{ textoPaso }}: VERIFICACIÓN</h2>
@@ -282,8 +292,12 @@
       <div class="spacer"></div>
 
       @if (pasoActual < totalPasos - 1) {
-        <button (click)="siguientePaso()" class="btn-primary">
-          Siguiente →
+        <button (click)="siguientePaso()" class="btn-primary" [disabled]="cargandoDocumentos">
+          @if (cargandoDocumentos) {
+            Subiendo documentos...
+          } @else {
+            Siguiente →
+          }
         </button>
       }
 

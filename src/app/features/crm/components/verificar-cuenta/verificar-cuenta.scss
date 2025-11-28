@@ -1994,6 +1994,15 @@ $gray-900: #212121;
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // ============================================
 // ERROR MESSAGE
 // ============================================
