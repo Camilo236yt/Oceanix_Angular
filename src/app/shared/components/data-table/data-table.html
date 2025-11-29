@@ -75,7 +75,7 @@
                          'justify-end': column.align === 'right',
                          'justify-start': !column.align || column.align === 'left'
                        }">
-                    @for (action of actions; track action.label) {
+                    @for (action of getVisibleActions(row); track action.label) {
                       <button (click)="handleAction(action, row)"
                               [title]="action.label"
                               class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95"
@@ -166,7 +166,7 @@
 
           <!-- Actions in mobile -->
           <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--border-primary)]">
-            @for (action of actions; track action.label) {
+            @for (action of getVisibleActions(row); track action.label) {
               <button (click)="handleAction(action, row)"
                       [title]="action.label"
                       class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95"

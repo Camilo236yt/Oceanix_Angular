@@ -174,17 +174,18 @@ export class Usuarios implements OnInit {
     this.canEditUser = this.authService.hasAnyPermission(['edit_users']);
     this.canDeleteUser = this.authService.hasAnyPermission(['delete_users']);
 
-    // Configurar acciones de la tabla según permisos
+    // Configurar acciones de la tabla según permisos y estado del usuario
     this.tableActions = [];
 
-    // Ver siempre está disponible (si puede ver usuarios, puede ver detalles)
+    // Ver solo disponible para usuarios ACTIVOS
     this.tableActions.push({
       icon: 'eye',
       label: 'Ver',
-      action: (row) => this.viewUser(row)
+      action: (row) => this.viewUser(row),
+      condition: (row) => row.estado === 'Activo'
     });
 
-    // Editar solo si tiene permiso
+    // Editar disponible para TODOS los usuarios (activos e inactivos)
     if (this.canEditUser) {
       this.tableActions.push({
         icon: 'pencil',
@@ -193,13 +194,14 @@ export class Usuarios implements OnInit {
       });
     }
 
-    // Eliminar solo si tiene permiso
+    // Eliminar solo para usuarios ACTIVOS
     if (this.canDeleteUser) {
       this.tableActions.push({
         icon: 'trash-2',
         label: 'Eliminar',
         action: (row) => this.deleteUser(row),
-        color: 'text-red-600 hover:text-red-700'
+        color: 'text-red-600 hover:text-red-700',
+        condition: (row) => row.estado === 'Activo'
       });
     }
   }
@@ -374,19 +376,22 @@ export class Usuarios implements OnInit {
           });
 
           // Log para debug
-          console.log('Activando usuario con ID:', user.id);
-          console.log('Payload:', { isActive: true });
+          console.log('Reactivando usuario con ID:', user.id);
 
-          // Activar el usuario usando PATCH
-          this.usuariosService.updateUser(user.id, { isActive: true }).subscribe({
+          // Reactivar el usuario usando el endpoint específico
+          this.usuariosService.reactivateUser(user.id).subscribe({
             next: (response) => {
-              console.log('Usuario activado exitosamente:', response);
+              console.log('Usuario reactivado exitosamente:', response);
               this.loadUsuarios(); // Recargar la lista
+
+              // Usar el mensaje del backend si está disponible, sino usar mensaje por defecto
+              const successMessage = response?.message || 'Usuario reactivado correctamente';
+
               Swal.fire({
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: 'Usuario activado exitosamente',
+                title: successMessage,
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
@@ -397,17 +402,17 @@ export class Usuarios implements OnInit {
               });
             },
             error: (error: any) => {
-              console.error('Error al activar usuario:', error);
+              console.error('Error al reactivar usuario:', error);
               console.error('Error completo:', JSON.stringify(error, null, 2));
               console.error('User ID que falló:', user.id);
 
-              const errorMessage = error?.error?.error?.message || error?.error?.message || 'No se pudo activar el usuario. Por favor, intenta nuevamente.';
+              const errorMessage = error?.error?.error?.message || error?.error?.message || 'No se pudo reactivar el usuario. Por favor, intenta nuevamente.';
 
               Swal.fire({
                 toast: true,
                 position: 'top-end',
                 icon: 'error',
-                title: 'Error al activar el usuario',
+                title: 'Error al reactivar el usuario',
                 text: errorMessage,
                 showConfirmButton: false,
                 timer: 4000,

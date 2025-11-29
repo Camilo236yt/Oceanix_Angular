@@ -117,6 +117,13 @@ export class UsuariosService {
     });
   }
 
+  // PATCH - Reactivate user
+  reactivateUser(userId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${userId}/reactivate`, {}, {
+      withCredentials: true
+    });
+  }
+
   // POST - Assign roles to user
   assignRolesToUser(userId: string, roleIds: string[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/${userId}/roles`, { roleIds }, {

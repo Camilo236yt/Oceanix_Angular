@@ -73,4 +73,15 @@ export class DataTable implements OnChanges {
       roleName: row.rol || 'Rol'
     });
   }
+
+  getVisibleActions(row: any): TableAction[] {
+    return this.actions.filter(action => {
+      // Si la acción tiene una condición, evaluarla
+      if (action.condition) {
+        return action.condition(row);
+      }
+      // Si no tiene condición, mostrar la acción
+      return true;
+    });
+  }
 }

@@ -19,4 +19,5 @@ export interface TableAction {
   label: string;
   action: (row: any) => void;
   color?: string;
+  condition?: (row: any) => boolean;
 }
