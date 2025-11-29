@@ -1,10 +1,11 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthClienteService } from '../../services/auth-cliente.service';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import { SubdomainService } from '../../../../services/subdomain.service';
 import { environment } from '../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 declare const google: any;
 
@@ -24,12 +25,66 @@ export class PortalLoginComponent implements OnInit {
     private authClienteService: AuthClienteService,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-    private subdomainService: SubdomainService
+    private subdomainService: SubdomainService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    // Ya no necesitamos inicializar Google Identity Services
-    // Usamos redirect flow en lugar de popup
+    // Interceptar errores del callback de Google OAuth
+    this.route.queryParams.subscribe(params => {
+      const error = params['error'];
+
+      if (error) {
+        // Limpiar el parámetro de error de la URL
+        this.router.navigate([], {
+          queryParams: {},
+          replaceUrl: true
+        });
+
+        // Mostrar mensaje de error personalizado según el tipo
+        this.showErrorAlert(error);
+      }
+    });
+  }
+
+  /**
+   * Muestra un SweetAlert con el mensaje de error apropiado
+   */
+  private showErrorAlert(error: string): void {
+    let title = 'Acceso Denegado';
+    let message = '';
+    let icon: 'error' | 'warning' | 'info' = 'warning';
+
+    // Detectar el tipo de error y personalizar el mensaje
+    if (error.includes('empleado') || error.includes('Este email ya está registrado como empleado')) {
+      title = 'Cuenta de Empleado Detectada';
+      message = 'Este correo electrónico está registrado como empleado de la empresa. ' +
+                'El portal de clientes es exclusivo para clientes externos. ' +
+                'Por favor, utiliza otro correo electrónico para acceder como cliente.';
+      icon = 'info';
+    } else if (error === 'auth_failed') {
+      title = 'Error de Autenticación';
+      message = 'No se pudo completar la autenticación con Google. Por favor, intenta nuevamente.';
+      icon = 'error';
+    } else if (error === 'no_token') {
+      title = 'Error de Autenticación';
+      message = 'No se recibió el token de autenticación. Por favor, intenta nuevamente.';
+      icon = 'error';
+    } else {
+      // Mensaje genérico para otros errores
+      title = 'Error de Autenticación';
+      message = decodeURIComponent(error);
+      icon = 'error';
+    }
+
+    Swal.fire({
+      icon: icon,
+      title: title,
+      text: message,
+      confirmButtonColor: '#7c3aed',
+      confirmButtonText: 'Entendido',
+      allowOutsideClick: false
+    });
   }
 
   /**
