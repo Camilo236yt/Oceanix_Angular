@@ -399,6 +399,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.modalArchivos = [];
     this.modalPreviews = [];
     this.activeTab = 'details';
+    this.isLightboxOpen = false; // Cerrar lightbox si está abierto
     this.chatService.leaveRoom();
     document.body.style.overflow = '';
   }
@@ -775,5 +776,52 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
    */
   get isChatDisabled(): boolean {
     return this.selectedIncidencia?.status === 'RESOLVED';
+  }
+
+  // Lightbox para ver imágenes en tamaño completo
+  isLightboxOpen = false;
+  lightboxImageIndex = 0;
+
+  /**
+   * Abrir lightbox con la imagen seleccionada
+   */
+  openLightbox(index: number): void {
+    this.lightboxImageIndex = index;
+    this.isLightboxOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Cerrar lightbox
+   */
+  closeLightbox(): void {
+    this.isLightboxOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Navegar a la siguiente imagen en el lightbox
+   */
+  nextLightboxImage(event: Event): void {
+    event.stopPropagation();
+    if (!this.selectedIncidencia?.images || this.selectedIncidencia.images.length === 0) return;
+
+    const totalImages = this.selectedIncidencia.images.length;
+    this.lightboxImageIndex = (this.lightboxImageIndex + 1) % totalImages;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Navegar a la imagen anterior en el lightbox
+   */
+  previousLightboxImage(event: Event): void {
+    event.stopPropagation();
+    if (!this.selectedIncidencia?.images || this.selectedIncidencia.images.length === 0) return;
+
+    const totalImages = this.selectedIncidencia.images.length;
+    this.lightboxImageIndex = this.lightboxImageIndex === 0
+      ? totalImages - 1
+      : this.lightboxImageIndex - 1;
+    this.cdr.detectChanges();
   }
 }
