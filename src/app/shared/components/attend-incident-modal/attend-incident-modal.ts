@@ -92,15 +92,41 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     // Suscribirse a eventos del WebSocket
     this.subscriptions.push(
       this.chatService.newMessage$.subscribe((message: ChatMessage) => {
-        console.log('📨 Nuevo mensaje recibido:', message);
-        console.log('   - senderType:', message.senderType);
-        console.log('   - messageType:', message.messageType);
-        // Evitar duplicados
-        if (!this.messages.find(m => m.id === message.id)) {
-          this.messages = [...this.messages, message as Message];
-          this.cdr.detectChanges();
-          this.scrollToBottom();
+        console.log('🔔 [EMPLEADO] Nuevo mensaje recibido por WebSocket:', message);
+        console.log('   - ID:', message.id);
+        console.log('   - Contenido:', message.content);
+        console.log('   - Tipo de remitente:', message.senderType);
+        console.log('   - Tipo de mensaje:', message.messageType);
+        console.log('   - incidenciaId del mensaje:', (message as any).incidenciaId);
+        console.log('   - Mensajes actuales:', this.messages.length);
+        console.log('   - Incidencia actual:', this.incidentData?.id);
+
+        // IMPORTANTE: Solo agregar mensajes que pertenecen a la incidencia actualmente abierta
+        if (!this.incidentData) {
+          console.log('   ⚠️ No hay incidencia seleccionada, ignorando mensaje');
+          return;
         }
+
+        // Verificar que el mensaje pertenece a la incidencia actual
+        const messageIncidenciaId = (message as any).incidenciaId;
+        if (messageIncidenciaId && messageIncidenciaId !== this.incidentData.id) {
+          console.log('   ⚠️ Mensaje pertenece a otra incidencia, ignorando');
+          console.log('     - Mensaje de incidencia:', messageIncidenciaId);
+          console.log('     - Incidencia actual:', this.incidentData.id);
+          return;
+        }
+
+        // Evitar duplicados
+        const isDuplicate = this.messages.find(m => m.id === message.id);
+        if (isDuplicate) {
+          console.log('   ⚠️ Mensaje duplicado, ignorando');
+          return;
+        }
+
+        console.log('   ✅ Agregando mensaje a la lista');
+        this.messages = [...this.messages, message as Message];
+        this.cdr.detectChanges();
+        this.scrollToBottom();
       }),
       this.chatService.connectionStatus$.subscribe((connected: boolean) => {
         this.isConnected = connected;
@@ -265,19 +291,26 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     // Limpiar input inmediatamente para mejor UX
     this.newMessage = '';
 
+    console.log('📤 [EMPLEADO] Enviando mensaje:', messageContent);
+    console.log('   - Conectado al WebSocket:', this.chatService.isConnected());
+    console.log('   - Incidencia ID:', this.incidentData.id);
+
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
       try {
+        console.log('   - Enviando por WebSocket...');
         await this.chatService.sendMessage(messageContent);
+        console.log('   ✅ Mensaje enviado por WebSocket');
         // Mensaje enviado exitosamente por WebSocket
         this.isSendingMessage = false;
         this.cdr.detectChanges();
       } catch (error) {
-        console.error('Error sending via WebSocket, fallback to HTTP:', error);
+        console.error('   ❌ Error al enviar por WebSocket, usando HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
       // Fallback a HTTP si no hay WebSocket
+      console.log('   - WebSocket no conectado, usando HTTP');
       this.sendMessageViaHttp(messageContent);
     }
   }

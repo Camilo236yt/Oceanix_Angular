@@ -93,17 +93,67 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.initializeForm();
     this.cargarIncidencias();
 
+    console.log('🎬 [CLIENTE] Componente inicializado - Suscribiéndose a eventos WebSocket');
+
     // Suscribirse a eventos del WebSocket
     this.subscriptions.push(
       this.chatService.newMessage$.subscribe((message: ChatMessage) => {
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('🔔 [CLIENTE] Nuevo mensaje recibido por WebSocket:', message);
+        console.log('   - ID:', message.id);
+        console.log('   - Contenido:', message.content);
+        console.log('   - Tipo de remitente:', message.senderType);
+        console.log('   - incidenciaId del mensaje:', (message as any).incidenciaId);
+        console.log('   - Mensajes actuales:', this.messages.length);
+        console.log('   - Incidencia seleccionada:', this.selectedIncidencia?.id);
+        console.log('   - Incidencia seleccionada (toString):', this.selectedIncidencia?.id?.toString());
+
+        // IMPORTANTE: Solo agregar mensajes que pertenecen a la incidencia actualmente abierta
+        console.log('🔍 Verificación 1: ¿Hay incidencia seleccionada?');
+        if (!this.selectedIncidencia) {
+          console.log('   ❌ No hay incidencia seleccionada, ignorando mensaje');
+          console.log('═══════════════════════════════════════════════════════');
+          return;
+        }
+        console.log('   ✅ Sí hay incidencia seleccionada');
+
+        // Verificar que el mensaje pertenece a la incidencia actual
+        console.log('🔍 Verificación 2: ¿El mensaje pertenece a esta incidencia?');
+        const messageIncidenciaId = (message as any).incidenciaId;
+        const currentIncidenciaId = this.selectedIncidencia.id.toString();
+        console.log('   - ID del mensaje:', messageIncidenciaId);
+        console.log('   - ID de incidencia actual:', currentIncidenciaId);
+        console.log('   - ¿Son iguales?:', messageIncidenciaId === currentIncidenciaId);
+
+        if (messageIncidenciaId && messageIncidenciaId !== currentIncidenciaId) {
+          console.log('   ❌ Mensaje pertenece a otra incidencia, ignorando');
+          console.log('═══════════════════════════════════════════════════════');
+          return;
+        }
+        console.log('   ✅ El mensaje pertenece a esta incidencia');
+
         // Evitar duplicados
-        if (!this.messages.find(m => m.id === message.id)) {
+        console.log('🔍 Verificación 3: ¿Es un mensaje duplicado?');
+        const isDuplicate = this.messages.find(m => m.id === message.id);
+        console.log('   - ¿Duplicado?:', !!isDuplicate);
+        if (isDuplicate) {
+          console.log('   ❌ Mensaje duplicado, ignorando');
+          console.log('═══════════════════════════════════════════════════════');
+          return;
+        }
+        console.log('   ✅ Mensaje no es duplicado');
+
+        console.log('✅✅✅ TODAS LAS VERIFICACIONES PASARON - Agregando mensaje a la lista');
+        this.ngZone.run(() => {
           this.messages = [...this.messages, message as Message];
           this.cdr.detectChanges();
           this.scrollToBottom();
-        }
+          console.log('   📝 Mensaje agregado. Total de mensajes ahora:', this.messages.length);
+        });
+        console.log('═══════════════════════════════════════════════════════');
       }),
       this.chatService.connectionStatus$.subscribe((connected: boolean) => {
+        console.log('🔌 [CLIENTE] Estado de conexión WebSocket cambió:', connected ? 'CONECTADO ✅' : 'DESCONECTADO ❌');
         this.isConnected = connected;
         this.cdr.detectChanges();
       }),
@@ -418,23 +468,43 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   private connectToChat(): void {
     if (!this.selectedIncidencia) {
+      console.log('⚠️ [CLIENTE] No hay incidencia seleccionada para conectar al chat');
       return;
     }
 
-    // Los clientes usan autenticación por cookies, no por token JWT
+    console.log('🔌 [CLIENTE] Conectando al chat para incidencia:', this.selectedIncidencia.id);
+
+    // Obtener el token del localStorage (igual que el empleado)
+    const token = this.authClienteService.getToken();
+
+    if (!token) {
+      console.error('❌ [CLIENTE] No hay token disponible para conectar al WebSocket');
+      return;
+    }
+
+    // Conectar con el token JWT (igual que el empleado)
     if (!this.chatService.isConnected()) {
-      this.chatService.connect();
+      console.log('   - Iniciando conexión WebSocket CON token JWT');
+      this.chatService.connect(token);
+    } else {
+      console.log('   - WebSocket ya conectado');
     }
 
     // Esperar a que se conecte y unirse a la sala
     const checkConnection = setInterval(() => {
       if (this.chatService.isConnected()) {
         clearInterval(checkConnection);
+        console.log('   ✅ Conexión WebSocket establecida, uniéndose a sala:', this.selectedIncidencia!.id.toString());
         this.chatService.joinRoom(this.selectedIncidencia!.id.toString());
       }
     }, 100);
 
-    setTimeout(() => clearInterval(checkConnection), 5000);
+    setTimeout(() => {
+      clearInterval(checkConnection);
+      if (!this.chatService.isConnected()) {
+        console.error('   ❌ Timeout: No se pudo conectar al WebSocket en 5 segundos');
+      }
+    }, 5000);
   }
 
   loadMessages(): void {
@@ -477,16 +547,24 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     const messageContent = this.newMessage;
     this.newMessage = ''; // Limpiar inmediatamente para UX fluida
 
+    console.log('📤 [CLIENTE] Enviando mensaje:', messageContent);
+    console.log('   - Conectado al WebSocket:', this.chatService.isConnected());
+    console.log('   - Incidencia ID:', this.selectedIncidencia.id);
+
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
       try {
+        console.log('   - Enviando por WebSocket...');
         await this.chatService.sendMessage(messageContent);
+        console.log('   ✅ Mensaje enviado por WebSocket');
         this.cdr.detectChanges();
       } catch (error) {
+        console.error('   ❌ Error al enviar por WebSocket, usando HTTP:', error);
         this.sendMessageViaHttp(messageContent);
       }
     } else {
       // Fallback a HTTP si no hay WebSocket
+      console.log('   - WebSocket no conectado, usando HTTP');
       this.sendMessageViaHttp(messageContent);
     }
   }

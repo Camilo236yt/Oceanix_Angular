@@ -84,8 +84,12 @@ export class IncidenciaChatService implements OnDestroy {
    */
   connect(token?: string): void {
     if (this.socket?.connected) {
+      console.log('ℹ️ [ChatService] Ya conectado al WebSocket, saltando conexión');
       return;
     }
+
+    console.log('🔌 [ChatService] Iniciando conexión WebSocket...');
+    console.log('   - Con token:', token ? 'Sí (empleado)' : 'No (cliente con cookies)');
 
     // Construir URL del WebSocket
     // En desarrollo apiUrl es relativo (/api/v1), necesitamos la URL completa del backend
@@ -97,6 +101,8 @@ export class IncidenciaChatService implements OnDestroy {
       // Producción: extraer del apiUrl
       wsUrl = environment.apiUrl.replace('/api/v1', '');
     }
+
+    console.log('   - URL WebSocket:', `${wsUrl}/chat`);
 
     // Configuración base
     const socketConfig: any = {
@@ -111,6 +117,9 @@ export class IncidenciaChatService implements OnDestroy {
     // Si no hay token (clientes), socket.io usará las cookies automáticamente
     if (token) {
       socketConfig.auth = { token };
+      console.log('   - Autenticación: Token JWT');
+    } else {
+      console.log('   - Autenticación: Cookies (withCredentials: true)');
     }
 
     this.socket = io(`${wsUrl}/chat`, socketConfig);
@@ -125,25 +134,31 @@ export class IncidenciaChatService implements OnDestroy {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
+      console.log('✅ [ChatService] WebSocket conectado');
       this.connectionStatusSubject.next(true);
 
       // Reconectar a la sala si había una incidencia activa
       if (this.currentIncidenciaId) {
+        console.log('🔄 [ChatService] Reconectando a sala:', this.currentIncidenciaId);
         this.joinRoom(this.currentIncidenciaId);
       }
     });
 
     this.socket.on('disconnect', () => {
+      console.log('❌ [ChatService] WebSocket desconectado');
       this.connectionStatusSubject.next(false);
     });
 
-    this.socket.on('connect_error', () => {
+    this.socket.on('connect_error', (error: any) => {
+      console.error('❌ [ChatService] Error de conexión:', error);
       this.errorSubject.next('Error de conexión al chat');
       this.connectionStatusSubject.next(false);
     });
 
     // Evento de nuevo mensaje
     this.socket.on('newMessage', (data: { message: ChatMessage }) => {
+      console.log('📨 [ChatService] Evento newMessage recibido:', data);
+      console.log('   🔄 Emitiendo a todos los suscriptores de newMessage$');
       this.newMessageSubject.next(data.message);
     });
 
@@ -200,13 +215,19 @@ export class IncidenciaChatService implements OnDestroy {
    */
   joinRoom(incidenciaId: string): void {
     if (!this.socket?.connected) {
+      console.warn('⚠️ [ChatService] No se puede unir a sala - WebSocket no conectado');
       return;
     }
 
+    console.log('🚪 [ChatService] Uniéndose a sala de incidencia:', incidenciaId);
     this.currentIncidenciaId = incidenciaId;
     this.socket.emit('joinIncidenciaChat', { incidenciaId }, (response: any) => {
       if (response?.event === 'error') {
+        console.error('❌ [ChatService] Error al unirse a sala:', response.data.message);
         this.errorSubject.next(response.data.message);
+      } else {
+        console.log('✅ [ChatService] Unido exitosamente a sala:', incidenciaId);
+        console.log('   Respuesta:', response);
       }
     });
   }
