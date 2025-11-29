@@ -149,6 +149,7 @@ export interface MeEnterprise {
 export interface EnterpriseConfig {
   isVerified: boolean;
   verificationStatus: string;
+  actualVerificationStatus: string;
   primaryColor: string | null;
   secondaryColor: string | null;
   accentColor: string | null;

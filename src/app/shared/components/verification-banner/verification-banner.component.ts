@@ -18,6 +18,7 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   bannerMessage = '';
   showLink = true;
   private routerSubscription?: Subscription;
+  private configSubscription?: Subscription;
 
   // Permisos requeridos para ver el banner de verificación
   private readonly verificationPermissions = [
@@ -41,6 +42,12 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Suscribirse a los cambios de configuración desde auth/me
+    this.configSubscription = this.authService.config$.subscribe(config => {
+      this.updateBannerMessage(config?.actualVerificationStatus);
+      this.checkRoute(this.router.url);
+    });
+
     // Check initial route
     this.checkRoute(this.router.url);
 
@@ -53,27 +60,29 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up subscription
+    // Clean up subscriptions
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
+    if (this.configSubscription) {
+      this.configSubscription.unsubscribe();
+    }
   }
 
-  private checkRoute(url: string) {
-    // Verificar si tiene permisos de verificación
-    const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
-
-    // Verificar el estado de verificación en localStorage
-    const verificationStatus = localStorage.getItem('verificationStatus');
-
-    // Determinar el mensaje del banner según el estado
-    if (verificationStatus === 'pending_review') {
+  private updateBannerMessage(actualVerificationStatus?: string) {
+    // Determinar el mensaje del banner según el actualVerificationStatus de auth/me
+    if (actualVerificationStatus === 'in_progress') {
       this.bannerMessage = 'Estamos verificando tus datos, pronto recibirás una confirmación';
       this.showLink = false; // No mostrar el link cuando está en revisión
     } else {
       this.bannerMessage = 'No has completado tu verificación, haz click';
       this.showLink = true;
     }
+  }
+
+  private checkRoute(url: string) {
+    // Verificar si tiene permisos de verificación
+    const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
 
     // Hide banner if we're on the verification page or don't have permissions
     this.showBanner = hasVerificationPermission && !url.includes('/verificar-cuenta');
