@@ -381,12 +381,14 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     // Cargar datos completos en segundo plano
     this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
       next: (incidenciaCompleta) => {
+        console.log('✅ Incidencia completa cargada:', incidenciaCompleta);
+        console.log('📸 Imágenes:', incidenciaCompleta.images);
         this.selectedIncidencia = incidenciaCompleta;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (error) => {
         // Si falla, mantener los datos básicos que ya tenemos
-        console.warn('No se pudieron cargar los detalles completos de la incidencia');
+        console.error('❌ Error al cargar detalles completos de la incidencia:', error);
       }
     });
   }

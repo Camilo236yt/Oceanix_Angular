@@ -25,8 +25,11 @@ export class SecureImagePipe implements PipeTransform {
     }
 
     // La URL viene completa del backend (ej: https://backend.../api/v1/incidencias/images/{id})
-    // Solo necesitamos usarla directamente
+    // Si es cliente y la URL no termina en /client, agregarlo
     let requestUrl = url;
+    if (isClient && !url.endsWith('/client')) {
+      requestUrl = `${url}/client`;
+    }
 
     console.log('🖼️ [SecureImagePipe] Loading image:', { original: url, request: requestUrl, isClient });
 

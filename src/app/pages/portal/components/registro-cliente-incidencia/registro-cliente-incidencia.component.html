@@ -565,11 +565,15 @@
               </div>
 
               <!-- Imágenes de evidencia existentes -->
-              @if (selectedIncidencia.images && selectedIncidencia.images.length > 0) {
-                <div class="mb-4">
-                  <label class="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">
-                    Imágenes de Evidencia ({{ selectedIncidencia.images.length }})
-                  </label>
+              <div class="mb-4">
+                <label class="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wide block mb-2">
+                  Imágenes de Evidencia
+                  @if (selectedIncidencia.images && selectedIncidencia.images.length > 0) {
+                    <span>({{ selectedIncidencia.images.length }})</span>
+                  }
+                </label>
+
+                @if (selectedIncidencia.images && selectedIncidencia.images.length > 0) {
                   <div class="grid grid-cols-2 sm:grid-cols-2 gap-2">
                     @for (image of selectedIncidencia.images; track image.id; let idx = $index) {
                       <div class="relative group cursor-pointer rounded-lg overflow-hidden border border-gray-200 aspect-video bg-gray-100"
@@ -600,8 +604,17 @@
                       </div>
                     }
                   </div>
-                </div>
-              }
+                } @else {
+                  <!-- Mensaje cuando no hay imágenes -->
+                  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 text-center">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-xs sm:text-sm text-gray-500 font-medium">No hay imágenes adjuntas</p>
+                    <p class="text-[10px] sm:text-xs text-gray-400 mt-1">Esta incidencia no tiene evidencia fotográfica</p>
+                  </div>
+                }
+              </div>
 
               <!-- Upload de imágenes (solo si puede subir) -->
               @if (selectedIncidencia.canClientUploadImages) {
