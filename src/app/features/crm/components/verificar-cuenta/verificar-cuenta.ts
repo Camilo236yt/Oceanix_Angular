@@ -525,6 +525,7 @@ export class VerificarCuenta implements OnInit {
   enviandoCodigoTelefono: boolean = false;
   mostrarCampoCodigoEmail: boolean = false;
   mostrarCampoCodigoTelefono: boolean = false;
+  codigoEmailVerificadoExitosamente: boolean = false;
   errorEmail: string = '';
   errorTelefono: string = '';
   errorCodigoEmail: string = '';
@@ -621,8 +622,9 @@ export class VerificarCuenta implements OnInit {
         const data = response.data || response;
 
         if (data.verified) {
-          // Marcar email como verificado
+          // Marcar email como verificado y mostrar ícono de éxito
           this.datosVerificacion.paso3.emailVerificado = true;
+          this.codigoEmailVerificadoExitosamente = true;
           this.mostrarCampoCodigoEmail = false;
           console.log('✅ ¡Correo verificado exitosamente!');
         } else {

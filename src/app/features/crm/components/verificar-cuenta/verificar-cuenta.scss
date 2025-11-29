@@ -1688,6 +1688,23 @@ $gray-900: #212121;
     transform: translateY(0);
   }
 
+  // Estado verificado
+  &.btn-verificado {
+    background: #22C55E;
+    cursor: default;
+
+    &:hover {
+      background: #22C55E;
+      transform: none;
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
+    }
+
+    .icono-check-verde {
+      color: white;
+      animation: checkmarkPop 0.4s ease-out;
+    }
+  }
+
   @media (max-width: 768px) {
     font-size: 14px;
     padding: 14px 24px;
@@ -1703,6 +1720,19 @@ $gray-900: #212121;
     width: 100%;
     min-height: 48px;
     padding: 12px 20px;
+  }
+}
+
+// Animación para el ícono de check
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
