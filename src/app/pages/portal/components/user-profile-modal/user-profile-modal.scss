@@ -25,3 +25,15 @@
 .animate-modal-in {
   animation: modal-in 0.3s ease-out;
 }
+
+// Animación de botón presionado
+button {
+  &.active\:scale-98:active {
+    transform: scale(0.98);
+  }
+}
+
+// Transiciones suaves para botones
+button {
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}

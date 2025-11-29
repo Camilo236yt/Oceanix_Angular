@@ -182,3 +182,19 @@ input[type="file"] {
 ::ng-deep .swal-high-zindex {
   z-index: 99999 !important;
 }
+
+// Animación de skeleton loader mejorada con gradiente
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.animate-pulse {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(to right, #f3f4f6 0%, #e5e7eb 20%, #f3f4f6 40%, #f3f4f6 100%);
+  background-size: 800px 104px;
+}

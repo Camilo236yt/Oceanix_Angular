@@ -18,6 +18,7 @@ export class UserProfileModal {
   @Input() userProfile: UserProfile | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
+  @Output() openHistory = new EventEmitter<void>();
 
   closeModal() {
     this.close.emit();
@@ -25,6 +26,11 @@ export class UserProfileModal {
 
   onLogout() {
     this.logout.emit();
+  }
+
+  onOpenHistory() {
+    this.openHistory.emit();
+    this.closeModal(); // Cerrar el modal de perfil al abrir historial
   }
 
   handleBackdropClick(event: MouseEvent) {

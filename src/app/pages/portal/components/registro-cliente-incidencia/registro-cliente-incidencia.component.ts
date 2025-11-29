@@ -43,6 +43,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   selectedIncidencia: Incidencia | null = null;
   removingIncidenciaId: number | null = null;
   activeTab: 'details' | 'chat' = 'details';
+  isLoadingIncidenciaDetails = false;
 
   // Chat en modal
   messages: Message[] = [];
@@ -367,6 +368,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     // Abrir modal inmediatamente con los datos básicos
     this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
+    this.isLoadingIncidenciaDetails = true; // Activar loading para detalles
     document.body.style.overflow = 'hidden';
 
     // Inicializar array vacío de mensajes para mostrar UI inmediatamente
@@ -378,17 +380,20 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.loadMessages();
     this.connectToChat();
 
-    // Cargar datos completos en segundo plano
+    // Cargar datos completos en segundo plano (con prioridad en imágenes)
     this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
       next: (incidenciaCompleta) => {
         console.log('✅ Incidencia completa cargada:', incidenciaCompleta);
         console.log('📸 Imágenes:', incidenciaCompleta.images);
         this.selectedIncidencia = incidenciaCompleta;
+        this.isLoadingIncidenciaDetails = false; // Desactivar loading
         this.cdr.detectChanges();
       },
       error: (error) => {
         // Si falla, mantener los datos básicos que ya tenemos
         console.error('❌ Error al cargar detalles completos de la incidencia:', error);
+        this.isLoadingIncidenciaDetails = false; // Desactivar loading incluso en error
+        this.cdr.detectChanges();
       }
     });
   }
@@ -402,6 +407,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.modalPreviews = [];
     this.activeTab = 'details';
     this.isLightboxOpen = false; // Cerrar lightbox si está abierto
+    this.isLoadingIncidenciaDetails = false; // Resetear loading
     this.chatService.leaveRoom();
     document.body.style.overflow = '';
   }
