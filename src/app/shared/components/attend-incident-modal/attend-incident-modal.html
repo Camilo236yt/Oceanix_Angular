@@ -122,25 +122,25 @@
               </div>
             </div>
 
-            <!-- Images Carousel -->
-            @if (incidentData.images && incidentData.images.length > 0) {
+            <!-- Imágenes Iniciales -->
+            @if (initialImages.length > 0) {
               <div>
                 <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-4">
-                  Imágenes de Evidencia ({{ incidentData.images.length }})
+                  Imágenes Iniciales ({{ initialImages.length }})
                 </label>
                 <div class="relative">
                   <!-- Carousel Container -->
                   <div class="relative rounded-lg overflow-hidden border border-[var(--card-border)] aspect-video bg-[var(--card-bg)] group">
-                    @if ((incidentData.images[currentImageIndex].url | secureImage | async); as imageUrl) {
+                    @if ((initialImages[currentInitialImageIndex].url | secureImage | async); as imageUrl) {
                       <img [src]="imageUrl"
-                           [alt]="incidentData.images[currentImageIndex].originalName"
+                           [alt]="initialImages[currentInitialImageIndex].originalName"
                            class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
                            style="image-rendering: -webkit-optimize-contrast;"
-                           (click)="openLightbox(currentImageIndex)"
+                           (click)="openLightbox(currentInitialImageIndex, 'initial')"
                            title="Click para ver imagen completa">
                     }
 
-                    <!-- Hover Overlay - Ver imagen (se oculta cuando hover sobre botones) -->
+                    <!-- Hover Overlay - Ver imagen -->
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
                       <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/95 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
                         <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,14 +153,13 @@
 
                     <!-- Image Counter -->
                     <div class="absolute top-3 right-3 bg-black/70 text-white text-xs font-medium px-2.5 py-1 rounded-md z-30 pointer-events-none">
-                      {{ currentImageIndex + 1 }} / {{ incidentData.images.length }}
+                      {{ currentInitialImageIndex + 1 }} / {{ initialImages.length }}
                     </div>
 
-                    <!-- Navigation Arrows (only show if more than 1 image) -->
-                    @if (incidentData.images.length > 1) {
-                      <!-- Previous Button - Solo visible si NO es la primera imagen -->
-                      @if (currentImageIndex > 0) {
-                        <button (click)="previousImage($event)"
+                    <!-- Navigation Arrows -->
+                    @if (initialImages.length > 1) {
+                      @if (currentInitialImageIndex > 0) {
+                        <button (click)="previousInitialImage($event)"
                                 (mouseenter)="$event.stopPropagation()"
                                 class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
                           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,10 +167,8 @@
                           </svg>
                         </button>
                       }
-
-                      <!-- Next Button - Solo visible si NO es la última imagen -->
-                      @if (currentImageIndex < incidentData.images.length - 1) {
-                        <button (click)="nextImage($event)"
+                      @if (currentInitialImageIndex < initialImages.length - 1) {
+                        <button (click)="nextInitialImage($event)"
                                 (mouseenter)="$event.stopPropagation()"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
                           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +180,73 @@
                   </div>
                 </div>
               </div>
-            } @else {
+            }
+
+            <!-- Evidencia Adicional -->
+            @if (additionalImages.length > 0) {
+              <div [class.mt-6]="initialImages.length > 0">
+                <label class="text-xs font-medium text-amber-700 dark:text-amber-400 uppercase tracking-wide block mb-4 flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Evidencia Adicional ({{ additionalImages.length }})
+                </label>
+                <div class="relative">
+                  <!-- Carousel Container -->
+                  <div class="relative rounded-lg overflow-hidden border-2 border-amber-300 dark:border-amber-600 aspect-video bg-[var(--card-bg)] group">
+                    @if ((additionalImages[currentAdditionalImageIndex].url | secureImage | async); as imageUrl) {
+                      <img [src]="imageUrl"
+                           [alt]="additionalImages[currentAdditionalImageIndex].originalName"
+                           class="w-full h-full object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
+                           style="image-rendering: -webkit-optimize-contrast;"
+                           (click)="openLightbox(currentAdditionalImageIndex, 'additional')"
+                           title="Click para ver imagen completa">
+                    }
+
+                    <!-- Hover Overlay - Ver imagen -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
+                      <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/95 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span class="text-sm font-semibold text-gray-700">Ver imagen completa</span>
+                      </div>
+                    </div>
+
+                    <!-- Image Counter -->
+                    <div class="absolute top-3 right-3 bg-amber-600/90 text-white text-xs font-medium px-2.5 py-1 rounded-md z-30 pointer-events-none">
+                      {{ currentAdditionalImageIndex + 1 }} / {{ additionalImages.length }}
+                    </div>
+
+                    <!-- Navigation Arrows -->
+                    @if (additionalImages.length > 1) {
+                      @if (currentAdditionalImageIndex > 0) {
+                        <button (click)="previousAdditionalImage($event)"
+                                (mouseenter)="$event.stopPropagation()"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                          </svg>
+                        </button>
+                      }
+                      @if (currentAdditionalImageIndex < additionalImages.length - 1) {
+                        <button (click)="nextAdditionalImage($event)"
+                                (mouseenter)="$event.stopPropagation()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-50 pointer-events-auto">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                          </svg>
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- No images message -->
+            @if (initialImages.length === 0 && additionalImages.length === 0) {
               <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 text-center">
                 <p class="text-sm text-[var(--text-tertiary)]">No hay imágenes adjuntas</p>
               </div>
@@ -395,7 +458,7 @@
   </div>
 
   <!-- Lightbox for full-size image -->
-  @if (isLightboxOpen && incidentData && incidentData.images && incidentData.images.length > 0) {
+  @if (isLightboxOpen) {
     <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 animate-fade-in"
          (click)="closeLightbox()">
       <!-- Close Button -->
@@ -409,21 +472,38 @@
       <!-- Image Container -->
       <div class="relative w-full h-full flex items-center justify-center p-4"
            (click)="$event.stopPropagation()">
-        @if ((incidentData.images[lightboxImageIndex].url | secureImage | async); as imageUrl) {
-          @if (imageUrl) {
-            <img [src]="imageUrl"
-                 [alt]="incidentData.images[lightboxImageIndex].originalName"
-                 class="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain shadow-2xl"
-                 style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
-                 (click)="$event.stopPropagation()">
+        @if (lightboxImageType === 'initial' && initialImages.length > 0) {
+          @if ((initialImages[lightboxImageIndex].url | secureImage | async); as imageUrl) {
+            @if (imageUrl) {
+              <img [src]="imageUrl"
+                   [alt]="initialImages[lightboxImageIndex].originalName"
+                   class="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain shadow-2xl"
+                   style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                   (click)="$event.stopPropagation()">
+            }
           }
-        }
-
-        <!-- Image Counter - Only show if more than 1 image -->
-        @if (incidentData.images.length > 1) {
-          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm font-medium px-4 py-2 rounded-full">
-            {{ lightboxImageIndex + 1 }} / {{ incidentData.images.length }}
-          </div>
+          <!-- Image Counter -->
+          @if (initialImages.length > 1) {
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-sm font-medium px-4 py-2 rounded-full">
+              {{ lightboxImageIndex + 1 }} / {{ initialImages.length }}
+            </div>
+          }
+        } @else if (lightboxImageType === 'additional' && additionalImages.length > 0) {
+          @if ((additionalImages[lightboxImageIndex].url | secureImage | async); as imageUrl) {
+            @if (imageUrl) {
+              <img [src]="imageUrl"
+                   [alt]="additionalImages[lightboxImageIndex].originalName"
+                   class="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain shadow-2xl"
+                   style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;"
+                   (click)="$event.stopPropagation()">
+            }
+          }
+          <!-- Image Counter -->
+          @if (additionalImages.length > 1) {
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-amber-600/90 text-white text-sm font-medium px-4 py-2 rounded-full">
+              {{ lightboxImageIndex + 1 }} / {{ additionalImages.length }}
+            </div>
+          }
         }
       </div>
     </div>

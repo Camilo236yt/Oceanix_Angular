@@ -60,15 +60,27 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   showRequestImagesOptions = false;
   requestImagesHours = 24;
 
-  // Carousel
+  // Carousel - Separated carousels for initial and additional images
   currentImageIndex = 0;
+  currentInitialImageIndex = 0;
+  currentAdditionalImageIndex = 0;
   isImageTransitioning = false;
   private imageCache = new Map<string, string>();
 
   // Lightbox
   isLightboxOpen = false;
   lightboxImageIndex = 0;
+  lightboxImageType: 'initial' | 'additional' = 'initial';
   isLightboxTransitioning = false;
+
+  // Getters for separated images
+  get initialImages() {
+    return this.incidentData?.images?.filter(img => !img.uploadType || img.uploadType === 'INITIAL') || [];
+  }
+
+  get additionalImages() {
+    return this.incidentData?.images?.filter(img => img.uploadType === 'ADDITIONAL') || [];
+  }
 
   // WebSocket
   isConnected = false;
@@ -471,11 +483,40 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     });
   }
 
-  // Carousel methods
+  // Carousel methods for initial images
+  nextInitialImage(event: Event) {
+    event.stopPropagation();
+    if (this.initialImages.length === 0) return;
+    this.currentInitialImageIndex = (this.currentInitialImageIndex + 1) % this.initialImages.length;
+  }
+
+  previousInitialImage(event: Event) {
+    event.stopPropagation();
+    if (this.initialImages.length === 0) return;
+    this.currentInitialImageIndex = this.currentInitialImageIndex === 0
+      ? this.initialImages.length - 1
+      : this.currentInitialImageIndex - 1;
+  }
+
+  // Carousel methods for additional images
+  nextAdditionalImage(event: Event) {
+    event.stopPropagation();
+    if (this.additionalImages.length === 0) return;
+    this.currentAdditionalImageIndex = (this.currentAdditionalImageIndex + 1) % this.additionalImages.length;
+  }
+
+  previousAdditionalImage(event: Event) {
+    event.stopPropagation();
+    if (this.additionalImages.length === 0) return;
+    this.currentAdditionalImageIndex = this.currentAdditionalImageIndex === 0
+      ? this.additionalImages.length - 1
+      : this.currentAdditionalImageIndex - 1;
+  }
+
+  // Legacy carousel methods (keep for compatibility)
   nextImage(event: Event) {
     event.stopPropagation();
     if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
-
     const totalImages = this.incidentData.images.length;
     this.currentImageIndex = (this.currentImageIndex + 1) % totalImages;
   }
@@ -483,7 +524,6 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   previousImage(event: Event) {
     event.stopPropagation();
     if (!this.incidentData?.images || this.incidentData.images.length === 0) return;
-
     const totalImages = this.incidentData.images.length;
     this.currentImageIndex = this.currentImageIndex === 0
       ? totalImages - 1
@@ -491,8 +531,9 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   }
 
   // Lightbox methods
-  openLightbox(index: number) {
+  openLightbox(index: number, type: 'initial' | 'additional' = 'initial') {
     this.lightboxImageIndex = index;
+    this.lightboxImageType = type;
     this.isLightboxOpen = true;
     this.cdr.detectChanges();
   }

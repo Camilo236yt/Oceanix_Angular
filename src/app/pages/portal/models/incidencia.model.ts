@@ -3,6 +3,7 @@ export interface IncidenciaImage {
   url: string;
   originalName: string;
   mimeType?: string;
+  uploadType?: 'INITIAL' | 'ADDITIONAL';
 }
 
 export interface Incidencia {
