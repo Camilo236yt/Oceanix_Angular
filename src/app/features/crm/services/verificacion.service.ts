@@ -175,7 +175,7 @@ export class VerificacionService {
     // - Authorization header
     // - Content-Type: application/json
     return this.http.post<VerifyEmailCodeResponse>(
-      `${this.API_URL}/enterprise-config/verify-email-code`,
+      `${this.API_URL}/enterprise-config/verify-email`,
       body
     );
   }
