@@ -58,12 +58,16 @@
     <!-- Sidebar Header with Logo and Close -->
     <div class="flex items-center justify-between px-5 py-3.5 bg-[var(--sidebar-bg)]">
       <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-        </div>
-        <h1 class="text-base font-semibold text-[var(--text-primary)]">IncidentCRM</h1>
+        @if (logoUrl) {
+          <img [src]="logoUrl" alt="Logo" class="w-9 h-9 rounded-full object-cover">
+        } @else {
+          <div class="w-9 h-9 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+        }
+        <h1 class="text-sm font-semibold text-[var(--text-primary)]">{{ enterpriseName }}</h1>
       </div>
       <div class="flex items-center gap-1">
         <!-- View Options Button -->
@@ -271,12 +275,16 @@
     <div class="flex items-center justify-between px-6 py-8 flex-shrink-0">
       @if (!isCollapsed) {
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-          </div>
-          <h1 class="text-xl font-semibold text-[var(--text-primary)]">IncidentCRM</h1>
+          @if (logoUrl) {
+            <img [src]="logoUrl" alt="Logo" class="w-12 h-12 rounded-full object-cover">
+          } @else {
+            <div class="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+          }
+          <h1 class="text-base font-semibold text-[var(--text-primary)]">{{ enterpriseName }}</h1>
         </div>
       }
       <button (click)="toggleSidebar()" [class]="isCollapsed ? 'p-2 text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-hover)] mx-auto' : 'p-2 text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-hover)]'">

@@ -47,6 +47,10 @@ export class CrmLayout implements OnInit, OnDestroy {
   // CRM Notifications (Dropdown)
   isNotificationDropdownOpen = false;
 
+  // Enterprise logo and name
+  logoUrl: string | null = null;
+  enterpriseName: string = 'IncidentCRM';
+
   // Servicios
   themeService = inject(ThemeService);
   authService = inject(AuthService);
@@ -85,6 +89,16 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Suscribirse a cambios en permisos para actualizar el menú dinámicamente
     this.authService.permissions$.subscribe(() => {
       this.filterMenuItemsByPermissions();
+    });
+
+    // Suscribirse al config para obtener el logo de la empresa
+    this.authService.config$.subscribe((config) => {
+      this.logoUrl = config?.logoUrl || null;
+    });
+
+    // Suscribirse a los datos de la empresa para obtener el nombre
+    this.authService.meEnterprise$.subscribe((enterprise) => {
+      this.enterpriseName = enterprise?.name || 'IncidentCRM';
     });
 
     // Inicializar la fecha actual
