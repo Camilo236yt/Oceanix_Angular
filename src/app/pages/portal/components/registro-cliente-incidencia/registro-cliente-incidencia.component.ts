@@ -481,18 +481,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
     console.log('🔌 [CLIENTE] Conectando al chat para incidencia:', this.selectedIncidencia.id);
 
-    // Obtener el token del localStorage (igual que el empleado)
-    const token = this.authClienteService.getToken();
-
-    if (!token) {
-      console.error('❌ [CLIENTE] No hay token disponible para conectar al WebSocket');
-      return;
-    }
-
-    // Conectar con el token JWT (igual que el empleado)
+    // Conectar sin token - el backend autenticará con cookies
     if (!this.chatService.isConnected()) {
-      console.log('   - Iniciando conexión WebSocket CON token JWT');
-      this.chatService.connect(token);
+      console.log('   - Iniciando conexión WebSocket usando cookies (sin token)');
+      this.chatService.connect(); // Sin token - usa withCredentials y cookies
     } else {
       console.log('   - WebSocket ya conectado');
     }
