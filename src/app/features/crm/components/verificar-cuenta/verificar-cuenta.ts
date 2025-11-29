@@ -625,8 +625,11 @@ export class VerificarCuenta implements OnInit {
           // Marcar email como verificado y mostrar ícono de éxito
           this.datosVerificacion.paso3.emailVerificado = true;
           this.codigoEmailVerificadoExitosamente = true;
-          this.mostrarCampoCodigoEmail = false;
+          // NO ocultar el campo para mostrar el botón verificado
           console.log('✅ ¡Correo verificado exitosamente!');
+
+          // Forzar detección de cambios para actualizar la UI
+          this.cdr.detectChanges();
         } else {
           // Si el backend dice que no está verificado
           this.errorCodigoEmail = 'El código ingresado no es válido';
