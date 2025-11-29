@@ -509,9 +509,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       clearInterval(checkConnection);
       if (!this.chatService.isConnected()) {
-        console.error('   ❌ Timeout: No se pudo conectar al WebSocket en 5 segundos');
+        console.error('   ❌ Timeout: No se pudo conectar al WebSocket en 10 segundos');
       }
-    }, 5000);
+    }, 10000);
   }
 
   loadMessages(): void {
