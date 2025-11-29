@@ -12,6 +12,7 @@ export interface IncidentImage {
   mimeType: string;
   originalName: string;
   createdAt: string;
+  uploadType?: 'INITIAL' | 'ADDITIONAL';
 }
 
 export interface User {
