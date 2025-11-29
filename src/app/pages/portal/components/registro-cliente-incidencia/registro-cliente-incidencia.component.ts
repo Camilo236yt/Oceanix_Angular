@@ -773,19 +773,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
               this.incidencias = this.incidencias.filter(inc => inc.id !== incidenciaId);
               this.removingIncidenciaId = null;
               this.cdr.detectChanges();
-
-              // Mostrar mensaje de éxito
-              Swal.fire({
-                icon: 'success',
-                title: 'Incidencia cancelada',
-                text: 'Tu incidencia ha sido cancelada exitosamente.',
-                confirmButtonColor: '#7c3aed',
-                timer: 3000,
-                timerProgressBar: true,
-                customClass: {
-                  container: 'swal-high-zindex'
-                }
-              });
             }, 400);
           },
           error: (error) => {
