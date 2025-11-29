@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DatosVerificacion, Paso1Documentos, Paso2Marca, Paso3EmailVerificacion, TipoDocumento } from './verificar-cuenta.models';
 import { VerificacionService, EnterpriseConfigStatus } from '../../services/verificacion.service';
+import { AuthService } from '../../../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -61,7 +62,8 @@ export class VerificarCuenta implements OnInit {
   constructor(
     private verificacionService: VerificacionService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -905,6 +907,16 @@ export class VerificarCuenta implements OnInit {
         this.finalizandoVerificacion = false;
         this.guardarDatosPaso();
 
+        // Recargar datos de auth/me para actualizar el banner inmediatamente
+        this.authService.fetchMeData().subscribe({
+          next: () => {
+            console.log('✅ Datos de auth/me actualizados, el banner debería reflejarlo');
+          },
+          error: (err) => {
+            console.error('Error al recargar datos de auth/me:', err);
+          }
+        });
+
         // Mostrar mensaje de éxito
         Swal.fire({
           icon: 'success',
@@ -913,9 +925,6 @@ export class VerificarCuenta implements OnInit {
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#9333ea'
         }).then(() => {
-          // Actualizar el mensaje del banner en localStorage
-          localStorage.setItem('verificationStatus', 'pending_review');
-
           // Limpiar la ruta guardada
           localStorage.removeItem('previousRouteBeforeVerification');
 
