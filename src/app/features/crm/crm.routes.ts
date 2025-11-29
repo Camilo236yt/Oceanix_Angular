@@ -8,6 +8,7 @@ import { RolesPermisos } from './components/roles-permisos/roles-permisos';
 import { Reportes } from './components/reportes/reportes';
 import { VerificarCuenta } from './components/verificar-cuenta/verificar-cuenta';
 import { permissionGuard, anyPermissionGuard, roleGuard } from '../../core/guards/permission.guard';
+import { verificationStatusGuard } from '../../core/guards/verification-status.guard';
 
 export const CRM_ROUTES: Routes = [
   {
@@ -51,7 +52,8 @@ export const CRM_ROUTES: Routes = [
       },
       {
         path: 'verificar-cuenta',
-        component: VerificarCuenta
+        component: VerificarCuenta,
+        canActivate: [verificationStatusGuard]
       }
     ]
   }
