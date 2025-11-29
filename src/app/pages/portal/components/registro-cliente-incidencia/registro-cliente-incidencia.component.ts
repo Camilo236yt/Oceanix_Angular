@@ -203,10 +203,17 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       this.chatService.incidenciaUpdated$.subscribe((event) => {
         // Si hay una incidencia seleccionada y es la misma, actualizar
         if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === event.incidenciaId) {
+          const previousCanUpload = this.selectedIncidencia.canClientUploadImages;
+
           if (event.canClientUploadImages !== undefined) {
             this.selectedIncidencia.canClientUploadImages = event.canClientUploadImages;
           }
           this.cdr.detectChanges();
+
+          // Si cambió de false a true y hay imágenes, hacer scroll al campo de upload
+          if (!previousCanUpload && event.canClientUploadImages === true) {
+            this.scrollToUploadSection();
+          }
         }
 
         // Actualizar en la lista de incidencias
@@ -633,7 +640,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
     this.isUploadingImages = true;
     this.incidenciasService.uploadImages(this.selectedIncidencia.id.toString(), this.modalArchivos).subscribe({
-      next: (response) => {
+      next: () => {
         this.modalArchivos = [];
         this.modalPreviews = [];
         this.isUploadingImages = false;
@@ -896,5 +903,27 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       ? totalImages - 1
       : this.lightboxImageIndex - 1;
     this.cdr.detectChanges();
+  }
+
+  /**
+   * Hacer scroll automático al campo de upload de evidencia
+   * Solo se ejecuta si hay imágenes que puedan estar ocultando el campo
+   */
+  private scrollToUploadSection(): void {
+    // Solo hacer scroll si hay imágenes existentes que puedan ocultar el campo
+    if (!this.selectedIncidencia?.images || this.selectedIncidencia.images.length === 0) {
+      return;
+    }
+
+    // Esperar a que el DOM se actualice y el elemento esté visible
+    setTimeout(() => {
+      const uploadSection = document.getElementById('upload-evidence-section');
+      if (uploadSection) {
+        uploadSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+    }, 300);
   }
 }
