@@ -86,6 +86,10 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   isConnected = false;
   private subscriptions: Subscription[] = [];
 
+  // Typing indicator
+  typingUsers = new Set<string>();
+  private typingTimeout: any;
+
   private apiUrl = `${environment.apiUrl}/incidencias`;
 
   constructor(
@@ -94,7 +98,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     private chatService: IncidenciaChatService,
     private authService: AuthService,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (this.incidentData) {
@@ -181,6 +185,18 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
             this.cdr.detectChanges();
           });
         }
+      }),
+
+      // Suscribirse al indicador de "escribiendo"
+      this.chatService.typing$.subscribe((data: { userId: string; isTyping: boolean }) => {
+        this.ngZone.run(() => {
+          if (data.isTyping) {
+            this.typingUsers.add(data.userId);
+          } else {
+            this.typingUsers.delete(data.userId);
+          }
+          this.cdr.detectChanges();
+        });
       })
     );
   }
@@ -188,6 +204,9 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.chatService.disconnect();
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
   }
 
   private scrollToBottom(): void {
@@ -299,6 +318,12 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
     const messageContent = this.newMessage;
     this.isSendingMessage = true;
+
+    // Detener indicador de "escribiendo" al enviar
+    this.chatService.setTyping(false);
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
 
     // Limpiar input inmediatamente para mejor UX
     this.newMessage = '';
@@ -554,6 +579,32 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
       this.isLightboxTransitioning = false;
       this.cdr.detectChanges();
     }, 150);
+  }
+
+  /**
+   * Maneja el evento de input para detectar cuando el usuario está escribiendo
+   */
+  onMessageInput(event: Event): void {
+    const text = (event.target as HTMLInputElement).value;
+
+    if (text.length > 0) {
+      // Emitir "escribiendo" cuando el usuario escribe
+      this.chatService.setTyping(true);
+
+      // Auto-cancelar después de 3 segundos de inactividad
+      if (this.typingTimeout) {
+        clearTimeout(this.typingTimeout);
+      }
+      this.typingTimeout = setTimeout(() => {
+        this.chatService.setTyping(false);
+      }, 3000);
+    } else {
+      // Si el input está vacío, detener el indicador
+      this.chatService.setTyping(false);
+      if (this.typingTimeout) {
+        clearTimeout(this.typingTimeout);
+      }
+    }
   }
 
   previousLightboxImage(event: Event) {

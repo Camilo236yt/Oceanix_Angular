@@ -340,6 +340,23 @@
                   </div>
                 }
               }
+
+              <!-- Typing Indicator -->
+              @if (typingUsers.size > 0) {
+                <div class="flex justify-start items-end gap-1.5 md:gap-3 px-1">
+                  <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-[10px] md:text-xs font-semibold flex-shrink-0">
+                    C
+                  </div>
+                  <div class="bg-[var(--card-bg)] border border-[var(--border-primary)] rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-2">
+                    <div class="flex gap-1">
+                      <span class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 0ms;"></span>
+                      <span class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 150ms;"></span>
+                      <span class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 300ms;"></span>
+                    </div>
+                    <span class="text-xs text-[var(--text-tertiary)]">Escribiendo...</span>
+                  </div>
+                </div>
+              }
             </div>
 
             <!-- Message Input - Professional design with safe area -->
@@ -419,6 +436,7 @@
                   <div class="flex-1 relative">
                     <input type="text"
                            [(ngModel)]="newMessage"
+                           (input)="onMessageInput($event)"
                            (keyup.enter)="sendMessage()"
                            placeholder="Escribe un mensaje..."
                            [disabled]="isSendingMessage"
