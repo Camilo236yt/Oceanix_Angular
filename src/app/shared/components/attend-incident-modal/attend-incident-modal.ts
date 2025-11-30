@@ -16,6 +16,7 @@ interface Message {
   senderType: 'EMPLOYEE' | 'CLIENT';
   messageType: string;
   createdAt: string;
+  isRead?: boolean;
   sender?: {
     id: string;
     name: string;
