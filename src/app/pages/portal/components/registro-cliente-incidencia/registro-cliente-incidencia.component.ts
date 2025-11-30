@@ -151,7 +151,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           this.messages = [...this.messages, message as Message];
           this.cdr.detectChanges();
-          this.scrollToBottom();
+          this.scrollToBottom(false); // Smart scroll para nuevos mensajes recibidos
           console.log('   📝 Mensaje agregado. Total de mensajes ahora:', this.messages.length);
         });
         console.log('═══════════════════════════════════════════════════════');
@@ -239,6 +239,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
             this.typingUsers.delete(data.userId);
           }
           this.cdr.detectChanges();
+          this.scrollToBottom(false); // Smart scroll para typing
         });
       })
     );
@@ -547,7 +548,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.isLoadingMessages = false;
         this.cdr.detectChanges();
         // Usar requestAnimationFrame para scroll más suave
-        requestAnimationFrame(() => this.scrollToBottom());
+        requestAnimationFrame(() => this.scrollToBottom(true));
       },
       error: (error) => {
         clearTimeout(loadingTimeout);
@@ -601,7 +602,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           this.messages = [...this.messages, message];
         }
         this.cdr.detectChanges();
-        this.scrollToBottom();
+        this.scrollToBottom(true);
       },
       error: (error) => {
         console.error('Error al enviar mensaje:', error);
@@ -694,11 +695,25 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     return `${hours}:${minutes}`;
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottom(force: boolean = false): void {
     setTimeout(() => {
       const chatContainer = document.getElementById('client-chat-messages');
       if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        // Si es forzado (ej: envío propio), hacer scroll siempre
+        if (force) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          return;
+        }
+
+        // Si no es forzado (ej: typing o mensaje recibido), solo scroll si ya estaba abajo
+        const threshold = 150; // Margen de píxeles para considerar que está "abajo"
+        const position = chatContainer.scrollTop + chatContainer.offsetHeight;
+        const height = chatContainer.scrollHeight;
+
+        // Si la distancia al final es menor al umbral, hacer scroll
+        if (height - position < threshold) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
       }
     }, 100);
   }

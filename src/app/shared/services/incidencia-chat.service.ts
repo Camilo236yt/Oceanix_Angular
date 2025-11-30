@@ -9,6 +9,7 @@ export interface ChatMessage {
   senderType: 'EMPLOYEE' | 'CLIENT';
   messageType: string;
   createdAt: string;
+  isRead?: boolean;
   sender?: {
     id: string;
     name: string;
@@ -76,7 +77,7 @@ export class IncidenciaChatService implements OnDestroy {
   incidenciaUpdated$ = this.incidenciaUpdatedSubject.asObservable();
   newMessageNotification$ = this.newMessageNotificationSubject.asObservable();
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Conectar al WebSocket con el token de autenticación

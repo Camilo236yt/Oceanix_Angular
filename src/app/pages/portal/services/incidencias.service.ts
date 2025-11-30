@@ -16,6 +16,7 @@ export interface Message {
   senderType: 'EMPLOYEE' | 'CLIENT';
   messageType: string;
   createdAt: string;
+  isRead?: boolean;
   sender?: {
     id: string;
     name: string;
@@ -34,7 +35,7 @@ interface MessagesResponse {
 })
 export class IncidenciasService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Obtener todas las incidencias del cliente autenticado

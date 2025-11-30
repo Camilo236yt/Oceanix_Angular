@@ -140,9 +140,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         }
 
         console.log('   ✅ Agregando mensaje a la lista');
-        this.messages = [...this.messages, message as Message];
-        this.cdr.detectChanges();
-        this.scrollToBottom();
+        this.ngZone.run(() => {
+          this.messages = [...this.messages, message as Message];
+          this.cdr.detectChanges();
+          this.scrollToBottom(false);
+        });
       }),
       this.chatService.connectionStatus$.subscribe((connected: boolean) => {
         this.isConnected = connected;
@@ -196,6 +198,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
             this.typingUsers.delete(data.userId);
           }
           this.cdr.detectChanges();
+          this.scrollToBottom(false);
         });
       })
     );
@@ -209,11 +212,25 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     }
   }
 
-  private scrollToBottom(): void {
+  private scrollToBottom(force: boolean = false): void {
     setTimeout(() => {
       const chatContainer = document.getElementById('chat-messages');
       if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        // Si es forzado (ej: envío propio), hacer scroll siempre
+        if (force) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          return;
+        }
+
+        // Si no es forzado (ej: typing o mensaje recibido), solo scroll si ya estaba abajo
+        const threshold = 150; // Margen de píxeles para considerar que está "abajo"
+        const position = chatContainer.scrollTop + chatContainer.offsetHeight;
+        const height = chatContainer.scrollHeight;
+
+        // Si la distancia al final es menor al umbral, hacer scroll
+        if (height - position < threshold) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
       }
     }, 100);
   }
@@ -366,7 +383,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         }
         this.isSendingMessage = false;
         this.cdr.detectChanges();
-        this.scrollToBottom();
+        this.scrollToBottom(true);
       },
       error: (error) => {
         console.error('Error sending message via HTTP:', error);
