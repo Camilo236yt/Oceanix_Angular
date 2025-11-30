@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, map } from 'rxjs';
-import { CRMNotification, NotificationStats, NotificationsResponse, BackendNotification, UnreadCountResponse } from '../models/notification.model';
+import { CRMNotification, NotificationStats, NotificationsResponse, BackendNotification, UnreadCountResponse, BackendApiResponse } from '../models/notification.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -52,14 +52,18 @@ export class CrmNotificationsService {
   getNotifications(page: number = 1, limit: number = 20): Observable<NotificationsResponse> {
     const params = new HttpParams()
       .set('page', page.toString())
-      .set('limit', limit.toString());
+      .set('limit', limit.toString())
+      .set('sortBy', 'createdAt:DESC');
 
-    return this.http.get<NotificationsResponse>(`${this.apiUrl}`, { params }).pipe(
+    return this.http.get<BackendApiResponse<NotificationsResponse>>(`${this.apiUrl}`, { params }).pipe(
+      map(apiResponse => apiResponse.data), // Extraer el data del wrapper
       tap(response => {
+        console.log('Respuesta de notificaciones procesada:', response);
         // Mapear las notificaciones del backend al formato del frontend
         const mappedNotifications = response.data.map(notification =>
           this.mapBackendNotification(notification)
         );
+        console.log('Notificaciones mapeadas:', mappedNotifications);
         this.notificationsSignal.set(mappedNotifications);
       })
     );
@@ -166,8 +170,10 @@ export class CrmNotificationsService {
    * Obtener el contador de notificaciones no leídas desde el backend
    */
   getUnreadCount(): Observable<UnreadCountResponse> {
-    return this.http.get<UnreadCountResponse>(`${this.apiUrl}/unread-count`).pipe(
+    return this.http.get<BackendApiResponse<UnreadCountResponse>>(`${this.apiUrl}/unread-count`).pipe(
+      map(apiResponse => apiResponse.data), // Extraer el data del wrapper
       tap(response => {
+        console.log('Contador de no leídas:', response.count);
         this.unreadCountSignal.set(response.count);
       })
     );

@@ -64,6 +64,13 @@ export interface NotificationsResponse {
   };
 }
 
+// Interface para la respuesta del backend con el wrapper 'success'
+export interface BackendApiResponse<T> {
+  success: boolean;
+  data: T;
+  statusCode: number;
+}
+
 export interface NotificationStats {
   total: number;
   unread: number;
