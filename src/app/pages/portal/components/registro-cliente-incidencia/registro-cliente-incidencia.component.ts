@@ -60,6 +60,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   isConnected = false;
   private subscriptions: Subscription[] = [];
 
+  // Typing indicator
+  typingUsers = new Set<string>();
+  private typingTimeout: any;
+
   // Notificaciones
   isNotificationDropdownOpen = false;
   clientNotificationsService = inject(ClientNotificationsService);
@@ -224,6 +228,18 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           }
           this.cdr.detectChanges();
         }
+      }),
+
+      // Suscribirse al indicador de "escribiendo"
+      this.chatService.typing$.subscribe((data: { userId: string; isTyping: boolean }) => {
+        this.ngZone.run(() => {
+          if (data.isTyping) {
+            this.typingUsers.add(data.userId);
+          } else {
+            this.typingUsers.delete(data.userId);
+          }
+          this.cdr.detectChanges();
+        });
       })
     );
 
@@ -236,6 +252,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.chatService.disconnect();
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
   }
 
   private initializeForm(): void {
@@ -545,6 +564,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
     const messageContent = this.newMessage;
     this.newMessage = ''; // Limpiar inmediatamente para UX fluida
+
+    // Detener indicador de "escribiendo" al enviar
+    this.chatService.setTyping(false);
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
 
     console.log('📤 [CLIENTE] Enviando mensaje:', messageContent);
     console.log('   - Conectado al WebSocket:', this.chatService.isConnected());
@@ -917,5 +942,31 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         });
       }
     }, 300);
+  }
+
+  /**
+   * Maneja el evento de input para detectar cuando el usuario está escribiendo
+   */
+  onMessageInput(event: Event): void {
+    const text = (event.target as HTMLInputElement).value;
+
+    if (text.length > 0) {
+      // Emitir "escribiendo" cuando el usuario escribe
+      this.chatService.setTyping(true);
+
+      // Auto-cancelar después de 3 segundos de inactividad
+      if (this.typingTimeout) {
+        clearTimeout(this.typingTimeout);
+      }
+      this.typingTimeout = setTimeout(() => {
+        this.chatService.setTyping(false);
+      }, 3000);
+    } else {
+      // Si el input está vacío, detener el indicador
+      this.chatService.setTyping(false);
+      if (this.typingTimeout) {
+        clearTimeout(this.typingTimeout);
+      }
+    }
   }
 }
