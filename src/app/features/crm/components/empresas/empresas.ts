@@ -213,7 +213,7 @@ export class Empresas implements OnInit {
           this.editingRejectionReason = companyData.config.rejectionReason || '';
         }
 
-        // Load documents for SUPER_ADMIN
+        // Load documents for SUPER_ADMIN BEFORE opening modal
         const isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
         console.log('🔍 Is SUPER_ADMIN?', isSuperAdmin);
 
@@ -225,24 +225,33 @@ export class Empresas implements OnInit {
               console.log('✅ Verification info received:', verificationInfo);
               this.editingDocuments = verificationInfo.documents || [];
               console.log('📄 Documents loaded:', this.editingDocuments.length, 'documents');
+
+              // NOW open the modal with documents loaded
               this.cdr.detectChanges();
+              setTimeout(() => {
+                this.isCreateCompanyModalOpen = true;
+                this.cdr.detectChanges();
+              }, 0);
             },
             error: (err) => {
               console.error('❌ Error loading documents:', err);
+              // Open modal anyway even if documents failed
+              this.cdr.detectChanges();
+              setTimeout(() => {
+                this.isCreateCompanyModalOpen = true;
+                this.cdr.detectChanges();
+              }, 0);
             }
           });
         } else {
           console.log('⚠️ Not SUPER_ADMIN, skipping document load');
-        }
-
-        // Force change detection
-        this.cdr.detectChanges();
-
-        // Open modal with a small delay to ensure data is set
-        setTimeout(() => {
-          this.isCreateCompanyModalOpen = true;
+          // Not super admin, just open modal normally
           this.cdr.detectChanges();
-        }, 0);
+          setTimeout(() => {
+            this.isCreateCompanyModalOpen = true;
+            this.cdr.detectChanges();
+          }, 0);
+        }
       },
       error: (error: any) => {
         console.error('Error al cargar empresa:', error);
