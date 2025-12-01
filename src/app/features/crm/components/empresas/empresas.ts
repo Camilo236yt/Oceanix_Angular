@@ -11,6 +11,7 @@ import { ViewCompanyModalComponent } from '../../../../shared/components/view-co
 import { CreateCompanyModalComponent } from '../../../../shared/components/create-company-modal/create-company-modal';
 import { EmpresaData, CreateEmpresaRequest, UpdateEmpresaRequest } from '../../../../interface/empresas-api.interface';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-empresas',
@@ -24,7 +25,8 @@ export class Empresas implements OnInit {
 
   constructor(
     private empresaService: EmpresaService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) { }
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
@@ -212,17 +214,25 @@ export class Empresas implements OnInit {
         }
 
         // Load documents for SUPER_ADMIN
-        const authService = this.empresaService as any;
-        const isSuperAdmin = authService.authService?.hasUserType?.('SUPER_ADMIN');
+        const isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+        console.log('🔍 Is SUPER_ADMIN?', isSuperAdmin);
+
         if (isSuperAdmin) {
+          console.log('📡 Fetching verification info for enterprise:', company.id);
           // Get verification info which includes documents
           this.empresaService.getVerificationInfo(company.id).subscribe({
             next: (verificationInfo) => {
+              console.log('✅ Verification info received:', verificationInfo);
               this.editingDocuments = verificationInfo.documents || [];
+              console.log('📄 Documents loaded:', this.editingDocuments.length, 'documents');
               this.cdr.detectChanges();
             },
-            error: (err) => console.error('Error loading documents:', err)
+            error: (err) => {
+              console.error('❌ Error loading documents:', err);
+            }
           });
+        } else {
+          console.log('⚠️ Not SUPER_ADMIN, skipping document load');
         }
 
         // Force change detection
