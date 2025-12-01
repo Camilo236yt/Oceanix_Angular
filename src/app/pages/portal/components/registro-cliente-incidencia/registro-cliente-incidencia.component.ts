@@ -465,7 +465,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     peticion.subscribe({
       next: () => {
         this.isSubmittingIncidencia = false;
-        
+
         Swal.fire({
           icon: 'success',
           title: 'Incidencia registrada',
@@ -483,7 +483,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isSubmittingIncidencia = false;
-        
+
         const errorMsg = error.error?.message || 'No se pudo registrar la incidencia. Por favor intenta nuevamente.';
 
         Swal.fire({
@@ -1113,7 +1113,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           const user = response.data.user;
           this.userProfile = {
             fullName: `${user.name} ${user.lastName}`,
-            email: user.email
+            email: user.email,
+            profilePicture: user.profilePicture || null
           };
           this.cdr.detectChanges();
         }
