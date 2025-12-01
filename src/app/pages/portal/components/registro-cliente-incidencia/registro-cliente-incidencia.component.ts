@@ -182,13 +182,26 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
       // Suscribirse a imágenes subidas
       this.chatService.imagesUploaded$.subscribe((event) => {
+        console.log('📸 [CLIENTE] Evento imagesUploaded recibido:', event);
+
         // Actualizar en la lista de incidencias primero
         const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === event.incidenciaId);
         if (incidenciaEnLista) {
           if (!incidenciaEnLista.images) {
             incidenciaEnLista.images = [];
           }
-          incidenciaEnLista.images = [...incidenciaEnLista.images, ...event.images];
+
+          // Filtrar solo las imágenes que no existen ya (evitar duplicados)
+          const newImages = event.images.filter(newImg =>
+            !incidenciaEnLista.images!.some(existingImg => existingImg.id === newImg.id)
+          );
+
+          if (newImages.length > 0) {
+            console.log(`📸 Agregando ${newImages.length} imágenes nuevas a la lista`);
+            incidenciaEnLista.images = [...incidenciaEnLista.images, ...newImages];
+          } else {
+            console.log('⚠️ Todas las imágenes ya existen, saltando duplicados');
+          }
         }
 
         // Si hay una incidencia seleccionada y es la misma, actualizar solo si es un objeto diferente
@@ -199,7 +212,16 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
             if (!this.selectedIncidencia.images) {
               this.selectedIncidencia.images = [];
             }
-            this.selectedIncidencia.images = [...this.selectedIncidencia.images, ...event.images];
+
+            // Filtrar solo las imágenes que no existen ya (evitar duplicados)
+            const newImages = event.images.filter(newImg =>
+              !this.selectedIncidencia!.images!.some(existingImg => existingImg.id === newImg.id)
+            );
+
+            if (newImages.length > 0) {
+              console.log(`📸 Agregando ${newImages.length} imágenes nuevas a selectedIncidencia`);
+              this.selectedIncidencia.images = [...this.selectedIncidencia.images, ...newImages];
+            }
           }
           // Si son el mismo objeto, ya se actualizó arriba, no hacer nada más
         }
