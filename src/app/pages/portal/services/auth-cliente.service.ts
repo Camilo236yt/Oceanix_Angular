@@ -85,4 +85,13 @@ export class AuthClienteService {
       withCredentials: true
     });
   }
+
+  /**
+   * Obtener información del usuario autenticado
+   */
+  getMe(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/auth/me`, {
+      withCredentials: true
+    });
+  }
 }
