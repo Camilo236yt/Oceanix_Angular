@@ -19,6 +19,7 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   showLink = true;
   private routerSubscription?: Subscription;
   private configSubscription?: Subscription;
+  private currentVerificationStatus?: string;
 
   // Permisos requeridos para ver el banner de verificación
   private readonly verificationPermissions = [
@@ -51,6 +52,7 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
 
     // Suscribirse a los cambios de configuración desde auth/me
     this.configSubscription = this.authService.config$.subscribe(config => {
+      this.currentVerificationStatus = config?.actualVerificationStatus;
       this.updateBannerMessage(config?.actualVerificationStatus);
       this.checkRoute(this.router.url);
     });
@@ -77,6 +79,12 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   }
 
   private updateBannerMessage(actualVerificationStatus?: string) {
+    // Si la empresa ya está verificada, no mostrar el banner
+    if (actualVerificationStatus === 'verified') {
+      this.showBanner = false;
+      return;
+    }
+
     // Determinar el mensaje del banner según el actualVerificationStatus de auth/me
     if (actualVerificationStatus === 'in_progress') {
       this.bannerMessage = 'Estamos verificando tus datos, pronto recibirás una confirmación';
@@ -91,7 +99,13 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
     // Verificar si tiene permisos de verificación
     const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
 
-    // Hide banner if we're on the verification page or don't have permissions
-    this.showBanner = hasVerificationPermission && !url.includes('/verificar-cuenta');
+    // Verificar si ya está verificado
+    const isVerified = this.currentVerificationStatus === 'verified';
+
+    // Hide banner if:
+    // - Don't have permissions
+    // - Already verified
+    // - On the verification page
+    this.showBanner = hasVerificationPermission && !isVerified && !url.includes('/verificar-cuenta');
   }
 }
