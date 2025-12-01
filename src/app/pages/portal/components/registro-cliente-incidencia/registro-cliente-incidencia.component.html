@@ -572,6 +572,7 @@
             } @else if (selectedIncidencia.images && selectedIncidencia.images.length > 0) {
             <div class="grid grid-cols-2 sm:grid-cols-2 gap-2">
               @for (image of selectedIncidencia.images; track image.id; let idx = $index) {
+              <!-- Debug: Image ID = {{ image.id }} -->
               <div
                 class="relative group cursor-pointer rounded-lg overflow-hidden border border-gray-200 aspect-video bg-gray-100"
                 (click)="openLightbox(idx)">
