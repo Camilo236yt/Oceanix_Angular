@@ -466,7 +466,17 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       next: (incidenciaCompleta) => {
         console.log('✅ Incidencia completa cargada:', incidenciaCompleta);
         console.log('📸 Imágenes:', incidenciaCompleta.images);
-        this.selectedIncidencia = incidenciaCompleta;
+
+        // CRÍTICO: Actualizar el objeto existente en lugar de reemplazarlo
+        // para mantener la referencia con el objeto de la lista
+        Object.assign(this.selectedIncidencia!, incidenciaCompleta);
+
+        // También actualizar el objeto en la lista para mantener consistencia
+        const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
+        if (indexEnLista !== -1) {
+          Object.assign(this.incidencias[indexEnLista], incidenciaCompleta);
+        }
+
         this.isLoadingIncidenciaDetails = false; // Desactivar loading
         this.cdr.detectChanges();
       },
