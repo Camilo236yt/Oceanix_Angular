@@ -66,6 +66,7 @@ export class IncidenciaChatService implements OnDestroy {
   private imagesUploadedSubject = new Subject<ImagesUploadedEvent>();
   private incidenciaUpdatedSubject = new Subject<IncidenciaUpdatedEvent>();
   private newMessageNotificationSubject = new Subject<NewMessageNotification>();
+  private incidenciaStatusChangedSubject = new Subject<{ incidenciaId: string; status: string; timestamp: string }>();
 
   // Observables públicos
   newMessage$ = this.newMessageSubject.asObservable();
@@ -76,6 +77,7 @@ export class IncidenciaChatService implements OnDestroy {
   imagesUploaded$ = this.imagesUploadedSubject.asObservable();
   incidenciaUpdated$ = this.incidenciaUpdatedSubject.asObservable();
   newMessageNotification$ = this.newMessageNotificationSubject.asObservable();
+  incidenciaStatusChanged$ = this.incidenciaStatusChangedSubject.asObservable();
 
   constructor() { }
 
@@ -191,6 +193,11 @@ export class IncidenciaChatService implements OnDestroy {
     // Evento de notificación de nuevo mensaje (cuando empleado no está en la sala)
     this.socket.on('newMessageNotification', (data: NewMessageNotification) => {
       this.newMessageNotificationSubject.next(data);
+    });
+
+    // Evento de cambio de estado de incidencia (ej: RESOLVED)
+    this.socket.on('incidenciaStatusChanged', (data: { incidenciaId: string; status: string; timestamp: string }) => {
+      this.incidenciaStatusChangedSubject.next(data);
     });
 
     // Evento de error

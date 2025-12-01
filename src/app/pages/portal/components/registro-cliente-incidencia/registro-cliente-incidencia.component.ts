@@ -245,6 +245,36 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           this.scrollToBottom(false); // Smart scroll para typing
         });
+      }),
+
+      // Suscribirse a cambios de estado de incidencia (RESOLVED)
+      this.chatService.incidenciaStatusChanged$.subscribe((data: { incidenciaId: string; status: string; timestamp: string }) => {
+        console.log('📊 [CLIENTE] Estado de incidencia cambiado:', data);
+
+        // Actualizar en la lista de incidencias
+        const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === data.incidenciaId);
+        if (incidenciaEnLista) {
+          incidenciaEnLista.status = data.status;
+        }
+
+        // Si es la incidencia seleccionada, actualizar también
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === data.incidenciaId) {
+          this.selectedIncidencia.status = data.status;
+
+          // Si se marcó como RESOLVED, mostrar mensaje al usuario
+          if (data.status === 'RESOLVED') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Incidencia Resuelta',
+              text: 'Esta incidencia ha sido marcada como resuelta por nuestro equipo.',
+              confirmButtonColor: '#7c3aed',
+              timer: 5000,
+              timerProgressBar: true
+            });
+          }
+        }
+
+        this.cdr.detectChanges();
       })
     );
 
