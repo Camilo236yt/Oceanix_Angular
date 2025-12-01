@@ -756,7 +756,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.incidenciasService.uploadImages(this.selectedIncidencia.id.toString(), this.modalArchivos).subscribe({
       next: (response) => {
         console.log('✅ [UPLOAD] Respuesta del backend:', response);
-        console.log('📊 Estado DESPUÉS de la respuesta del backend:');
+
+        // IMPORTANTE: NO actualizar las imágenes desde la respuesta del backend
+        // El WebSocket se encargará de enviar las imágenes y actualizar el array
+        // Si el backend devuelve imágenes en la respuesta, las ignoramos completamente
+
+        console.log('📊 Estado DESPUÉS de la respuesta del backend (esperando WebSocket):');
         console.log('   - Imágenes actuales:', this.selectedIncidencia?.images?.length || 0);
         console.log('   - IDs de imágenes actuales:', this.selectedIncidencia?.images?.map(img => img.id));
 
@@ -766,6 +771,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
 
         // NO llamar a loadMessages() aquí - el WebSocket ya actualiza las imágenes en tiempo real
+        // NO actualizar selectedIncidencia.images aquí - el WebSocket lo hará
         // Esto evita duplicación de imágenes
 
         Swal.fire({
