@@ -182,25 +182,29 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
       // Suscribirse a imágenes subidas
       this.chatService.imagesUploaded$.subscribe((event) => {
-        // Si hay una incidencia seleccionada y es la misma, actualizar las imágenes
-        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === event.incidenciaId) {
-          if (!this.selectedIncidencia.images) {
-            this.selectedIncidencia.images = [];
-          }
-          // Agregar las nuevas imágenes
-          this.selectedIncidencia.images = [...this.selectedIncidencia.images, ...event.images];
-          this.cdr.detectChanges();
-        }
-
-        // Actualizar en la lista de incidencias
+        // Actualizar en la lista de incidencias primero
         const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === event.incidenciaId);
         if (incidenciaEnLista) {
           if (!incidenciaEnLista.images) {
             incidenciaEnLista.images = [];
           }
           incidenciaEnLista.images = [...incidenciaEnLista.images, ...event.images];
-          this.cdr.detectChanges();
         }
+
+        // Si hay una incidencia seleccionada y es la misma, actualizar solo si es un objeto diferente
+        // (Para evitar duplicados cuando selectedIncidencia y incidenciaEnLista son el mismo objeto)
+        if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === event.incidenciaId) {
+          // Si no están en la lista o son objetos diferentes, actualizar
+          if (!incidenciaEnLista || this.selectedIncidencia !== incidenciaEnLista) {
+            if (!this.selectedIncidencia.images) {
+              this.selectedIncidencia.images = [];
+            }
+            this.selectedIncidencia.images = [...this.selectedIncidencia.images, ...event.images];
+          }
+          // Si son el mismo objeto, ya se actualizó arriba, no hacer nada más
+        }
+
+        this.cdr.detectChanges();
       }),
 
       // Suscribirse a actualizaciones de incidencia (canClientUploadImages, etc)

@@ -165,7 +165,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
       // Suscribirse a imágenes subidas
       this.chatService.imagesUploaded$.subscribe((event) => {
-        // Si el incidentData actual es el que recibió nuevas imágenes, actualizar
+        // Solo actualizar si el evento corresponde a la incidencia actual del modal
         if (this.incidentData && this.incidentData.id === event.incidenciaId) {
           if (!this.incidentData.images) {
             this.incidentData.images = [];
