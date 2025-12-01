@@ -140,7 +140,7 @@
               @for (doc of documents; track doc.id) {
               <div
                 class="border border-[var(--card-border)] rounded-lg overflow-hidden hover:shadow-lg cursor-pointer transition-all group"
-                (click)="openDocumentPreview(doc); $event.stopPropagation()">
+                (click)="handleDocumentClick($event, doc)">
                 <!-- Document Preview Image -->
                 <div class="relative aspect-[3/2] bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   @if (doc._previewUrl) {

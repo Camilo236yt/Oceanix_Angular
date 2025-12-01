@@ -280,6 +280,18 @@ export class CreateCompanyModalComponent implements OnChanges {
     }
   }
 
+  /**
+   * Handle document click with proper event handling
+   */
+  handleDocumentClick(event: MouseEvent, document: any) {
+    // Stop propagation immediately to prevent double clicks
+    event.stopPropagation();
+    event.preventDefault();
+
+    // Open document preview
+    this.openDocumentPreview(document);
+  }
+
   async openDocumentPreview(document: any) {
     console.log('🔍 Opening document preview:', document);
 
