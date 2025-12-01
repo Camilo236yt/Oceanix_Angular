@@ -400,11 +400,22 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   enviarIncidencia(): void {
+    console.log('🚀 [CREAR INCIDENCIA] Método enviarIncidencia() llamado');
+    console.log('📋 Formulario válido:', this.incidenciaForm.valid);
+    console.log('📋 Errores del formulario:', this.incidenciaForm.errors);
+    console.log('📋 Estado de campos:');
+    Object.keys(this.incidenciaForm.controls).forEach(key => {
+      const control = this.incidenciaForm.get(key);
+      console.log(`  - ${key}: válido=${control?.valid}, valor="${control?.value}", errores=`, control?.errors);
+    });
+
     if (this.incidenciaForm.invalid) {
+      console.error('❌ Formulario inválido, marcando campos como touched');
       markFormGroupTouched(this.incidenciaForm);
       return;
     }
 
+    console.log('✅ Formulario válido, preparando petición');
     const formData = this.incidenciaForm.value;
     const request = {
       name: formData.nombreIncidencia,
@@ -413,10 +424,15 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       tipo: formData.tipoIncidencia
     };
 
+    console.log('📦 Request:', request);
+    console.log('🖼️ Archivos seleccionados:', this.archivosSeleccionados.length);
+
     // Usar método con imágenes si hay archivos seleccionados
     const peticion = this.archivosSeleccionados.length > 0
       ? this.incidenciasService.crearIncidenciaConImagenes(request, this.archivosSeleccionados)
       : this.incidenciasService.crearIncidencia(request);
+
+    console.log('📡 Enviando petición HTTP...');
 
     peticion.subscribe({
       next: () => {
