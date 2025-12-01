@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
@@ -22,6 +22,9 @@ import { AuthService } from '../../../../services/auth.service';
 export class Empresas implements OnInit {
   // Loading state
   isLoading = true;
+
+  // View children
+  @ViewChild(CreateCompanyModalComponent) createCompanyModal?: CreateCompanyModalComponent;
 
   constructor(
     private empresaService: EmpresaService,
@@ -513,6 +516,8 @@ export class Empresas implements OnInit {
   }
 
   handleDocumentPreview(event: { enterpriseId: string; documentId: string }) {
+    console.log('🔍 Document preview requested:', event);
+
     // Show loading
     Swal.fire({
       toast: true,
@@ -526,18 +531,32 @@ export class Empresas implements OnInit {
     });
 
     // Get document download URL
+    console.log('📡 Fetching download URL for document:', event.documentId);
     this.empresaService.getDocumentDownloadUrl(event.enterpriseId, event.documentId).subscribe({
       next: (result) => {
+        console.log('✅ Download URL received:', result);
         Swal.close();
 
-        // Find the modal component and set preview
-        const modalComponent = document.querySelector('app-create-company-modal') as any;
-        if (modalComponent && modalComponent.componentInstance) {
-          modalComponent.componentInstance.setPreviewDocument(result.url, result.fileName, result.mimeType);
+        // Use ViewChild to access modal component
+        if (this.createCompanyModal) {
+          console.log('📄 Opening preview modal with:', result);
+          this.createCompanyModal.setPreviewDocument(result.url, result.fileName, result.mimeType);
+        } else {
+          console.error('❌ Modal component not found via ViewChild');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo abrir el visor de documentos',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+          });
         }
       },
       error: (error: any) => {
-        console.error('Error al cargar documento:', error);
+        console.error('❌ Error loading document:', error);
         Swal.fire({
           toast: true,
           position: 'top-end',
