@@ -452,6 +452,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     console.log('📦 Request:', request);
     console.log('🖼️ Archivos seleccionados:', this.archivosSeleccionados.length);
 
+    // Activar estado de carga
+    this.isSubmittingIncidencia = true;
+
     // Usar método con imágenes si hay archivos seleccionados
     const peticion = this.archivosSeleccionados.length > 0
       ? this.incidenciasService.crearIncidenciaConImagenes(request, this.archivosSeleccionados)
@@ -461,6 +464,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
     peticion.subscribe({
       next: () => {
+        this.isSubmittingIncidencia = false;
+        
         Swal.fire({
           icon: 'success',
           title: 'Incidencia registrada',
@@ -477,6 +482,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.cargarIncidencias();
       },
       error: (error) => {
+        this.isSubmittingIncidencia = false;
+        
         const errorMsg = error.error?.message || 'No se pudo registrar la incidencia. Por favor intenta nuevamente.';
 
         Swal.fire({
