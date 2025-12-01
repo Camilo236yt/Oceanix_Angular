@@ -131,6 +131,19 @@ export class EmpresaService {
     );
   }
 
+  // GET document thumbnail (SUPER_ADMIN only) - Fetch thumbnail from backend
+  getDocumentThumbnail(enterpriseId: string, documentId: string): Observable<string> {
+    const configApiUrl = `${environment.apiUrl}/enterprise-config`;
+    return this.http.get(`${configApiUrl}/${enterpriseId}/documents/${documentId}/thumbnail`, {
+      withCredentials: true,
+      responseType: 'blob'
+    }).pipe(
+      map((blob: Blob) => {
+        return URL.createObjectURL(blob);
+      })
+    );
+  }
+
   // Data transformation - converts API response to UI model
   private transformEmpresas(empresasData: EmpresaData[]): Company[] {
     if (!empresasData || !Array.isArray(empresasData)) {
