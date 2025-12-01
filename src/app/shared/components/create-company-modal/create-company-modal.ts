@@ -19,10 +19,12 @@ export class CreateCompanyModalComponent implements OnChanges {
   @Input() initialData: CreateEmpresaRequest | null = null;
   @Input() initialVerificationStatus: string = 'pending';
   @Input() initialRejectionReason: string = '';
+  @Input() enterpriseDocuments: any[] = [];
   @Output() onClose = new EventEmitter<void>();
   @Output() onCreate = new EventEmitter<CreateEmpresaRequest>();
   @Output() onUpdate = new EventEmitter<{ id: string; data: CreateEmpresaRequest }>();
   @Output() onVerificationUpdate = new EventEmitter<{ enterpriseId: string; verificationStatus: string; rejectionReason?: string }>();
+  @Output() onDocumentPreview = new EventEmitter<{ enterpriseId: string; documentId: string }>();
 
   isClosing = false;
 
@@ -55,6 +57,12 @@ export class CreateCompanyModalComponent implements OnChanges {
     { value: 'rejected', label: 'Rechazado' }
   ];
 
+  // Documents (only for SUPER_ADMIN in edit mode)
+  documents: any[] = [];
+  isLoadingDocuments = false;
+  previewDocument: { url: string; fileName: string; mimeType: string } | null = null;
+  showPreviewModal = false;
+
   ngOnInit() {
     this.isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
   }
@@ -82,6 +90,8 @@ export class CreateCompanyModalComponent implements OnChanges {
       if (this.isSuperAdmin) {
         this.verificationStatus = this.initialVerificationStatus;
         this.rejectionReason = this.initialRejectionReason;
+        // Load documents
+        this.documents = this.enterpriseDocuments || [];
       }
     } else {
       this.resetForm();
@@ -177,5 +187,47 @@ export class CreateCompanyModalComponent implements OnChanges {
         this.onCreate.emit(this.formData);
       }
     }
+  }
+
+  openDocumentPreview(document: any) {
+    // Emit event to parent to get download URL
+    this.onDocumentPreview.emit({
+      enterpriseId: this.companyId!,
+      documentId: document.id
+    });
+  }
+
+  setPreviewDocument(url: string, fileName: string, mimeType: string) {
+    this.previewDocument = { url, fileName, mimeType };
+    this.showPreviewModal = true;
+  }
+
+  closePreviewModal() {
+    this.showPreviewModal = false;
+    this.previewDocument = null;
+  }
+
+  getDocumentIcon(type: string): string {
+    const icons: Record<string, string> = {
+      'tax_id': 'file-text',
+      'chamber_commerce': 'building',
+      'legal_rep_id': 'user',
+      'power_attorney': 'file-signature',
+      'bank_certificate': 'bank',
+      'other': 'file'
+    };
+    return icons[type] || 'file';
+  }
+
+  getDocumentLabel(type: string): string {
+    const labels: Record<string, string> = {
+      'tax_id': 'RUT/NIT',
+      'chamber_commerce': 'Cámara de Comercio',
+      'legal_rep_id': 'Cédula Rep. Legal',
+      'power_attorney': 'Poder Notarial',
+      'bank_certificate': 'Certificado Bancario',
+      'other': 'Otro'
+    };
+    return labels[type] || 'Documento';
   }
 }

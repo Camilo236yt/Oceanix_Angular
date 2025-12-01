@@ -96,6 +96,7 @@ export class Empresas implements OnInit {
   editingCompanyData: CreateEmpresaRequest | null = null;
   editingVerificationStatus: string = 'pending';
   editingRejectionReason: string = '';
+  editingDocuments: any[] = [];
 
   ngOnInit() {
     this.loadEmpresas();
@@ -208,6 +209,20 @@ export class Empresas implements OnInit {
         if (companyData.config) {
           this.editingVerificationStatus = companyData.config.verificationStatus || 'pending';
           this.editingRejectionReason = companyData.config.rejectionReason || '';
+        }
+
+        // Load documents for SUPER_ADMIN
+        const authService = this.empresaService as any;
+        const isSuperAdmin = authService.authService?.hasUserType?.('SUPER_ADMIN');
+        if (isSuperAdmin) {
+          // Get verification info which includes documents
+          this.empresaService.getVerificationInfo(company.id).subscribe({
+            next: (verificationInfo) => {
+              this.editingDocuments = verificationInfo.documents || [];
+              this.cdr.detectChanges();
+            },
+            error: (err) => console.error('Error loading documents:', err)
+          });
         }
 
         // Force change detection
@@ -461,6 +476,46 @@ export class Empresas implements OnInit {
           icon: 'error',
           title: 'Error al actualizar el estado',
           text: error.error?.message || 'No se pudo actualizar el estado de verificación',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  handleDocumentPreview(event: { enterpriseId: string; documentId: string }) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando documento...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get document download URL
+    this.empresaService.getDocumentDownloadUrl(event.enterpriseId, event.documentId).subscribe({
+      next: (result) => {
+        Swal.close();
+
+        // Find the modal component and set preview
+        const modalComponent = document.querySelector('app-create-company-modal') as any;
+        if (modalComponent && modalComponent.componentInstance) {
+          modalComponent.componentInstance.setPreviewDocument(result.url, result.fileName, result.mimeType);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al cargar documento:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar el documento',
+          text: error.error?.message || 'No se pudo cargar el documento',
           showConfirmButton: false,
           timer: 3000,
           timerProgressBar: true

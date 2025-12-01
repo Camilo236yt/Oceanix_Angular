@@ -80,6 +80,30 @@ export class EmpresaService {
     });
   }
 
+  // GET verification info (SUPER_ADMIN only)
+  getVerificationInfo(enterpriseId: string): Observable<any> {
+    const configApiUrl = `${environment.apiUrl}/enterprise-config`;
+    return this.http.get(`${configApiUrl}/${enterpriseId}/verification-info`, {
+      withCredentials: true
+    });
+  }
+
+  // GET document download URL (SUPER_ADMIN only)
+  getDocumentDownloadUrl(enterpriseId: string, documentId: string): Observable<{
+    url: string;
+    fileName: string;
+    mimeType: string;
+  }> {
+    const configApiUrl = `${environment.apiUrl}/enterprise-config`;
+    return this.http.get<{
+      url: string;
+      fileName: string;
+      mimeType: string;
+    }>(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
+      withCredentials: true
+    });
+  }
+
   // Data transformation - converts API response to UI model
   private transformEmpresas(empresasData: EmpresaData[]): Company[] {
     if (!empresasData || !Array.isArray(empresasData)) {

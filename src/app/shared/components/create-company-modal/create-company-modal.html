@@ -1,173 +1,250 @@
 <!-- Modal Overlay -->
 @if (isOpen) {
-  <div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (!isClosing ? 'animate-overlayIn' : 'animate-overlayOut')" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" (click)="closeModal()"></div>
+<div [class]="'fixed inset-0 z-50 overflow-y-auto ' + (!isClosing ? 'animate-overlayIn' : 'animate-overlayOut')"
+  aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" (click)="closeModal()"></div>
 
-    <!-- Modal Container -->
-    <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4">
-      <div [class]="'relative w-full max-w-2xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-[var(--card-bg)] shadow-2xl border-t sm:border border-[var(--card-border)] pb-safe ' + (!isClosing ? 'animate-slideUp' : 'animate-slideDown')"
-           (click)="$event.stopPropagation()">
+  <!-- Modal Container -->
+  <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4">
+    <div
+      [class]="'relative w-full max-w-2xl overflow-hidden rounded-t-2xl sm:rounded-2xl bg-[var(--card-bg)] shadow-2xl border-t sm:border border-[var(--card-border)] pb-safe ' + (!isClosing ? 'animate-slideUp' : 'animate-slideDown')"
+      (click)="$event.stopPropagation()">
 
-        <!-- Header -->
-        <div class="border-b border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
-          <div class="flex items-center justify-between">
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
-                {{ isEditMode ? 'Editar Empresa' : 'Crear Nueva Empresa' }}
-              </h3>
-              <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
-                {{ isEditMode ? 'Modifique los datos de la empresa' : 'Complete los datos de la nueva empresa' }}
-              </p>
-            </div>
-            <button (click)="closeModal()"
-                    class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex-shrink-0">
-              <app-icon name="x" class="w-5 h-5"></app-icon>
-            </button>
+      <!-- Header -->
+      <div class="border-b border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
+              {{ isEditMode ? 'Editar Empresa' : 'Crear Nueva Empresa' }}
+            </h3>
+            <p class="text-xs text-[var(--text-tertiary)] mt-1 hidden sm:block">
+              {{ isEditMode ? 'Modifique los datos de la empresa' : 'Complete los datos de la nueva empresa' }}
+            </p>
           </div>
+          <button (click)="closeModal()"
+            class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex-shrink-0">
+            <app-icon name="x" class="w-5 h-5"></app-icon>
+          </button>
         </div>
+      </div>
 
-        <!-- Content -->
-        <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-250px)] overflow-y-auto bg-[var(--card-bg)]">
-          <form class="space-y-3 sm:space-y-4">
-            <!-- Nombre y Subdominio en grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <!-- Nombre -->
-              <div>
-                <label for="companyName" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Nombre <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="companyName"
-                  [(ngModel)]="formData.name"
-                  name="name"
-                  (input)="clearError('name')"
-                  [class.border-red-500]="errors['name']"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  placeholder="Ej: Acme Corporation" />
-                @if (errors['name']) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['name'] }}</p>
-                }
-              </div>
-
-              <!-- Subdominio -->
-              <div>
-                <label for="companySubdomain" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                  Subdominio <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="companySubdomain"
-                  [(ngModel)]="formData.subdomain"
-                  name="subdomain"
-                  (input)="clearError('subdomain')"
-                  [class.border-red-500]="errors['subdomain']"
-                  class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  placeholder="Ej: acme" />
-                @if (errors['subdomain']) {
-                  <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['subdomain'] }}</p>
-                }
-              </div>
-            </div>
-
-            <!-- Email -->
+      <!-- Content -->
+      <div
+        class="px-4 sm:px-6 py-3 sm:py-4 max-h-[calc(100vh-200px)] sm:max-h-[calc(100vh-250px)] overflow-y-auto bg-[var(--card-bg)]">
+        <form class="space-y-3 sm:space-y-4">
+          <!-- Nombre y Subdominio en grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <!-- Nombre -->
             <div>
-              <label for="companyEmail" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Correo Electrónico <span class="text-red-500">*</span>
+              <label for="companyName"
+                class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Nombre <span class="text-red-500">*</span>
               </label>
-              <input
-                type="email"
-                id="companyEmail"
-                [(ngModel)]="formData.email"
-                name="email"
-                (input)="clearError('email')"
-                [class.border-red-500]="errors['email']"
+              <input type="text" id="companyName" [(ngModel)]="formData.name" name="name" (input)="clearError('name')"
+                [class.border-red-500]="errors['name']"
                 class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="Ej: contacto@acme.com" />
-              @if (errors['email']) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['email'] }}</p>
+                placeholder="Ej: Acme Corporation" />
+              @if (errors['name']) {
+              <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['name'] }}</p>
               }
             </div>
 
-            <!-- Teléfono -->
+            <!-- Subdominio -->
             <div>
-              <label for="companyPhone" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                Teléfono <span class="text-red-500">*</span>
+              <label for="companySubdomain"
+                class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Subdominio <span class="text-red-500">*</span>
               </label>
-              <input
-                type="tel"
-                id="companyPhone"
-                [(ngModel)]="formData.phone"
-                name="phone"
-                (input)="clearError('phone')"
-                [class.border-red-500]="errors['phone']"
+              <input type="text" id="companySubdomain" [(ngModel)]="formData.subdomain" name="subdomain"
+                (input)="clearError('subdomain')" [class.border-red-500]="errors['subdomain']"
                 class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="Ej: +1 234 567 8900" />
-              @if (errors['phone']) {
-                <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['phone'] }}</p>
+                placeholder="Ej: acme" />
+              @if (errors['subdomain']) {
+              <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['subdomain'] }}</p>
               }
             </div>
+          </div>
 
-            <!-- Verification Status Section (SUPER_ADMIN only in edit mode) -->
-            @if (isSuperAdmin && isEditMode) {
-              <div class="border-t border-[var(--border-primary)] pt-3 sm:pt-4 mt-2 sm:mt-3">
-                <h4 class="text-sm font-semibold text-[var(--text-primary)] mb-3">Estado de Verificación</h4>
-                
-                <!-- Verification Status -->
-                <div class="mb-3">
-                  <label for="verificationStatus" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                    Estado
-                  </label>
-                  <select
-                    id="verificationStatus"
-                    [(ngModel)]="verificationStatus"
-                    name="verificationStatus"
-                    class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
-                    @for (option of verificationStatusOptions; track option.value) {
-                      <option [value]="option.value">{{ option.label }}</option>
-                    }
-                  </select>
-                </div>
-
-                <!-- Rejection Reason (only shown when status is 'rejected') -->
-                @if (verificationStatus === 'rejected') {
-                  <div>
-                    <label for="rejectionReason" class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
-                      Razón de Rechazo <span class="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      id="rejectionReason"
-                      [(ngModel)]="rejectionReason"
-                      name="rejectionReason"
-                      rows="3"
-                      class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                      placeholder="Explique por qué se rechaza la verificación..."></textarea>
-                  </div>
-                }
-              </div>
+          <!-- Email -->
+          <div>
+            <label for="companyEmail"
+              class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+              Correo Electrónico <span class="text-red-500">*</span>
+            </label>
+            <input type="email" id="companyEmail" [(ngModel)]="formData.email" name="email"
+              (input)="clearError('email')" [class.border-red-500]="errors['email']"
+              class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              placeholder="Ej: contacto@acme.com" />
+            @if (errors['email']) {
+            <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['email'] }}</p>
             }
-          </form>
-        </div>
-
-        <!-- Footer -->
-        <div class="border-t border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
-          <div class="flex items-center justify-end gap-2 sm:gap-3">
-            <button
-              type="button"
-              (click)="closeModal()"
-              class="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors border border-[var(--card-border)]">
-              Cancelar
-            </button>
-            <button
-              type="button"
-              (click)="handleSubmit()"
-              class="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
-              {{ isEditMode ? 'Guardar Cambios' : 'Crear Empresa' }}
-            </button>
           </div>
+
+          <!-- Teléfono -->
+          <div>
+            <label for="companyPhone"
+              class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+              Teléfono <span class="text-red-500">*</span>
+            </label>
+            <input type="tel" id="companyPhone" [(ngModel)]="formData.phone" name="phone" (input)="clearError('phone')"
+              [class.border-red-500]="errors['phone']"
+              class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              placeholder="Ej: +1 234 567 8900" />
+            @if (errors['phone']) {
+            <p class="mt-1 text-xs sm:text-sm text-red-500">{{ errors['phone'] }}</p>
+            }
+          </div>
+
+          <!-- Verification Status Section (SUPER_ADMIN only in edit mode) -->
+          @if (isSuperAdmin && isEditMode) {
+          <div class="border-t border-[var(--border-primary)] pt-3 sm:pt-4 mt-2 sm:mt-3">
+            <h4 class="text-sm font-semibold text-[var(--text-primary)] mb-3">Estado de Verificación</h4>
+
+            <!-- Verification Status -->
+            <div class="mb-3">
+              <label for="verificationStatus"
+                class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Estado
+              </label>
+              <select id="verificationStatus" [(ngModel)]="verificationStatus" name="verificationStatus"
+                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                @for (option of verificationStatusOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Rejection Reason (only shown when status is 'rejected') -->
+            @if (verificationStatus === 'rejected') {
+            <div>
+              <label for="rejectionReason"
+                class="block text-xs sm:text-sm font-medium text-[var(--text-primary)] mb-1.5 sm:mb-2">
+                Razón de Rechazo <span class="text-red-500">*</span>
+              </label>
+              <textarea id="rejectionReason" [(ngModel)]="rejectionReason" name="rejectionReason" rows="3"
+                class="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                placeholder="Explique por qué se rechaza la verificación..."></textarea>
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Documents Section (SUPER_ADMIN only in edit mode) -->
+          @if (isSuperAdmin && isEditMode && documents.length > 0) {
+          <div class="border-t border-[var(--border-primary)] pt-3 sm:pt-4 mt-2 sm:mt-3">
+            <h4 class="text-sm font-semibold text-[var(--text-primary)] mb-3">Documentos de Verificación</h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              @for (doc of documents; track doc.id) {
+              <div (click)="openDocumentPreview(doc)"
+                class="border border-[var(--card-border)] rounded-lg p-3 hover:bg-[var(--bg-hover)] cursor-pointer transition-colors">
+                <div class="flex items-start gap-3">
+                  <div
+                    class="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                    <app-icon [name]="getDocumentIcon(doc.type)"
+                      class="w-5 h-5 text-purple-600 dark:text-purple-400"></app-icon>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-[var(--text-primary)] truncate">{{ getDocumentLabel(doc.type) }}
+                    </p>
+                    <p class="text-xs text-[var(--text-tertiary)] truncate mt-0.5">{{ doc.fileName }}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-xs px-2 py-0.5 rounded-full" [class]="doc.status === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 
+                                           doc.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400' : 
+                                           'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'">
+                        {{ doc.status === 'approved' ? 'Aprobado' : doc.status === 'rejected' ? 'Rechazado' :
+                        'Pendiente' }}
+                      </span>
+                    </div>
+                  </div>
+                  <app-icon name="eye" class="w-4 h-4 text-[var(--text-tertiary)] flex-shrink-0"></app-icon>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-[var(--border-primary)] px-4 sm:px-6 py-3 sm:py-4 bg-[var(--bg-tertiary)]">
+        <div class="flex items-center justify-end gap-2 sm:gap-3">
+          <button type="button" (click)="closeModal()"
+            class="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors border border-[var(--card-border)]">
+            Cancelar
+          </button>
+          <button type="button" (click)="handleSubmit()"
+            class="px-4 sm:px-5 py-2 sm:py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md">
+            {{ isEditMode ? 'Guardar Cambios' : 'Crear Empresa' }}
+          </button>
         </div>
       </div>
     </div>
   </div>
+</div>
+}
+
+<!-- Document Preview Modal -->
+@if (showPreviewModal && previewDocument) {
+<div class="fixed inset-0 z-[60] overflow-y-auto animate-overlayIn" role="dialog" aria-modal="true">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="closePreviewModal()"></div>
+
+  <!-- Modal Container -->
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div
+      class="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-[var(--card-bg)] shadow-2xl border border-[var(--card-border)] animate-slideUp"
+      (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="border-b border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg font-semibold text-[var(--text-primary)]">Vista Previa</h3>
+            <p class="text-sm text-[var(--text-tertiary)] mt-1 truncate">{{ previewDocument.fileName }}</p>
+          </div>
+          <button (click)="closePreviewModal()"
+            class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex-shrink-0">
+            <app-icon name="x" class="w-5 h-5"></app-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto bg-[var(--card-bg)]">
+        @if (previewDocument.mimeType.includes('pdf')) {
+        <iframe [src]="previewDocument.url" class="w-full h-[600px] border border-[var(--card-border)] rounded-lg"
+          frameborder="0">
+        </iframe>
+        } @else if (previewDocument.mimeType.includes('image')) {
+        <img [src]="previewDocument.url" [alt]="previewDocument.fileName"
+          class="w-full h-auto rounded-lg border border-[var(--card-border)]">
+        } @else {
+        <div class="text-center py-12">
+          <app-icon name="file" class="w-16 h-16 mx-auto text-[var(--text-tertiary)] mb-4"></app-icon>
+          <p class="text-[var(--text-secondary)] mb-4">No se puede previsualizar este tipo de archivo</p>
+          <a [href]="previewDocument.url" target="_blank"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+            <app-icon name="download" class="w-4 h-4"></app-icon>
+            Descargar
+          </a>
+        </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
+        <div class="flex items-center justify-end gap-3">
+          <a [href]="previewDocument.url" target="_blank" download
+            class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+            <app-icon name="download" class="w-4 h-4"></app-icon>
+            Descargar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 }

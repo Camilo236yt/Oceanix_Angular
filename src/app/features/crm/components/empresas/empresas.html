@@ -37,7 +37,8 @@
 <!-- Create/Edit Company Modal -->
 <app-create-company-modal [isOpen]="isCreateCompanyModalOpen" [isEditMode]="isEditMode" [companyId]="editingCompanyId"
   [initialData]="editingCompanyData" [initialVerificationStatus]="editingVerificationStatus"
-  [initialRejectionReason]="editingRejectionReason" (onClose)="closeCreateCompanyModal()"
-  (onCreate)="handleCreateCompany($event)" (onUpdate)="handleUpdateCompany($event)"
-  (onVerificationUpdate)="handleVerificationUpdate($event)">
+  [initialRejectionReason]="editingRejectionReason" [enterpriseDocuments]="editingDocuments"
+  (onClose)="closeCreateCompanyModal()" (onCreate)="handleCreateCompany($event)"
+  (onUpdate)="handleUpdateCompany($event)" (onVerificationUpdate)="handleVerificationUpdate($event)"
+  (onDocumentPreview)="handleDocumentPreview($event)">
 </app-create-company-modal>
