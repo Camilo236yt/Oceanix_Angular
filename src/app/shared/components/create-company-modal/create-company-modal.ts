@@ -5,6 +5,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconComponent } from '../icon/icon.component';
 import { CreateEmpresaRequest } from '../../../interface/empresas-api.interface';
 import { AuthService } from '../../../services/auth.service';
+import { PdfThumbnailService } from '../../services/pdf-thumbnail.service';
+import { EmpresaService } from '../../../features/crm/services/empresa.service';
 
 @Component({
   selector: 'app-create-company-modal',
@@ -46,6 +48,8 @@ export class CreateCompanyModalComponent implements OnChanges {
   // Verification fields (only for SUPER_ADMIN in edit mode)
   authService = inject(AuthService);
   sanitizer = inject(DomSanitizer);
+  pdfThumbnailService = inject(PdfThumbnailService);
+  empresaService = inject(EmpresaService);
   isSuperAdmin = false;
   showVerificationFields = false;
 
@@ -72,6 +76,14 @@ export class CreateCompanyModalComponent implements OnChanges {
   // Sanitize blob URLs for iframe
   getSafeUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  // Get PDF URL without toolbar (cleaner view)
+  getPdfUrlWithoutToolbar(url: string): SafeResourceUrl {
+    // Add parameters to hide PDF toolbar
+    // #toolbar=0 hides the toolbar in most PDF viewers
+    const urlWithParams = `${url}#toolbar=0&navpanes=0&scrollbar=0`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(urlWithParams);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -118,29 +130,65 @@ export class CreateCompanyModalComponent implements OnChanges {
   }
 
   // Load previews for documents
-  private loadDocumentPreviews() {
-    this.documents.forEach((doc, index) => {
+  private async loadDocumentPreviews() {
+    console.log('📸 Starting to load document previews...');
+
+    for (let index = 0; index < this.documents.length; index++) {
+      const doc = this.documents[index];
+
       // Mark as loading
       this.documents[index]._loadingPreview = true;
 
-      // Get the download URL for the document
-      // We'll generate a thumbnail from the blob URL we already have access to
-      // For images, show them directly. For PDFs, we could show first page if needed
+      try {
+        // Download the document to generate thumbnail
+        const result = await this.empresaService.getDocumentDownloadUrl(
+          this.companyId!,
+          doc.id
+        ).toPromise();
 
-      // For now, we'll load the full document as preview
-      // In a production app, you might want a separate thumbnail endpoint
-      if (doc.mimeType?.includes('image')) {
-        // For images, we can show them directly
-        // The preview will be loaded when the document URL is accessed
-        this.documents[index]._loadingPreview = false;
-      } else if (doc.mimeType?.includes('pdf')) {
-        // For PDFs, we'll show them when clicked
-        // You could implement PDF.js here to generate thumbnails
-        this.documents[index]._loadingPreview = false;
-      } else {
+        if (!result) {
+          console.error(`❌ Failed to get download URL for document ${doc.id}`);
+          this.documents[index]._loadingPreview = false;
+          continue;
+        }
+
+        console.log(`📥 Downloaded document ${doc.fileName}:`, result.mimeType);
+
+        // For images, use the URL directly
+        if (result.mimeType?.includes('image')) {
+          console.log(`🖼️ Document is an image, using direct URL`);
+          this.documents[index]._previewUrl = result.url;
+          this.documents[index]._loadingPreview = false;
+        }
+        // For PDFs, generate thumbnail
+        else if (result.mimeType?.includes('pdf')) {
+          console.log(`📄 Document is PDF, generating thumbnail...`);
+          try {
+            const thumbnailDataUrl = await this.pdfThumbnailService.generateThumbnail(
+              result.url,
+              400,  // max width
+              300   // max height
+            );
+            this.documents[index]._previewUrl = thumbnailDataUrl;
+            console.log(`✅ Thumbnail generated for ${doc.fileName}`);
+          } catch (error) {
+            console.error(`❌ Error generating thumbnail for ${doc.fileName}:`, error);
+            // Keep loading as false, will show placeholder
+          }
+          this.documents[index]._loadingPreview = false;
+        }
+        // For other file types, just mark as loaded
+        else {
+          console.log(`📦 Document is ${result.mimeType}, no preview available`);
+          this.documents[index]._loadingPreview = false;
+        }
+      } catch (error) {
+        console.error(`❌ Error loading preview for document ${doc.fileName}:`, error);
         this.documents[index]._loadingPreview = false;
       }
-    });
+    }
+
+    console.log('✅ Finished loading all document previews');
   }
 
   resetForm() {

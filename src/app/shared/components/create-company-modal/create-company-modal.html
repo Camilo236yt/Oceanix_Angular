@@ -138,8 +138,9 @@
             @if (documents.length > 0) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               @for (doc of documents; track doc.id) {
-              <div (click)="openDocumentPreview(doc)"
-                class="border border-[var(--card-border)] rounded-lg overflow-hidden hover:shadow-lg cursor-pointer transition-all group">
+              <div
+                class="border border-[var(--card-border)] rounded-lg overflow-hidden hover:shadow-lg cursor-pointer transition-all group"
+                (click)="openDocumentPreview(doc); $event.stopPropagation()">
                 <!-- Document Preview Image -->
                 <div class="relative aspect-[3/2] bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   @if (doc._previewUrl) {
@@ -177,7 +178,7 @@
 
                   <!-- Hover Overlay -->
                   <div
-                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none">
                     <div
                       class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/95 dark:bg-gray-800/95 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
                       <app-icon name="eye" class="w-5 h-5 text-purple-600 dark:text-purple-400"></app-icon>
@@ -252,10 +253,24 @@
       <!-- Content -->
       <div class="p-6 max-h-[calc(100vh-200px)] overflow-hidden bg-[var(--card-bg)] flex flex-col">
         @if (previewDocument.mimeType.includes('pdf')) {
-        <!-- PDF Viewer with embed for cleaner look -->
+        <!-- PDF Viewer without toolbar using URL parameters -->
         <div class="flex-1 relative bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
-          <embed [src]="getSafeUrl(previewDocument.url)" type="application/pdf" class="w-full h-full min-h-[600px]"
-            #pdfViewer />
+          <!-- Using object with #toolbar=0 to hide PDF controls -->
+          <object [data]="getPdfUrlWithoutToolbar(previewDocument.url)" type="application/pdf"
+            class="w-full h-full min-h-[600px]">
+            <!-- Fallback for browsers that don't support object PDF rendering -->
+            <div class="flex flex-col items-center justify-center h-full p-8 text-center">
+              <app-icon name="file-text" class="w-16 h-16 text-gray-400 mb-4"></app-icon>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Tu navegador no puede mostrar el PDF directamente
+              </p>
+              <a [href]="previewDocument.url" target="_blank" download
+                class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
+                <app-icon name="download" class="w-4 h-4"></app-icon>
+                Descargar PDF
+              </a>
+            </div>
+          </object>
         </div>
         } @else if (previewDocument.mimeType.includes('image')) {
         <div class="flex-1 overflow-auto">
