@@ -5,7 +5,6 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconComponent } from '../icon/icon.component';
 import { CreateEmpresaRequest } from '../../../interface/empresas-api.interface';
 import { AuthService } from '../../../services/auth.service';
-import { PdfThumbnailService } from '../../services/pdf-thumbnail.service';
 import { EmpresaService } from '../../../features/crm/services/empresa.service';
 
 @Component({
@@ -47,7 +46,6 @@ export class CreateCompanyModalComponent implements OnChanges {
   // Verification fields (only for SUPER_ADMIN in edit mode)
   authService = inject(AuthService);
   sanitizer = inject(DomSanitizer);
-  pdfThumbnailService = inject(PdfThumbnailService);
   empresaService = inject(EmpresaService);
   isSuperAdmin = false;
   showVerificationFields = false;
