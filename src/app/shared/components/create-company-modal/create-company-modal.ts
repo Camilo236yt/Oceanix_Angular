@@ -88,10 +88,14 @@ export class CreateCompanyModalComponent implements OnChanges {
       this.formData = { ...this.initialData };
       // Load verification data if SUPER_ADMIN
       if (this.isSuperAdmin) {
+        console.log('🔧 SUPER_ADMIN detected, loading verification data');
         this.verificationStatus = this.initialVerificationStatus;
         this.rejectionReason = this.initialRejectionReason;
         // Load documents
         this.documents = this.enterpriseDocuments || [];
+        console.log('📄 Documents loaded:', this.documents);
+      } else {
+        console.log('❌ Not SUPER_ADMIN, skipping verification fields');
       }
     } else {
       this.resetForm();

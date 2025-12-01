@@ -131,10 +131,11 @@
           }
 
           <!-- Documents Section (SUPER_ADMIN only in edit mode) -->
-          @if (isSuperAdmin && isEditMode && documents.length > 0) {
+          @if (isSuperAdmin && isEditMode) {
           <div class="border-t border-[var(--border-primary)] pt-3 sm:pt-4 mt-2 sm:mt-3">
             <h4 class="text-sm font-semibold text-[var(--text-primary)] mb-3">Documentos de Verificación</h4>
 
+            @if (documents.length > 0) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               @for (doc of documents; track doc.id) {
               <div (click)="openDocumentPreview(doc)"
@@ -163,6 +164,12 @@
               </div>
               }
             </div>
+            } @else {
+            <div class="text-center py-6 text-[var(--text-tertiary)] text-sm">
+              <app-icon name="file-text" class="w-12 h-12 mx-auto mb-2 opacity-50"></app-icon>
+              <p>Esta empresa aún no ha subido documentos de verificación</p>
+            </div>
+            }
           </div>
           }
         </form>
