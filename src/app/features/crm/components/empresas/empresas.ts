@@ -223,7 +223,16 @@ export class Empresas implements OnInit {
           this.empresaService.getVerificationInfo(company.id).subscribe({
             next: (verificationInfo) => {
               console.log('✅ Verification info received:', verificationInfo);
-              this.editingDocuments = verificationInfo.documents || [];
+              console.log('🔍 Full response structure:', JSON.stringify(verificationInfo, null, 2));
+
+              // Extract documents from the response
+              const response = verificationInfo as any;
+              const documents = response?.data?.documents || response?.documents || [];
+
+              console.log('📦 Extracted documents:', documents);
+              console.log('📊 Documents count:', documents.length);
+
+              this.editingDocuments = documents;
               console.log('📄 Documents loaded:', this.editingDocuments.length, 'documents');
 
               // NOW open the modal with documents loaded
