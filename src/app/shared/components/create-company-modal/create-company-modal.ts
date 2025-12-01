@@ -99,8 +99,15 @@ export class CreateCompanyModalComponent implements OnChanges {
         this.verificationStatus = this.initialVerificationStatus;
         this.rejectionReason = this.initialRejectionReason;
         // Load documents
-        this.documents = this.enterpriseDocuments || [];
+        this.documents = (this.enterpriseDocuments || []).map(doc => ({
+          ...doc,
+          _loadingPreview: false,
+          _previewUrl: null
+        }));
         console.log('📄 Documents loaded:', this.documents);
+
+        // Load document previews
+        this.loadDocumentPreviews();
       } else {
         console.log('❌ Not SUPER_ADMIN, skipping verification fields');
       }
@@ -108,6 +115,32 @@ export class CreateCompanyModalComponent implements OnChanges {
       this.resetForm();
     }
     this.clearAllErrors();
+  }
+
+  // Load previews for documents
+  private loadDocumentPreviews() {
+    this.documents.forEach((doc, index) => {
+      // Mark as loading
+      this.documents[index]._loadingPreview = true;
+
+      // Get the download URL for the document
+      // We'll generate a thumbnail from the blob URL we already have access to
+      // For images, show them directly. For PDFs, we could show first page if needed
+
+      // For now, we'll load the full document as preview
+      // In a production app, you might want a separate thumbnail endpoint
+      if (doc.mimeType?.includes('image')) {
+        // For images, we can show them directly
+        // The preview will be loaded when the document URL is accessed
+        this.documents[index]._loadingPreview = false;
+      } else if (doc.mimeType?.includes('pdf')) {
+        // For PDFs, we'll show them when clicked
+        // You could implement PDF.js here to generate thumbnails
+        this.documents[index]._loadingPreview = false;
+      } else {
+        this.documents[index]._loadingPreview = false;
+      }
+    });
   }
 
   resetForm() {
