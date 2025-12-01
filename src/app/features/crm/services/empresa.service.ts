@@ -100,8 +100,18 @@ export class EmpresaService {
       fileName: string;
       mimeType: string;
     }>(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
-      withCredentials: true
-    });
+      withCredentials: true,
+      responseType: 'json' as 'json'
+    }).pipe(
+      map(response => {
+        console.log('📥 Document download response:', response);
+        // Handle both wrapped and unwrapped responses
+        if (response && 'data' in response) {
+          return (response as any).data;
+        }
+        return response;
+      })
+    );
   }
 
   // Data transformation - converts API response to UI model
