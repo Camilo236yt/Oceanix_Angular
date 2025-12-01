@@ -83,6 +83,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   // Loading spinner para logout
   isLoggingOut = false;
 
+  // Loading para envío de incidencia
+  isSubmittingIncidencia = false;
+
   constructor(
     private incidenciasService: IncidenciasService,
     private cdr: ChangeDetectorRef,
