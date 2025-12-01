@@ -12,6 +12,7 @@ import { CreateCompanyModalComponent } from '../../../../shared/components/creat
 import { EmpresaData, CreateEmpresaRequest, UpdateEmpresaRequest } from '../../../../interface/empresas-api.interface';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../../../services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-empresas',
