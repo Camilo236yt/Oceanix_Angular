@@ -254,12 +254,12 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         // Actualizar en la lista de incidencias
         const incidenciaEnLista = this.incidencias.find(i => i.id.toString() === data.incidenciaId);
         if (incidenciaEnLista) {
-          incidenciaEnLista.status = data.status;
+          incidenciaEnLista.status = data.status as 'RESOLVED' | 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
         }
 
         // Si es la incidencia seleccionada, actualizar también
         if (this.selectedIncidencia && this.selectedIncidencia.id.toString() === data.incidenciaId) {
-          this.selectedIncidencia.status = data.status;
+          this.selectedIncidencia.status = data.status as 'RESOLVED' | 'PENDING' | 'IN_PROGRESS' | 'CLOSED';
 
           // Si se marcó como RESOLVED, mostrar mensaje al usuario
           if (data.status === 'RESOLVED') {
