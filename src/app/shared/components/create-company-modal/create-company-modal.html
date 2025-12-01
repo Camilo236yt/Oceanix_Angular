@@ -293,7 +293,7 @@
       <!-- Footer -->
       <div class="border-t border-[var(--border-primary)] px-6 py-4 bg-[var(--bg-tertiary)]">
         <div class="flex items-center justify-end gap-3">
-          <a [href]="previewDocument.url" target="_blank" download
+          <a [href]="previewDocument.url" [download]="previewDocument.fileName" target="_blank"
             class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-2">
             <app-icon name="download" class="w-4 h-4"></app-icon>
             Descargar

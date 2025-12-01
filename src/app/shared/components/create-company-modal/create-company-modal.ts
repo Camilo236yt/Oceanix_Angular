@@ -27,7 +27,6 @@ export class CreateCompanyModalComponent implements OnChanges {
   @Output() onCreate = new EventEmitter<CreateEmpresaRequest>();
   @Output() onUpdate = new EventEmitter<{ id: string; data: CreateEmpresaRequest }>();
   @Output() onVerificationUpdate = new EventEmitter<{ enterpriseId: string; verificationStatus: string; rejectionReason?: string }>();
-  @Output() onDocumentPreview = new EventEmitter<{ enterpriseId: string; documentId: string }>();
 
   isClosing = false;
 
@@ -281,12 +280,53 @@ export class CreateCompanyModalComponent implements OnChanges {
     }
   }
 
-  openDocumentPreview(document: any) {
-    // Emit event to parent to get download URL
-    this.onDocumentPreview.emit({
-      enterpriseId: this.companyId!,
-      documentId: document.id
-    });
+  async openDocumentPreview(document: any) {
+    console.log('🔍 Opening document preview:', document);
+
+    try {
+      // Show loading indicator
+      const loadingToast = await import('sweetalert2').then(m => m.default);
+      loadingToast.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Cargando documento...',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: () => {
+          loadingToast.showLoading();
+        }
+      });
+
+      // Get download URL
+      const result = await this.empresaService.getDocumentDownloadUrl(
+        this.companyId!,
+        document.id
+      ).toPromise();
+
+      if (result) {
+        console.log('✅ Document loaded, opening preview');
+        this.setPreviewDocument(result.url, result.fileName, result.mimeType);
+
+        loadingToast.close();
+      } else {
+        throw new Error('Failed to get document URL');
+      }
+    } catch (error) {
+      console.error('❌ Error loading document:', error);
+      const Swal = await import('sweetalert2').then(m => m.default);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar el documento',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+    }
   }
 
   setPreviewDocument(url: string, fileName: string, mimeType: string) {
