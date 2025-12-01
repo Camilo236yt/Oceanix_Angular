@@ -514,6 +514,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   verDetalles(incidencia: Incidencia): void {
+    console.log('🔍 [MODAL] Abriendo modal de incidencia:', incidencia.id);
+    console.log('📊 Imágenes al abrir modal (desde lista):', incidencia.images?.length || 0);
+    console.log('   - IDs:', incidencia.images?.map(img => img.id));
+
     // Abrir modal inmediatamente con los datos básicos
     this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
@@ -532,12 +536,17 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     // Cargar datos completos en segundo plano (con prioridad en imágenes)
     this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
       next: (incidenciaCompleta) => {
-        console.log('✅ Incidencia completa cargada:', incidenciaCompleta);
-        console.log('📸 Imágenes:', incidenciaCompleta.images);
+        console.log('✅ [MODAL] Incidencia completa cargada desde backend');
+        console.log('📊 Imágenes en la respuesta del backend:', incidenciaCompleta.images?.length || 0);
+        console.log('   - IDs:', incidenciaCompleta.images?.map(img => img.id));
+        console.log('📊 Imágenes ANTES de Object.assign:', this.selectedIncidencia?.images?.length || 0);
 
         // CRÍTICO: Actualizar el objeto existente en lugar de reemplazarlo
         // para mantener la referencia con el objeto de la lista
         Object.assign(this.selectedIncidencia!, incidenciaCompleta);
+
+        console.log('📊 Imágenes DESPUÉS de Object.assign:', this.selectedIncidencia?.images?.length || 0);
+        console.log('   - IDs:', this.selectedIncidencia?.images?.map(img => img.id));
 
         // También actualizar el objeto en la lista para mantener consistencia
         const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
@@ -738,9 +747,19 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   uploadModalImages(): void {
     if (!this.selectedIncidencia || this.modalArchivos.length === 0 || this.isUploadingImages) return;
 
+    console.log('🚀 [UPLOAD] Iniciando subida de imágenes');
+    console.log('📊 Estado ANTES de subir:');
+    console.log('   - Imágenes actuales:', this.selectedIncidencia.images?.length || 0);
+    console.log('   - IDs de imágenes actuales:', this.selectedIncidencia.images?.map(img => img.id));
+
     this.isUploadingImages = true;
     this.incidenciasService.uploadImages(this.selectedIncidencia.id.toString(), this.modalArchivos).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('✅ [UPLOAD] Respuesta del backend:', response);
+        console.log('📊 Estado DESPUÉS de la respuesta del backend:');
+        console.log('   - Imágenes actuales:', this.selectedIncidencia?.images?.length || 0);
+        console.log('   - IDs de imágenes actuales:', this.selectedIncidencia?.images?.map(img => img.id));
+
         this.modalArchivos = [];
         this.modalPreviews = [];
         this.isUploadingImages = false;
@@ -759,6 +778,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         });
       },
       error: (error) => {
+        console.error('❌ [UPLOAD] Error al subir imágenes:', error);
         this.isUploadingImages = false;
         Swal.fire({
           icon: 'error',
