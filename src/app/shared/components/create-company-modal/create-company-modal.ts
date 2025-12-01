@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconComponent } from '../icon/icon.component';
 import { CreateEmpresaRequest } from '../../../interface/empresas-api.interface';
 import { AuthService } from '../../../services/auth.service';
@@ -44,6 +45,7 @@ export class CreateCompanyModalComponent implements OnChanges {
 
   // Verification fields (only for SUPER_ADMIN in edit mode)
   authService = inject(AuthService);
+  sanitizer = inject(DomSanitizer);
   isSuperAdmin = false;
   showVerificationFields = false;
 
@@ -65,6 +67,11 @@ export class CreateCompanyModalComponent implements OnChanges {
 
   ngOnInit() {
     this.isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+  }
+
+  // Sanitize blob URLs for iframe
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -202,11 +209,21 @@ export class CreateCompanyModalComponent implements OnChanges {
   }
 
   setPreviewDocument(url: string, fileName: string, mimeType: string) {
+    // Clean up previous blob URL if exists
+    if (this.previewDocument?.url && this.previewDocument.url.startsWith('blob:')) {
+      URL.revokeObjectURL(this.previewDocument.url);
+    }
+
     this.previewDocument = { url, fileName, mimeType };
     this.showPreviewModal = true;
   }
 
   closePreviewModal() {
+    // Clean up blob URL to prevent memory leaks
+    if (this.previewDocument?.url && this.previewDocument.url.startsWith('blob:')) {
+      URL.revokeObjectURL(this.previewDocument.url);
+    }
+
     this.showPreviewModal = false;
     this.previewDocument = null;
   }

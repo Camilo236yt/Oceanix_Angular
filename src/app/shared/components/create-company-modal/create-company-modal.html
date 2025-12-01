@@ -222,8 +222,8 @@
       <!-- Content -->
       <div class="p-6 max-h-[calc(100vh-200px)] overflow-y-auto bg-[var(--card-bg)]">
         @if (previewDocument.mimeType.includes('pdf')) {
-        <iframe [src]="previewDocument.url" class="w-full h-[600px] border border-[var(--card-border)] rounded-lg"
-          frameborder="0">
+        <iframe [src]="getSafeUrl(previewDocument.url)"
+          class="w-full h-[600px] border border-[var(--card-border)] rounded-lg" frameborder="0">
         </iframe>
         } @else if (previewDocument.mimeType.includes('image')) {
         <img [src]="previewDocument.url" [alt]="previewDocument.fileName"

@@ -88,28 +88,45 @@ export class EmpresaService {
     });
   }
 
-  // GET document download URL (SUPER_ADMIN only)
+  // GET document download (SUPER_ADMIN only) - Download as blob and create temporary URL
   getDocumentDownloadUrl(enterpriseId: string, documentId: string): Observable<{
     url: string;
     fileName: string;
     mimeType: string;
   }> {
     const configApiUrl = `${environment.apiUrl}/enterprise-config`;
-    return this.http.get<{
-      url: string;
-      fileName: string;
-      mimeType: string;
-    }>(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
+    return this.http.get(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
       withCredentials: true,
-      responseType: 'json' as 'json'
+      responseType: 'blob' as 'json',  // Download as blob since backend returns file directly
+      observe: 'response'  // Get full response to access headers
     }).pipe(
-      map(response => {
-        console.log('📥 Document download response:', response);
-        // Handle both wrapped and unwrapped responses
-        if (response && 'data' in response) {
-          return (response as any).data;
+      map((response: any) => {
+        console.log('📥 Document blob response:', response);
+
+        // Extract filename from Content-Disposition header or use default
+        let fileName = 'document';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+          if (matches != null && matches[1]) {
+            fileName = matches[1].replace(/['"]/g, '');
+          }
         }
-        return response;
+
+        // Get mime type from Content-Type header
+        const mimeType = response.headers.get('Content-Type') || 'application/pdf';
+
+        // Create blob URL
+        const blob = new Blob([response.body], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        console.log('✅ Created blob URL:', { url, fileName, mimeType });
+
+        return {
+          url,
+          fileName,
+          mimeType
+        };
       })
     );
   }
