@@ -338,8 +338,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         continue;
       }
 
-      // Validar tamaño (5MB)
-      if (archivo.size > 5 * 1024 * 1024) {
+      // Validar tamaño (30MB)
+      if (archivo.size > 30 * 1024 * 1024) {
         continue;
       }
 
@@ -643,7 +643,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       }
 
       if (!archivo.type.match(/image\/(jpeg|jpg|png|webp)/)) continue;
-      if (archivo.size > 5 * 1024 * 1024) continue;
+      if (archivo.size > 30 * 1024 * 1024) continue;
 
       this.modalArchivos.push(archivo);
       this.modalPreviews.push('');
@@ -678,8 +678,8 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         this.isUploadingImages = false;
         this.cdr.detectChanges();
 
-        // Recargar mensajes para ver el mensaje con las imágenes
-        this.loadMessages();
+        // NO llamar a loadMessages() aquí - el WebSocket ya actualiza las imágenes en tiempo real
+        // Esto evita duplicación de imágenes
 
         Swal.fire({
           icon: 'success',

@@ -64,7 +64,7 @@ export class VerificarCuenta implements OnInit {
     private cdr: ChangeDetectorRef,
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('🚀 Iniciando componente VerificarCuenta - pasoActual inicial:', this.pasoActual);
@@ -123,7 +123,7 @@ export class VerificarCuenta implements OnInit {
       }
     }
   }
- 
+
   /**
    * Sube los documentos al backend
    */
@@ -389,10 +389,10 @@ export class VerificarCuenta implements OnInit {
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
 
-      // Validar tamaño (5 MB máximo)
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      // Validar tamaño (30 MB máximo)
+      const maxSize = 30 * 1024 * 1024; // 30MB
       if (file.size > maxSize) {
-        alert('El logo excede el tamaño máximo de 5 MB');
+        alert('El logo excede el tamaño máximo de 30 MB');
         input.value = '';
         return;
       }
