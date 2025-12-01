@@ -20,6 +20,12 @@ export interface EmpresaData {
   updatedAt: string;
   users?: UserData[];
   roles?: RoleData[];
+  config?: {
+    id: string;
+    verificationStatus: string;
+    rejectionReason?: string;
+    isVerified: boolean;
+  };
 }
 
 export interface UserData {

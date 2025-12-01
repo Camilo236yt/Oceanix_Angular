@@ -5,8 +5,7 @@
       <h1 class="text-2xl md:text-3xl font-bold text-[var(--text-primary)] truncate">Empresas</h1>
       <p class="text-[var(--text-tertiary)] text-xs md:text-sm mt-1">Gestiona las empresas del sistema</p>
     </div>
-    <button
-      (click)="createNewCompany()"
+    <button (click)="createNewCompany()"
       class="bg-purple-600 hover:bg-purple-700 text-white px-3 md:px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm flex-shrink-0">
       <app-icon name="plus" class="w-5 h-5"></app-icon>
       <span class="hidden md:inline">Nueva Empresa</span>
@@ -15,40 +14,30 @@
 
   <!-- Barra de búsqueda y filtros -->
   <div class="mb-4 md:mb-6">
-    <app-search-filters
-      searchPlaceholder="Buscar empresas..."
-      [filters]="filterConfigs"
+    <app-search-filters searchPlaceholder="Buscar empresas..." [filters]="filterConfigs"
       (onFilterChange)="onFilterChange($event)">
     </app-search-filters>
   </div>
 
   <!-- Tabla de empresas -->
   @if (isLoading) {
-    <app-skeleton-loader type="table" [rows]="5" [columns]="5"></app-skeleton-loader>
+  <app-skeleton-loader type="table" [rows]="5" [columns]="5"></app-skeleton-loader>
   } @else {
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="companies"
-      [actions]="tableActions"
-      (onActionClick)="handleTableAction($event)">
-    </app-data-table>
+  <app-data-table [columns]="tableColumns" [data]="companies" [actions]="tableActions"
+    (onActionClick)="handleTableAction($event)">
+  </app-data-table>
   }
 </div>
 
 <!-- View Company Modal -->
-<app-view-company-modal
-  [isOpen]="isViewCompanyModalOpen"
-  [companyData]="viewingCompanyData"
+<app-view-company-modal [isOpen]="isViewCompanyModalOpen" [companyData]="viewingCompanyData"
   (onClose)="closeViewCompanyModal()">
 </app-view-company-modal>
 
 <!-- Create/Edit Company Modal -->
-<app-create-company-modal
-  [isOpen]="isCreateCompanyModalOpen"
-  [isEditMode]="isEditMode"
-  [companyId]="editingCompanyId"
-  [initialData]="editingCompanyData"
-  (onClose)="closeCreateCompanyModal()"
-  (onCreate)="handleCreateCompany($event)"
-  (onUpdate)="handleUpdateCompany($event)">
+<app-create-company-modal [isOpen]="isCreateCompanyModalOpen" [isEditMode]="isEditMode" [companyId]="editingCompanyId"
+  [initialData]="editingCompanyData" [initialVerificationStatus]="editingVerificationStatus"
+  [initialRejectionReason]="editingRejectionReason" (onClose)="closeCreateCompanyModal()"
+  (onCreate)="handleCreateCompany($event)" (onUpdate)="handleUpdateCompany($event)"
+  (onVerificationUpdate)="handleVerificationUpdate($event)">
 </app-create-company-modal>

@@ -25,7 +25,7 @@ export class Empresas implements OnInit {
   constructor(
     private empresaService: EmpresaService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
   // Configuración de filtros
   filterConfigs: FilterConfig[] = [
     {
@@ -94,6 +94,8 @@ export class Empresas implements OnInit {
   isEditMode = false;
   editingCompanyId: string | null = null;
   editingCompanyData: CreateEmpresaRequest | null = null;
+  editingVerificationStatus: string = 'pending';
+  editingRejectionReason: string = '';
 
   ngOnInit() {
     this.loadEmpresas();
@@ -175,24 +177,62 @@ export class Empresas implements OnInit {
   }
 
   editCompany(company: Company) {
-    // Set edit mode data
-    this.isEditMode = true;
-    this.editingCompanyId = company.id;
-    this.editingCompanyData = {
-      name: company.nombreEmpresa,
-      subdomain: company.subdomain,
-      email: company.correoEmpresarial,
-      phone: company.telefono
-    };
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Cargando datos de la empresa...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
-    // Force change detection
-    this.cdr.detectChanges();
+    // Get full company data including verification status
+    this.empresaService.getEmpresaById(company.id).subscribe({
+      next: (companyData) => {
+        Swal.close();
 
-    // Open modal with a small delay to ensure data is set
-    setTimeout(() => {
-      this.isCreateCompanyModalOpen = true;
-      this.cdr.detectChanges();
-    }, 0);
+        // Set edit mode data
+        this.isEditMode = true;
+        this.editingCompanyId = company.id;
+        this.editingCompanyData = {
+          name: companyData.name,
+          subdomain: companyData.subdomain,
+          email: companyData.email,
+          phone: companyData.phone
+        };
+
+        // Load verification data if available
+        if (companyData.config) {
+          this.editingVerificationStatus = companyData.config.verificationStatus || 'pending';
+          this.editingRejectionReason = companyData.config.rejectionReason || '';
+        }
+
+        // Force change detection
+        this.cdr.detectChanges();
+
+        // Open modal with a small delay to ensure data is set
+        setTimeout(() => {
+          this.isCreateCompanyModalOpen = true;
+          this.cdr.detectChanges();
+        }, 0);
+      },
+      error: (error: any) => {
+        console.error('Error al cargar empresa:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al cargar la empresa',
+          text: 'No se pudo cargar la información de la empresa',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   deleteCompany(company: Company) {
@@ -368,6 +408,59 @@ export class Empresas implements OnInit {
           icon: 'error',
           title: 'Error al actualizar la empresa',
           text: error.error?.message || 'No se pudo actualizar la empresa',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  handleVerificationUpdate(event: { enterpriseId: string; verificationStatus: string; rejectionReason?: string }) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Actualizando estado de verificación...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Call API to update verification status
+    this.empresaService.updateVerificationStatus(
+      event.enterpriseId,
+      event.verificationStatus,
+      event.rejectionReason
+    ).subscribe({
+      next: () => {
+        Swal.close();
+
+        // Show success message
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Estado de verificación actualizado',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+
+        // Reload empresas list
+        this.loadEmpresas();
+      },
+      error: (error: any) => {
+        console.error('Error al actualizar estado de verificación:', error);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al actualizar el estado',
+          text: error.error?.message || 'No se pudo actualizar el estado de verificación',
           showConfirmButton: false,
           timer: 3000,
           timerProgressBar: true

@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../icon/icon.component';
 import { CreateEmpresaRequest } from '../../../interface/empresas-api.interface';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-create-company-modal',
@@ -16,9 +17,12 @@ export class CreateCompanyModalComponent implements OnChanges {
   @Input() isEditMode = false;
   @Input() companyId: string | null = null;
   @Input() initialData: CreateEmpresaRequest | null = null;
+  @Input() initialVerificationStatus: string = 'pending';
+  @Input() initialRejectionReason: string = '';
   @Output() onClose = new EventEmitter<void>();
   @Output() onCreate = new EventEmitter<CreateEmpresaRequest>();
   @Output() onUpdate = new EventEmitter<{ id: string; data: CreateEmpresaRequest }>();
+  @Output() onVerificationUpdate = new EventEmitter<{ enterpriseId: string; verificationStatus: string; rejectionReason?: string }>();
 
   isClosing = false;
 
@@ -35,6 +39,25 @@ export class CreateCompanyModalComponent implements OnChanges {
     email: '',
     phone: ''
   };
+
+  // Verification fields (only for SUPER_ADMIN in edit mode)
+  authService = inject(AuthService);
+  isSuperAdmin = false;
+  showVerificationFields = false;
+
+  verificationStatus: string = 'pending';
+  rejectionReason: string = '';
+
+  verificationStatusOptions = [
+    { value: 'pending', label: 'Pendiente' },
+    { value: 'in_progress', label: 'En Progreso' },
+    { value: 'verified', label: 'Verificado' },
+    { value: 'rejected', label: 'Rechazado' }
+  ];
+
+  ngOnInit() {
+    this.isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isOpen']) {
@@ -55,6 +78,11 @@ export class CreateCompanyModalComponent implements OnChanges {
   loadFormData() {
     if (this.isEditMode && this.initialData) {
       this.formData = { ...this.initialData };
+      // Load verification data if SUPER_ADMIN
+      if (this.isSuperAdmin) {
+        this.verificationStatus = this.initialVerificationStatus;
+        this.rejectionReason = this.initialRejectionReason;
+      }
     } else {
       this.resetForm();
     }
@@ -134,7 +162,17 @@ export class CreateCompanyModalComponent implements OnChanges {
   handleSubmit() {
     if (this.validateForm()) {
       if (this.isEditMode && this.companyId) {
+        // Update company data
         this.onUpdate.emit({ id: this.companyId, data: this.formData });
+
+        // If SUPER_ADMIN, also emit verification status update
+        if (this.isSuperAdmin) {
+          this.onVerificationUpdate.emit({
+            enterpriseId: this.companyId,
+            verificationStatus: this.verificationStatus,
+            rejectionReason: this.verificationStatus === 'rejected' ? this.rejectionReason : undefined
+          });
+        }
       } else {
         this.onCreate.emit(this.formData);
       }

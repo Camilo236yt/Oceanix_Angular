@@ -30,9 +30,16 @@ export class VerificationBannerComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
+    // No mostrar el banner para SUPER_ADMIN
+    const isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+    if (isSuperAdmin) {
+      this.showBanner = false;
+      return;
+    }
+
     // Verificar si el usuario tiene permisos de verificación
     const hasVerificationPermission = this.authService.hasAnyPermission(this.verificationPermissions);
 

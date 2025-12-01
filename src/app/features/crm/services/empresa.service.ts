@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
 export class EmpresaService {
   private apiUrl = `${environment.apiUrl}/enterprise`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Main GET request for all enterprises
   getEmpresas(): Observable<Company[]> {
@@ -59,6 +59,23 @@ export class EmpresaService {
   // DELETE enterprise by ID
   deleteEmpresa(empresaId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${empresaId}`, {
+      withCredentials: true
+    });
+  }
+
+  // PATCH update verification status (SUPER_ADMIN only)
+  updateVerificationStatus(
+    enterpriseId: string,
+    verificationStatus: string,
+    rejectionReason?: string
+  ): Observable<any> {
+    const configApiUrl = `${environment.apiUrl}/enterprise-config`;
+    const payload: any = { verificationStatus };
+    if (rejectionReason) {
+      payload.rejectionReason = rejectionReason;
+    }
+
+    return this.http.patch(`${configApiUrl}/${enterpriseId}/verification-status`, payload, {
       withCredentials: true
     });
   }
