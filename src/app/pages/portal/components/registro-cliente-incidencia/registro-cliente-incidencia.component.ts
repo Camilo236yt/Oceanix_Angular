@@ -71,14 +71,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   // User Profile Modal
   isUserProfileModalOpen = false;
   userProfile: UserProfile = {
-    fullName: 'María González Rodríguez',
-    email: 'maria.gonzalez@cliente.com',
-    createdAt: '20 de Enero, 2024'
+    fullName: '',
+    email: ''
   };
 
   // Obtener solo el primer nombre
   get firstName(): string {
-    return this.userProfile.fullName.split(' ')[0];
+    return this.userProfile.fullName.split(' ')[0] || '';
   }
 
   // Loading spinner para logout
@@ -96,6 +95,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeForm();
     this.cargarIncidencias();
+    this.cargarDatosUsuario();
 
     console.log('🎬 [CLIENTE] Componente inicializado - Suscribiéndose a eventos WebSocket');
 
@@ -1043,5 +1043,26 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         clearTimeout(this.typingTimeout);
       }
     }
+  }
+
+  /**
+   * Cargar datos del usuario desde el endpoint /auth/me
+   */
+  cargarDatosUsuario(): void {
+    this.authClienteService.getMe().subscribe({
+      next: (response) => {
+        if (response.success && response.data && response.data.user) {
+          const user = response.data.user;
+          this.userProfile = {
+            fullName: `${user.name} ${user.lastName}`,
+            email: user.email
+          };
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar datos del usuario:', error);
+      }
+    });
   }
 }
