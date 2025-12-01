@@ -39,6 +39,13 @@ export const permissionGuard = (requiredPermission: string): CanActivateFn => {
         const hasRequiredPermission = authService.hasPermission(requiredPermission);
         console.log(`[PermissionGuard] ¿Tiene permiso '${requiredPermission}'?`, hasRequiredPermission);
 
+        // BLOQUEAR SUPER_ADMIN: No debe acceder a módulos regulares
+        if (authService.hasUserType('SUPER_ADMIN')) {
+          console.warn('[PermissionGuard] Acceso denegado a SUPER_ADMIN en ruta regular');
+          router.navigate(['/crm/empresas']);
+          return false;
+        }
+
         // Si el usuario tiene el permiso, permitir acceso
         if (authService.hasPermission(requiredPermission)) {
           console.log(`[PermissionGuard] Acceso permitido a ruta con permiso: ${requiredPermission}`);
@@ -85,20 +92,28 @@ export const anyPermissionGuard = (requiredPermissions: string[]): CanActivateFn
           return false;
         }
 
-        // Si el usuario tiene al menos uno de los permisos, permitir acceso
-        if (authService.hasAnyPermission(requiredPermissions)) {
-          return true;
-        }
+      }
 
-        // Si no tiene ninguno de los permisos, redirigir al dashboard
-        console.warn(`[PermissionGuard] Acceso denegado. Se requiere al menos uno de: ${requiredPermissions.join(', ')}`);
-        router.navigate(['/crm/dashboard']);
-        return false;
-      }),
-      catchError(() => {
-        router.navigate(['/admin']);
-        return of(false);
-      })
+        // BLOQUEAR SUPER_ADMIN: No debe acceder a módulos regulares
+        if (authService.hasUserType('SUPER_ADMIN')) {
+      router.navigate(['/crm/empresas']);
+      return false;
+    }
+
+    // Si el usuario tiene al menos uno de los permisos, permitir acceso
+    if (authService.hasAnyPermission(requiredPermissions)) {
+      return true;
+    }
+
+    // Si no tiene ninguno de los permisos, redirigir al dashboard
+    console.warn(`[PermissionGuard] Acceso denegado. Se requiere al menos uno de: ${requiredPermissions.join(', ')}`);
+    router.navigate(['/crm/dashboard']);
+    return false;
+  }),
+  catchError(() => {
+    router.navigate(['/admin']);
+    return of(false);
+  })
     );
   };
 };
@@ -129,20 +144,28 @@ export const allPermissionsGuard = (requiredPermissions: string[]): CanActivateF
           return false;
         }
 
-        // Si el usuario tiene todos los permisos, permitir acceso
-        if (authService.hasAllPermissions(requiredPermissions)) {
-          return true;
-        }
+      }
 
-        // Si no tiene todos los permisos, redirigir al dashboard
-        console.warn(`[PermissionGuard] Acceso denegado. Se requieren todos: ${requiredPermissions.join(', ')}`);
-        router.navigate(['/crm/dashboard']);
-        return false;
-      }),
-      catchError(() => {
-        router.navigate(['/admin']);
-        return of(false);
-      })
+        // BLOQUEAR SUPER_ADMIN: No debe acceder a módulos regulares
+        if (authService.hasUserType('SUPER_ADMIN')) {
+      router.navigate(['/crm/empresas']);
+      return false;
+    }
+
+    // Si el usuario tiene todos los permisos, permitir acceso
+    if (authService.hasAllPermissions(requiredPermissions)) {
+      return true;
+    }
+
+    // Si no tiene todos los permisos, redirigir al dashboard
+    console.warn(`[PermissionGuard] Acceso denegado. Se requieren todos: ${requiredPermissions.join(', ')}`);
+    router.navigate(['/crm/dashboard']);
+    return false;
+  }),
+  catchError(() => {
+    router.navigate(['/admin']);
+    return of(false);
+  })
     );
   };
 };

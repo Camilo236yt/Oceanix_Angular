@@ -169,7 +169,15 @@ export class CrmLayout implements OnInit, OnDestroy {
    * Si el usuario tiene al menos uno de los permisos requeridos O uno de los userTypes, muestra el item
    */
   private filterMenuItemsByPermissions(): void {
+    const isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+
     this.menuItems = this.allMenuItems.filter(item => {
+      // Regla especial para SUPER_ADMIN: Solo mostrar items específicos para SUPER_ADMIN
+      // Ignorar permisos regulares ya que SUPER_ADMIN los tiene todos
+      if (isSuperAdmin) {
+        return item.userTypes?.includes('SUPER_ADMIN');
+      }
+
       // Si el item requiere userTypes, verificar que el usuario tenga al menos uno
       if (item.userTypes && item.userTypes.length > 0) {
         return this.authService.hasAnyUserType(item.userTypes);
