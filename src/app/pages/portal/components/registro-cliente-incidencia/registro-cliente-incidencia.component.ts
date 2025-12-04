@@ -291,7 +291,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
               text: 'Esta incidencia ha sido marcada como resuelta por nuestro equipo.',
               confirmButtonColor: '#7c3aed',
               timer: 5000,
-              timerProgressBar: true
+              timerProgressBar: true,
+              customClass: {
+                container: 'swal-high-zindex'
+              }
             });
           }
         }
@@ -743,7 +746,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           icon: 'warning',
           title: 'Límite alcanzado',
           text: `Solo puedes subir un máximo de ${this.MAX_IMAGENES} imágenes.`,
-          confirmButtonColor: '#7c3aed'
+          confirmButtonColor: '#7c3aed',
+          customClass: {
+            container: 'swal-high-zindex'
+          }
         });
         break;
       }
@@ -774,10 +780,20 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   }
 
   uploadModalImages(): void {
-    if (!this.selectedIncidencia || this.modalArchivos.length === 0 || this.isUploadingImages) return;
+    if (!this.selectedIncidencia || this.modalArchivos.length === 0 || this.isUploadingImages) {
+      console.warn('⚠️ [UPLOAD] Subida cancelada por validación:', {
+        hasIncidencia: !!this.selectedIncidencia,
+        filesCount: this.modalArchivos.length,
+        isUploading: this.isUploadingImages
+      });
+      return;
+    }
 
     console.log('🚀 [UPLOAD] Iniciando subida de imágenes');
     console.log('📊 Estado ANTES de subir:');
+    console.log('   - Incidencia ID:', this.selectedIncidencia.id);
+    console.log('   - canClientUploadImages:', this.selectedIncidencia.canClientUploadImages);
+    console.log('   - Archivos a subir:', this.modalArchivos.length);
     console.log('   - Imágenes actuales:', this.selectedIncidencia.images?.length || 0);
     console.log('   - IDs de imágenes actuales:', this.selectedIncidencia.images?.map(img => img.id));
 
@@ -794,6 +810,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         console.log('   - Imágenes actuales:', this.selectedIncidencia?.images?.length || 0);
         console.log('   - IDs de imágenes actuales:', this.selectedIncidencia?.images?.map(img => img.id));
 
+        // Limpiar archivos y previews
         this.modalArchivos = [];
         this.modalPreviews = [];
         this.isUploadingImages = false;
@@ -809,17 +826,45 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
           text: 'Las imágenes se han subido correctamente.',
           confirmButtonColor: '#7c3aed',
           timer: 3000,
-          timerProgressBar: true
+          timerProgressBar: true,
+          customClass: {
+            container: 'swal-high-zindex'
+          }
         });
       },
       error: (error) => {
-        console.error('❌ [UPLOAD] Error al subir imágenes:', error);
+        console.error('❌ [UPLOAD] Error detallado al subir imágenes:');
+        console.error('   - Error completo:', error);
+        console.error('   - Status:', error.status);
+        console.error('   - StatusText:', error.statusText);
+        console.error('   - Error body:', error.error);
+        console.error('   - Message:', error.error?.message);
+
         this.isUploadingImages = false;
+        this.cdr.detectChanges();
+
+        // Mensaje de error más detallado
+        let errorMessage = 'No se pudieron subir las imágenes.';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error.status === 403) {
+          errorMessage = 'No tienes permiso para subir imágenes en esta incidencia.';
+        } else if (error.status === 400) {
+          errorMessage = 'Los archivos enviados no son válidos.';
+        } else if (error.status === 404) {
+          errorMessage = 'La incidencia no fue encontrada.';
+        } else if (error.status === 0) {
+          errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+        }
+
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: error.error?.message || 'No se pudieron subir las imágenes.',
-          confirmButtonColor: '#7c3aed'
+          title: 'Error al subir imágenes',
+          text: errorMessage,
+          confirmButtonColor: '#7c3aed',
+          customClass: {
+            container: 'swal-high-zindex'
+          }
         });
       }
     });
