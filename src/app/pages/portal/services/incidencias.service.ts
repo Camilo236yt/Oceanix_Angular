@@ -70,7 +70,15 @@ export class IncidenciasService {
       `${environment.apiUrl}/incidencias/client/me/${id}`,
       { withCredentials: true }
     ).pipe(
-      map(response => response.data)
+      map(response => {
+        console.log('🔍 [IncidenciasService] Respuesta completa del backend para incidencia:', id);
+        console.log('   - success:', response.success);
+        console.log('   - statusCode:', response.statusCode);
+        console.log('   - data:', response.data);
+        console.log('   - images count:', response.data?.images?.length || 0);
+        console.log('   - images:', response.data?.images);
+        return response.data;
+      })
     );
   }
 

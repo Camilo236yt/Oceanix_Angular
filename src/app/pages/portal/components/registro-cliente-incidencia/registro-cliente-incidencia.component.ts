@@ -519,7 +519,6 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     console.log('   - IDs:', incidencia.images?.map(img => img.id));
 
     // Abrir modal inmediatamente con los datos básicos
-    this.selectedIncidencia = incidencia;
     this.isModalOpen.set(true);
     this.isLoadingIncidenciaDetails = true; // Activar loading para detalles
     document.body.style.overflow = 'hidden';
@@ -527,6 +526,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     // Inicializar array vacío de mensajes para mostrar UI inmediatamente
     this.messages = [];
     this.isLoadingMessages = false; // Inicializar como false para mostrar "No hay mensajes"
+
+    // IMPORTANTE: Crear una copia del objeto en lugar de usar la referencia directa
+    // Esto evita que el skeleton muestre datos incompletos
+    this.selectedIncidencia = { ...incidencia, images: [] }; // Copia con imágenes vacías temporalmente
     this.cdr.detectChanges(); // Forzar detección de cambios
 
     // Cargar mensajes y conectar chat inmediatamente en paralelo
@@ -539,14 +542,14 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         console.log('✅ [MODAL] Incidencia completa cargada desde backend');
         console.log('📊 Imágenes en la respuesta del backend:', incidenciaCompleta.images?.length || 0);
         console.log('   - IDs:', incidenciaCompleta.images?.map(img => img.id));
-        console.log('📊 Imágenes ANTES de Object.assign:', this.selectedIncidencia?.images?.length || 0);
 
-        // CRÍTICO: Actualizar el objeto existente en lugar de reemplazarlo
-        // para mantener la referencia con el objeto de la lista
-        Object.assign(this.selectedIncidencia!, incidenciaCompleta);
+        // CRÍTICO: Reemplazar completamente el objeto con la respuesta del backend
+        // que incluye TODAS las imágenes
+        this.selectedIncidencia = incidenciaCompleta;
 
-        console.log('📊 Imágenes DESPUÉS de Object.assign:', this.selectedIncidencia?.images?.length || 0);
+        console.log('📊 Imágenes en selectedIncidencia después de asignar:', this.selectedIncidencia?.images?.length || 0);
         console.log('   - IDs:', this.selectedIncidencia?.images?.map(img => img.id));
+        console.log('   - URLs:', this.selectedIncidencia?.images?.map(img => img.url));
 
         // También actualizar el objeto en la lista para mantener consistencia
         const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
