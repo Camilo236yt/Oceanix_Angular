@@ -2,13 +2,16 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Observable, of } from 'rxjs';
-import { map, catchError, startWith } from 'rxjs/operators';
+import { map, catchError, shareReplay } from 'rxjs/operators';
 
 @Pipe({
   name: 'secureImage',
   standalone: true
 })
 export class SecureImagePipe implements PipeTransform {
+  // Caché de imágenes para evitar descargas duplicadas
+  private static imageCache = new Map<string, Observable<SafeUrl>>();
+
   constructor(
     private http: HttpClient,
     private sanitizer: DomSanitizer
@@ -31,24 +34,43 @@ export class SecureImagePipe implements PipeTransform {
       requestUrl = `${url}/client`;
     }
 
-    console.log('🖼️ [SecureImagePipe] Loading image:', { original: url, request: requestUrl, isClient });
+    // Verificar si la imagen ya está en caché
+    if (SecureImagePipe.imageCache.has(requestUrl)) {
+      console.log('⚡ [SecureImagePipe] Usando imagen en caché:', requestUrl);
+      return SecureImagePipe.imageCache.get(requestUrl)!;
+    }
 
-    // Hacer la petición con credenciales para que envíe cookies o JWT
-    return this.http.get(requestUrl, {
+    console.log('🖼️ [SecureImagePipe] Descargando imagen:', requestUrl);
+
+    // Crear el observable de la imagen
+    const imageObservable = this.http.get(requestUrl, {
       responseType: 'blob',
       withCredentials: true // Importante para cookies
     }).pipe(
       map(blob => {
-        console.log('✅ [SecureImagePipe] Image loaded successfully:', requestUrl);
+        console.log('✅ [SecureImagePipe] Imagen descargada:', requestUrl);
         const objectUrl = URL.createObjectURL(blob);
         return this.sanitizer.bypassSecurityTrustUrl(objectUrl);
       }),
-      startWith(null as any), // Emitir null primero para mostrar skeleton
       catchError((error) => {
-        // En caso de error, retornar una imagen placeholder
-        console.error('❌ [SecureImagePipe] Error loading image:', requestUrl, error);
+        console.error('❌ [SecureImagePipe] Error cargando imagen:', requestUrl, error);
+        // Remover del caché si hay error
+        SecureImagePipe.imageCache.delete(requestUrl);
         return of('');
-      })
+      }),
+      shareReplay(1) // Compartir el resultado entre múltiples suscriptores
     );
+
+    // Guardar en caché
+    SecureImagePipe.imageCache.set(requestUrl, imageObservable);
+
+    return imageObservable;
+  }
+
+  /**
+   * Método estático para limpiar la caché si es necesario
+   */
+  static clearCache(): void {
+    SecureImagePipe.imageCache.clear();
   }
 }

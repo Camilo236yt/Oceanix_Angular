@@ -520,53 +520,79 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
     // Abrir modal inmediatamente con los datos básicos
     this.isModalOpen.set(true);
-    this.isLoadingIncidenciaDetails = true; // Activar loading para detalles
     document.body.style.overflow = 'hidden';
 
     // Inicializar array vacío de mensajes para mostrar UI inmediatamente
     this.messages = [];
     this.isLoadingMessages = false; // Inicializar como false para mostrar "No hay mensajes"
 
-    // IMPORTANTE: Crear una copia del objeto en lugar de usar la referencia directa
-    // Esto evita que el skeleton muestre datos incompletos
-    this.selectedIncidencia = { ...incidencia, images: [] }; // Copia con imágenes vacías temporalmente
-    this.cdr.detectChanges(); // Forzar detección de cambios
+    // OPTIMIZACIÓN: Si la incidencia ya tiene imágenes, usarlas inmediatamente
+    // En lugar de esperar la respuesta del backend
+    if (incidencia.images && incidencia.images.length > 0) {
+      console.log('⚡ [OPTIMIZACIÓN] Usando imágenes ya cargadas de la lista');
+      this.selectedIncidencia = { ...incidencia };
+      this.isLoadingIncidenciaDetails = false; // No mostrar skeleton si ya tenemos datos
+      this.cdr.detectChanges();
 
-    // Cargar mensajes y conectar chat inmediatamente en paralelo
-    this.loadMessages();
-    this.connectToChat();
+      // Cargar mensajes y chat en paralelo
+      this.loadMessages();
+      this.connectToChat();
 
-    // Cargar datos completos en segundo plano (con prioridad en imágenes)
-    this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
-      next: (incidenciaCompleta) => {
-        console.log('✅ [MODAL] Incidencia completa cargada desde backend');
-        console.log('📊 Imágenes en la respuesta del backend:', incidenciaCompleta.images?.length || 0);
-        console.log('   - IDs:', incidenciaCompleta.images?.map(img => img.id));
+      // Actualizar en segundo plano de forma silenciosa (sin skeleton)
+      this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
+        next: (incidenciaCompleta) => {
+          // Actualizar solo si hay cambios (ej: nuevas imágenes)
+          if (JSON.stringify(incidenciaCompleta.images) !== JSON.stringify(this.selectedIncidencia?.images)) {
+            console.log('🔄 [MODAL] Actualizando con datos frescos del backend');
+            this.selectedIncidencia = incidenciaCompleta;
 
-        // CRÍTICO: Reemplazar completamente el objeto con la respuesta del backend
-        // que incluye TODAS las imágenes
-        this.selectedIncidencia = incidenciaCompleta;
-
-        console.log('📊 Imágenes en selectedIncidencia después de asignar:', this.selectedIncidencia?.images?.length || 0);
-        console.log('   - IDs:', this.selectedIncidencia?.images?.map(img => img.id));
-        console.log('   - URLs:', this.selectedIncidencia?.images?.map(img => img.url));
-
-        // También actualizar el objeto en la lista para mantener consistencia
-        const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
-        if (indexEnLista !== -1) {
-          Object.assign(this.incidencias[indexEnLista], incidenciaCompleta);
+            // Actualizar en la lista
+            const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
+            if (indexEnLista !== -1) {
+              Object.assign(this.incidencias[indexEnLista], incidenciaCompleta);
+            }
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al actualizar incidencia:', error);
         }
+      });
+    } else {
+      // Si no hay imágenes en la lista, cargar normalmente con skeleton
+      console.log('📥 [MODAL] Cargando datos completos del backend...');
+      this.isLoadingIncidenciaDetails = true;
+      this.selectedIncidencia = { ...incidencia, images: [] };
+      this.cdr.detectChanges();
 
-        this.isLoadingIncidenciaDetails = false; // Desactivar loading
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        // Si falla, mantener los datos básicos que ya tenemos
-        console.error('❌ Error al cargar detalles completos de la incidencia:', error);
-        this.isLoadingIncidenciaDetails = false; // Desactivar loading incluso en error
-        this.cdr.detectChanges();
-      }
-    });
+      // Cargar mensajes y conectar chat inmediatamente en paralelo
+      this.loadMessages();
+      this.connectToChat();
+
+      // Cargar datos completos
+      this.incidenciasService.getMyIncidenciaById(incidencia.id.toString()).subscribe({
+        next: (incidenciaCompleta) => {
+          console.log('✅ [MODAL] Incidencia completa cargada desde backend');
+          console.log('📊 Imágenes en la respuesta del backend:', incidenciaCompleta.images?.length || 0);
+
+          this.selectedIncidencia = incidenciaCompleta;
+
+          // Actualizar en la lista
+          const indexEnLista = this.incidencias.findIndex(i => i.id === incidencia.id);
+          if (indexEnLista !== -1) {
+            Object.assign(this.incidencias[indexEnLista], incidenciaCompleta);
+          }
+
+          this.isLoadingIncidenciaDetails = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('❌ Error al cargar detalles completos de la incidencia:', error);
+          this.isLoadingIncidenciaDetails = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   closeModal(): void {

@@ -39,14 +39,22 @@ export class IncidenciasService {
 
   /**
    * Obtener todas las incidencias del cliente autenticado
+   * NOTA: Este endpoint debe incluir las imágenes para optimizar la carga
    */
   getIncidencias(): Observable<Incidencia[]> {
     return this.http.get<IncidenciasApiResponse>(
-      `${environment.apiUrl}/incidencias/client/me`,
+      `${environment.apiUrl}/incidencias/client/me?includeImages=true`,
       { withCredentials: true }
     ).pipe(
       map(response => {
         console.log('API Response incidencias cliente:', response);
+        console.log('📊 Total de incidencias:', response.data?.length || 0);
+
+        // Log de imágenes por incidencia para debugging
+        response.data?.forEach(inc => {
+          console.log(`   - Incidencia #${inc.id}: ${inc.images?.length || 0} imágenes`);
+        });
+
         return response.data || [];
       })
     );
