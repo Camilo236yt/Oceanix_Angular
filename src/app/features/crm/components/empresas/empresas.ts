@@ -516,61 +516,7 @@ export class Empresas implements OnInit {
     });
   }
 
-  handleDocumentPreview(event: { enterpriseId: string; documentId: string }) {
-    console.log('🔍 Document preview requested:', event);
 
-    // Show loading
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'info',
-      title: 'Cargando documento...',
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    // Get document download URL
-    console.log('📡 Fetching download URL for document:', event.documentId);
-    this.empresaService.getDocumentDownloadUrl(event.enterpriseId, event.documentId).subscribe({
-      next: (result) => {
-        console.log('✅ Download URL received:', result);
-        Swal.close();
-
-        // Use ViewChild to access modal component
-        if (this.createCompanyModal) {
-          console.log('📄 Opening preview modal with:', result);
-          this.createCompanyModal.setPreviewDocument(result.url, result.fileName, result.mimeType);
-        } else {
-          console.error('❌ Modal component not found via ViewChild');
-          Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo abrir el visor de documentos',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-          });
-        }
-      },
-      error: (error: any) => {
-        console.error('❌ Error loading document:', error);
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error',
-          title: 'Error al cargar el documento',
-          text: error.error?.message || 'No se pudo cargar el documento',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true
-        });
-      }
-    });
-  }
 
   onFilterChange(filterData: SearchFilterData) {
     console.log('Filtros aplicados:', filterData);

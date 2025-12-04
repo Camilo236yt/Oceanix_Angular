@@ -1,9 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IconComponent } from '../icon/icon.component';
 import { CreateEmpresaRequest } from '../../../interface/empresas-api.interface';
 import { AuthService } from '../../../services/auth.service';
+import { PdfThumbnailService } from '../../services/pdf-thumbnail.service';
+import { EmpresaService } from '../../../features/crm/services/empresa.service';
 
 @Component({
   selector: 'app-create-company-modal',
@@ -24,7 +27,6 @@ export class CreateCompanyModalComponent implements OnChanges {
   @Output() onCreate = new EventEmitter<CreateEmpresaRequest>();
   @Output() onUpdate = new EventEmitter<{ id: string; data: CreateEmpresaRequest }>();
   @Output() onVerificationUpdate = new EventEmitter<{ enterpriseId: string; verificationStatus: string; rejectionReason?: string }>();
-  @Output() onDocumentPreview = new EventEmitter<{ enterpriseId: string; documentId: string }>();
 
   isClosing = false;
 
@@ -44,6 +46,9 @@ export class CreateCompanyModalComponent implements OnChanges {
 
   // Verification fields (only for SUPER_ADMIN in edit mode)
   authService = inject(AuthService);
+  sanitizer = inject(DomSanitizer);
+  pdfThumbnailService = inject(PdfThumbnailService);
+  empresaService = inject(EmpresaService);
   isSuperAdmin = false;
   showVerificationFields = false;
 
@@ -65,6 +70,19 @@ export class CreateCompanyModalComponent implements OnChanges {
 
   ngOnInit() {
     this.isSuperAdmin = this.authService.hasUserType('SUPER_ADMIN');
+  }
+
+  // Sanitize blob URLs for iframe
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  // Get PDF URL without toolbar (cleaner view)
+  getPdfUrlWithoutToolbar(url: string): SafeResourceUrl {
+    // Add parameters to hide PDF toolbar
+    // #toolbar=0 hides the toolbar in most PDF viewers
+    const urlWithParams = `${url}#toolbar=0&navpanes=0&scrollbar=0`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(urlWithParams);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -92,8 +110,15 @@ export class CreateCompanyModalComponent implements OnChanges {
         this.verificationStatus = this.initialVerificationStatus;
         this.rejectionReason = this.initialRejectionReason;
         // Load documents
-        this.documents = this.enterpriseDocuments || [];
+        this.documents = (this.enterpriseDocuments || []).map(doc => ({
+          ...doc,
+          _loadingPreview: false,
+          _previewUrl: null
+        }));
         console.log('📄 Documents loaded:', this.documents);
+
+        // Load document previews
+        this.loadDocumentPreviews();
       } else {
         console.log('❌ Not SUPER_ADMIN, skipping verification fields');
       }
@@ -101,6 +126,68 @@ export class CreateCompanyModalComponent implements OnChanges {
       this.resetForm();
     }
     this.clearAllErrors();
+  }
+
+  // Load previews for documents
+  private async loadDocumentPreviews() {
+    console.log('📸 Starting to load document previews...');
+
+    for (let index = 0; index < this.documents.length; index++) {
+      const doc = this.documents[index];
+
+      // Mark as loading
+      this.documents[index]._loadingPreview = true;
+
+      try {
+        // Download the document to generate thumbnail
+        const result = await this.empresaService.getDocumentDownloadUrl(
+          this.companyId!,
+          doc.id
+        ).toPromise();
+
+        if (!result) {
+          console.error(`❌ Failed to get download URL for document ${doc.id}`);
+          this.documents[index]._loadingPreview = false;
+          continue;
+        }
+
+        console.log(`📥 Downloaded document ${doc.fileName}:`, result.mimeType);
+
+        // For images, use the URL directly
+        if (result.mimeType?.includes('image')) {
+          console.log(`🖼️ Document is an image, using direct URL`);
+          this.documents[index]._previewUrl = result.url;
+          this.documents[index]._loadingPreview = false;
+        }
+        // For PDFs, generate thumbnail
+        else if (result.mimeType?.includes('pdf')) {
+          console.log(`📄 Document is PDF, generating thumbnail...`);
+          try {
+            const thumbnailDataUrl = await this.pdfThumbnailService.generateThumbnail(
+              result.url,
+              400,  // max width
+              300   // max height
+            );
+            this.documents[index]._previewUrl = thumbnailDataUrl;
+            console.log(`✅ Thumbnail generated for ${doc.fileName}`);
+          } catch (error) {
+            console.error(`❌ Error generating thumbnail for ${doc.fileName}:`, error);
+            // Keep loading as false, will show placeholder
+          }
+          this.documents[index]._loadingPreview = false;
+        }
+        // For other file types, just mark as loaded
+        else {
+          console.log(`📦 Document is ${result.mimeType}, no preview available`);
+          this.documents[index]._loadingPreview = false;
+        }
+      } catch (error) {
+        console.error(`❌ Error loading preview for document ${doc.fileName}:`, error);
+        this.documents[index]._loadingPreview = false;
+      }
+    }
+
+    console.log('✅ Finished loading all document previews');
   }
 
   resetForm() {
@@ -193,20 +280,83 @@ export class CreateCompanyModalComponent implements OnChanges {
     }
   }
 
-  openDocumentPreview(document: any) {
-    // Emit event to parent to get download URL
-    this.onDocumentPreview.emit({
-      enterpriseId: this.companyId!,
-      documentId: document.id
-    });
+  /**
+   * Handle document click with proper event handling
+   */
+  handleDocumentClick(event: MouseEvent, document: any) {
+    // Stop propagation immediately to prevent double clicks
+    event.stopPropagation();
+    event.preventDefault();
+
+    // Open document preview
+    this.openDocumentPreview(document);
+  }
+
+  async openDocumentPreview(document: any) {
+    console.log('🔍 Opening document preview:', document);
+
+    try {
+      // Show loading indicator
+      const loadingToast = await import('sweetalert2').then(m => m.default);
+      loadingToast.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Cargando documento...',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: () => {
+          loadingToast.showLoading();
+        }
+      });
+
+      // Get download URL
+      const result = await this.empresaService.getDocumentDownloadUrl(
+        this.companyId!,
+        document.id
+      ).toPromise();
+
+      if (result) {
+        console.log('✅ Document loaded, opening preview');
+        this.setPreviewDocument(result.url, result.fileName, result.mimeType);
+
+        loadingToast.close();
+      } else {
+        throw new Error('Failed to get document URL');
+      }
+    } catch (error) {
+      console.error('❌ Error loading document:', error);
+      const Swal = await import('sweetalert2').then(m => m.default);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar el documento',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+    }
   }
 
   setPreviewDocument(url: string, fileName: string, mimeType: string) {
+    // Clean up previous blob URL if exists
+    if (this.previewDocument?.url && this.previewDocument.url.startsWith('blob:')) {
+      URL.revokeObjectURL(this.previewDocument.url);
+    }
+
     this.previewDocument = { url, fileName, mimeType };
     this.showPreviewModal = true;
   }
 
   closePreviewModal() {
+    // Clean up blob URL to prevent memory leaks
+    if (this.previewDocument?.url && this.previewDocument.url.startsWith('blob:')) {
+      URL.revokeObjectURL(this.previewDocument.url);
+    }
+
     this.showPreviewModal = false;
     this.previewDocument = null;
   }

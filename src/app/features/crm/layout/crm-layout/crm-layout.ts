@@ -50,6 +50,7 @@ export class CrmLayout implements OnInit, OnDestroy {
   // Enterprise logo and name
   logoUrl: string | null = null;
   enterpriseName: string = 'IncidentCRM';
+  userProfilePicture: string | null = null;
 
   // Servicios
   themeService = inject(ThemeService);
@@ -99,6 +100,11 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Suscribirse a los datos de la empresa para obtener el nombre
     this.authService.meEnterprise$.subscribe((enterprise) => {
       this.enterpriseName = enterprise?.name || 'IncidentCRM';
+    });
+
+    // Suscribirse a los datos del usuario para obtener la foto de perfil
+    this.authService.meUser$.subscribe((user) => {
+      this.userProfilePicture = user?.profilePicture || null;
     });
 
     // Inicializar la fecha actual

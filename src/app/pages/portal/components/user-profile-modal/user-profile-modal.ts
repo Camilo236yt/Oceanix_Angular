@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 export interface UserProfile {
   fullName: string;
   email: string;
+  profilePicture?: string | null;
 }
 
 @Component({

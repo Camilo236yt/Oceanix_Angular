@@ -88,20 +88,60 @@ export class EmpresaService {
     });
   }
 
-  // GET document download URL (SUPER_ADMIN only)
+  // GET document download (SUPER_ADMIN only) - Download as blob and create temporary URL
   getDocumentDownloadUrl(enterpriseId: string, documentId: string): Observable<{
     url: string;
     fileName: string;
     mimeType: string;
   }> {
     const configApiUrl = `${environment.apiUrl}/enterprise-config`;
-    return this.http.get<{
-      url: string;
-      fileName: string;
-      mimeType: string;
-    }>(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
-      withCredentials: true
-    });
+    return this.http.get(`${configApiUrl}/${enterpriseId}/documents/${documentId}/download`, {
+      withCredentials: true,
+      responseType: 'blob' as 'json',  // Download as blob since backend returns file directly
+      observe: 'response'  // Get full response to access headers
+    }).pipe(
+      map((response: any) => {
+        console.log('📥 Document blob response:', response);
+
+        // Extract filename from Content-Disposition header or use default
+        let fileName = 'document';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+          if (matches != null && matches[1]) {
+            fileName = matches[1].replace(/['"]/g, '');
+          }
+        }
+
+        // Get mime type from Content-Type header
+        const mimeType = response.headers.get('Content-Type') || 'application/pdf';
+
+        // Create blob URL
+        const blob = new Blob([response.body], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        console.log('✅ Created blob URL:', { url, fileName, mimeType });
+
+        return {
+          url,
+          fileName,
+          mimeType
+        };
+      })
+    );
+  }
+
+  // GET document thumbnail (SUPER_ADMIN only) - Fetch thumbnail from backend
+  getDocumentThumbnail(enterpriseId: string, documentId: string): Observable<string> {
+    const configApiUrl = `${environment.apiUrl}/enterprise-config`;
+    return this.http.get(`${configApiUrl}/${enterpriseId}/documents/${documentId}/thumbnail`, {
+      withCredentials: true,
+      responseType: 'blob'
+    }).pipe(
+      map((blob: Blob) => {
+        return URL.createObjectURL(blob);
+      })
+    );
   }
 
   // Data transformation - converts API response to UI model

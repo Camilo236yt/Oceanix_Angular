@@ -130,6 +130,7 @@ export interface MeUser {
   userType: string;
   isEmailVerified: boolean;
   isActive: boolean;
+  profilePicture?: string | null;
 }
 
 /**
