@@ -13,6 +13,13 @@
   <app-loading-spinner></app-loading-spinner>
   }
 
+  <!-- Notification Detail Modal -->
+  <app-notification-detail-modal
+    [notification]="selectedNotification"
+    [isOpen]="isNotificationDetailModalOpen"
+    (close)="closeNotificationDetailModal()">
+  </app-notification-detail-modal>
+
   <!-- Mobile Header (visible only on mobile, hidden when sidebar is open) -->
   <header [class.hidden]="isMobileMenuOpen"
     class="lg:hidden fixed top-0 left-0 right-0 bg-[var(--bg-secondary)] shadow-md z-50 px-4 py-3 dark:shadow-slate-900/50">

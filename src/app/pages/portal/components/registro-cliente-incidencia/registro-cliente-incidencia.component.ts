@@ -13,12 +13,13 @@ import { UserProfileModal, UserProfile } from '../user-profile-modal/user-profil
 import { ClientNotificationsService } from '../../services/client-notifications.service';
 import { CRMNotification } from '../../../../features/crm/models/notification.model';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
+import { NotificationDetailModal } from '../../../../shared/components/notification-detail-modal/notification-detail-modal';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, UserProfileModal, LoadingSpinner],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, UserProfileModal, LoadingSpinner, NotificationDetailModal],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -64,9 +65,16 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   typingUsers = new Set<string>();
   private typingTimeout: any;
 
+  // Polling de notificaciones
+  private unreadCountPolling: any;
+
   // Notificaciones
   isNotificationDropdownOpen = false;
   clientNotificationsService = inject(ClientNotificationsService);
+
+  // Modal de detalles de notificación
+  isNotificationDetailModalOpen = false;
+  selectedNotification: CRMNotification | null = null;
 
   // User Profile Modal
   isUserProfileModalOpen = false;
@@ -306,10 +314,54 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Generar notificaciones de prueba al iniciar (solo si no hay notificaciones)
-    if (this.clientNotificationsService.notifications().length === 0) {
-      this.clientNotificationsService.generateTestNotifications();
-    }
+    // Cargar notificaciones del backend
+    this.loadClientNotifications();
+    this.loadUnreadCount();
+
+    // Iniciar polling del contador de notificaciones no leídas
+    this.startUnreadCountPolling();
+  }
+
+  /**
+   * Cargar notificaciones del cliente desde el backend
+   */
+  private loadClientNotifications(): void {
+    this.clientNotificationsService.getNotifications().subscribe({
+      next: (response) => {
+        console.log('✅ [CLIENTE] Notificaciones cargadas desde backend:', response);
+      },
+      error: (error) => {
+        console.error('❌ [CLIENTE] Error al cargar notificaciones:', error);
+        // Fallback: Si falla, usar notificaciones de prueba del localStorage
+        if (this.clientNotificationsService.notifications().length === 0) {
+          this.clientNotificationsService.generateTestNotifications();
+        }
+      }
+    });
+  }
+
+  /**
+   * Cargar el contador de notificaciones no leídas
+   */
+  private loadUnreadCount(): void {
+    this.clientNotificationsService.getUnreadCount().subscribe({
+      next: (response) => {
+        console.log('✅ [CLIENTE] Contador de no leídas:', response.count);
+      },
+      error: (error) => {
+        console.error('❌ [CLIENTE] Error al cargar contador de no leídas:', error);
+      }
+    });
+  }
+
+  /**
+   * Iniciar polling del contador de notificaciones no leídas
+   * Se actualiza cada 60 segundos
+   */
+  private startUnreadCountPolling(): void {
+    this.unreadCountPolling = setInterval(() => {
+      this.loadUnreadCount();
+    }, 60000); // 60 segundos
   }
 
   ngOnDestroy(): void {
@@ -317,6 +369,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     this.chatService.disconnect();
     if (this.typingTimeout) {
       clearTimeout(this.typingTimeout);
+    }
+    // Limpiar polling de notificaciones
+    if (this.unreadCountPolling) {
+      clearInterval(this.unreadCountPolling);
     }
   }
 
@@ -1031,13 +1087,18 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       this.clientNotificationsService.markAsRead(notification.id);
     }
 
-    // Navegar si tiene actionUrl
-    if (notification.actionUrl) {
-      // TODO: Implementar navegación para el portal
-      console.log('Navegar a:', notification.actionUrl);
-    }
-
+    // Abrir modal de detalles
+    this.selectedNotification = notification;
+    this.isNotificationDetailModalOpen = true;
     this.isNotificationDropdownOpen = false;
+  }
+
+  /**
+   * Cerrar modal de detalles de notificación
+   */
+  closeNotificationDetailModal(): void {
+    this.isNotificationDetailModalOpen = false;
+    this.selectedNotification = null;
   }
 
   /**

@@ -10,6 +10,7 @@ import { IncidenciaChatService, NewMessageNotification } from '../../../../share
 import { NotificationsDropdown } from '../../components/notifications-dropdown/notifications-dropdown';
 import { CrmNotificationsService } from '../../services/crm-notifications';
 import { CRMNotification } from '../../models/notification.model';
+import { NotificationDetailModal } from '../../../../shared/components/notification-detail-modal/notification-detail-modal';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -25,7 +26,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown, NotificationDetailModal],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -46,6 +47,10 @@ export class CrmLayout implements OnInit, OnDestroy {
 
   // CRM Notifications (Dropdown)
   isNotificationDropdownOpen = false;
+
+  // Modal de detalles de notificación
+  isNotificationDetailModalOpen = false;
+  selectedNotification: CRMNotification | null = null;
 
   // Enterprise logo and name
   logoUrl: string | null = null;
@@ -404,11 +409,26 @@ export class CrmLayout implements OnInit, OnDestroy {
       this.crmNotificationsService.markAsRead(notification.id);
     }
 
-    // Navegar si tiene actionUrl
-    if (notification.actionUrl) {
-      this.router.navigateByUrl(notification.actionUrl);
-      this.isNotificationDropdownOpen = false;
-    }
+    // Cerrar dropdown primero
+    this.isNotificationDropdownOpen = false;
+
+    // Forzar detección de cambios para cerrar el dropdown
+    this.cdr.detectChanges();
+
+    // Abrir modal de detalles con un pequeño delay
+    setTimeout(() => {
+      this.selectedNotification = notification;
+      this.isNotificationDetailModalOpen = true;
+      this.cdr.detectChanges();
+    }, 100);
+  }
+
+  /**
+   * Cerrar modal de detalles de notificación
+   */
+  closeNotificationDetailModal(): void {
+    this.isNotificationDetailModalOpen = false;
+    this.selectedNotification = null;
   }
 
   /**

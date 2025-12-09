@@ -1,5 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { CRMNotification } from '../../../features/crm/models/notification.model';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, tap, map } from 'rxjs';
+import { CRMNotification, NotificationsResponse, BackendNotification, UnreadCountResponse, BackendApiResponse } from '../../../features/crm/models/notification.model';
+import { environment } from '../../../environments/environment';
 
 /**
  * Servicio de notificaciones para clientes
@@ -9,11 +12,15 @@ import { CRMNotification } from '../../../features/crm/models/notification.model
   providedIn: 'root'
 })
 export class ClientNotificationsService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/notifications`;
   private readonly STORAGE_KEY = 'client_notifications';
   private notificationsSignal = signal<CRMNotification[]>([]);
+  private unreadCountSignal = signal<number>(0);
 
   // Exposiciones públicas de solo lectura
   public readonly notifications = this.notificationsSignal.asReadonly();
+  public readonly unreadCountFromBackend = this.unreadCountSignal.asReadonly();
 
   // Estadísticas computadas
   public readonly unreadCount = computed(() =>
@@ -48,6 +55,84 @@ export class ClientNotificationsService {
    */
   private saveToLocalStorage(): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.notificationsSignal()));
+  }
+
+  /**
+   * Obtener notificaciones desde el backend
+   */
+  getNotifications(page: number = 1, limit: number = 20): Observable<NotificationsResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('sortBy', 'createdAt:DESC');
+
+    return this.http.get<BackendApiResponse<NotificationsResponse>>(`${this.apiUrl}`, { params }).pipe(
+      map(apiResponse => apiResponse.data),
+      tap(response => {
+        console.log('Notificaciones del cliente desde backend:', response);
+        const mappedNotifications = response.data.map(notification =>
+          this.mapBackendNotification(notification)
+        );
+        this.notificationsSignal.set(mappedNotifications);
+        this.saveToLocalStorage();
+      })
+    );
+  }
+
+  /**
+   * Obtener el contador de notificaciones no leídas desde el backend
+   */
+  getUnreadCount(): Observable<UnreadCountResponse> {
+    return this.http.get<BackendApiResponse<UnreadCountResponse>>(`${this.apiUrl}/unread-count`).pipe(
+      map(apiResponse => apiResponse.data),
+      tap(response => {
+        console.log('Contador de no leídas del cliente:', response.count);
+        this.unreadCountSignal.set(response.count);
+      })
+    );
+  }
+
+  /**
+   * Mapear notificación del backend al formato del frontend
+   */
+  private mapBackendNotification(backendNotification: BackendNotification): CRMNotification {
+    return {
+      id: backendNotification.id,
+      title: backendNotification.title,
+      message: backendNotification.message,
+      type: this.mapNotificationType(backendNotification.type),
+      priority: this.mapNotificationPriority(backendNotification.priority),
+      isRead: backendNotification.isRead,
+      readAt: backendNotification.readAt,
+      createdAt: new Date(backendNotification.createdAt),
+      actionUrl: backendNotification.actionUrl,
+      metadata: backendNotification.metadata
+    };
+  }
+
+  /**
+   * Mapear tipo de notificación del backend al frontend
+   */
+  private mapNotificationType(backendType: string): CRMNotification['type'] {
+    const typeMap: Record<string, CRMNotification['type']> = {
+      'TICKET_ASSIGNED': 'INCIDENT_ASSIGNED',
+      'TICKET_STATUS_CHANGED': 'INCIDENT_STATUS_CHANGED',
+      'TICKET_MESSAGE': 'INCIDENT_MESSAGE',
+      'TICKET_UPDATED': 'INCIDENT_UPDATED',
+      'TICKET_RESOLVED': 'INCIDENT_RESOLVED'
+    };
+
+    return typeMap[backendType] || 'INCIDENT_UPDATED';
+  }
+
+  /**
+   * Mapear prioridad del backend al frontend
+   */
+  private mapNotificationPriority(backendPriority: 'NORMAL' | 'HIGH' | 'URGENT'): CRMNotification['priority'] {
+    if (backendPriority === 'NORMAL') {
+      return 'MEDIUM';
+    }
+    return backendPriority;
   }
 
   /**

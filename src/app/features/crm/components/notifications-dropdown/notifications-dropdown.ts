@@ -38,6 +38,10 @@ export class NotificationsDropdown {
   }
 
   onNotificationClick(notification: CRMNotification): void {
+    // Cerrar dropdown inmediatamente
+    this.closeDropdown();
+
+    // Emitir eventos
     this.notificationClick.emit(notification);
     if (!notification.isRead) {
       this.markAsRead.emit(notification.id);
