@@ -1,0 +1,169 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">Revisar Solicitud de Reapertura</h2>
+      <button class="close-button" (click)="onClose()" [disabled]="isSubmitting">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner-large"></div>
+        <p>Cargando detalles...</p>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Content -->
+      <div *ngIf="!isLoading && request && !successMessage">
+        <!-- Request Details -->
+        <div class="details-section">
+          <h3 class="section-title">Detalles de la Solicitud</h3>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Incidencia:</span>
+              <span class="detail-value">{{ request.incidencia?.name || 'N/A' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Cliente:</span>
+              <span class="detail-value">
+                {{ request.requestedByUser?.name }} {{ request.requestedByUser?.lastName }}
+              </span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Fecha de solicitud:</span>
+              <span class="detail-value">{{ formatDate(request.createdAt) }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Tiempo transcurrido:</span>
+              <span class="detail-value">{{ getDaysSince(request.createdAt) }} día(s)</span>
+            </div>
+          </div>
+
+          <!-- Client Reason -->
+          <div class="reason-box">
+            <p class="reason-label">Motivo del cliente:</p>
+            <p class="reason-text">{{ request.clientReason }}</p>
+          </div>
+        </div>
+
+        <!-- Decision Selection -->
+        <div class="decision-section">
+          <h3 class="section-title">Decisión <span class="required">*</span></h3>
+
+          <div class="decision-buttons">
+            <button
+              type="button"
+              class="decision-btn approve-btn"
+              [class.selected]="decision === 'APPROVED'"
+              (click)="selectDecision('APPROVED')"
+              [disabled]="isSubmitting"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              Aprobar
+            </button>
+
+            <button
+              type="button"
+              class="decision-btn reject-btn"
+              [class.selected]="decision === 'REJECTED'"
+              (click)="selectDecision('REJECTED')"
+              [disabled]="isSubmitting"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              Rechazar
+            </button>
+          </div>
+        </div>
+
+        <!-- Review Notes -->
+        <div class="form-group" *ngIf="decision">
+          <label for="reviewNotes" class="form-label">
+            Notas de revisión
+            <span *ngIf="decision === 'REJECTED'" class="required">*</span>
+            <span *ngIf="decision === 'APPROVED'" class="optional">(opcional)</span>
+          </label>
+          <p class="help-text" *ngIf="decision === 'REJECTED'">
+            Debe explicar por qué se rechaza la solicitud (mínimo 10 caracteres)
+          </p>
+          <p class="help-text" *ngIf="decision === 'APPROVED'">
+            Puede agregar comentarios adicionales si lo desea
+          </p>
+          <textarea
+            id="reviewNotes"
+            name="reviewNotes"
+            [(ngModel)]="reviewNotes"
+            class="form-textarea"
+            rows="4"
+            [placeholder]="decision === 'APPROVED' ? 'Comentarios adicionales (opcional)' : 'Explique por qué se rechaza esta solicitud...'"
+            [disabled]="isSubmitting"
+            maxlength="500"
+          ></textarea>
+          <div class="char-counter">
+            {{ reviewNotes.length }}/500 caracteres
+            <span *ngIf="decision === 'REJECTED' && reviewNotes.trim().length < 10" class="validation-error">
+              (Mínimo 10 caracteres requeridos para rechazo)
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="onClose()"
+            [disabled]="isSubmitting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="!canSubmit || isSubmitting"
+            (click)="onSubmit()"
+          >
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            {{ isSubmitting ? 'Procesando...' : (decision === 'APPROVED' ? 'Aprobar Solicitud' : 'Rechazar Solicitud') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
