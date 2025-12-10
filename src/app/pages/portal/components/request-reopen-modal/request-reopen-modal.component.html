@@ -1,0 +1,92 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">Solicitar Reapertura de Incidencia</h2>
+      <button class="close-button" (click)="onClose()" [disabled]="isSubmitting">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Incidencia Info -->
+      <div class="incidencia-info">
+        <p class="info-label">Incidencia:</p>
+        <p class="info-value">{{ incidenciaNombre }}</p>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" *ngIf="!successMessage">
+        <div class="form-group">
+          <label for="clientReason" class="form-label">
+            Motivo de la solicitud <span class="required">*</span>
+          </label>
+          <p class="help-text">
+            Explique por qué necesita reabrir esta incidencia (mínimo 10 caracteres)
+          </p>
+          <textarea
+            id="clientReason"
+            name="clientReason"
+            [(ngModel)]="clientReason"
+            class="form-textarea"
+            rows="5"
+            placeholder="Ej: El problema de la fuga de agua ha vuelto a aparecer después de 3 días de la reparación..."
+            [disabled]="isSubmitting"
+            maxlength="500"
+            required
+          ></textarea>
+          <div class="char-counter" [class.warning]="remainingChars < 50">
+            {{ clientReason.length }}/500 caracteres
+            <span *ngIf="!isReasonValid && clientReason.length > 0" class="validation-error">
+              (Mínimo 10 caracteres requeridos)
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer Buttons -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="onClose()"
+            [disabled]="isSubmitting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!isReasonValid || isSubmitting"
+          >
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            {{ isSubmitting ? 'Enviando...' : 'Enviar Solicitud' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
