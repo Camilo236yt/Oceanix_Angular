@@ -33,15 +33,21 @@ export class ReviewReopenModalComponent implements OnInit {
   }
 
   loadRequestDetails(): void {
+    console.log('🔵 loadRequestDetails llamado');
+    console.log('  - requestId:', this.requestId);
+
     this.isLoading = true;
     this.incidenciasService.getReopenRequestById(this.requestId)
       .subscribe({
         next: (response) => {
+          console.log('✅ Respuesta getReopenRequestById:', response);
           this.request = response.data || response;
+          console.log('  - request asignado:', this.request);
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error al cargar solicitud:', error);
+          console.error('❌ Error al cargar solicitud:', error);
+          console.error('  - requestId usado:', this.requestId);
           this.errorMessage = 'Error al cargar los detalles de la solicitud';
           this.isLoading = false;
         }
