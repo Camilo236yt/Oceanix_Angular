@@ -318,8 +318,8 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
           this.cdr.markForCheck();
           this.cdr.detectChanges();
           setTimeout(() => {
-            this.scrollToBottom();
-          }, 50);
+            this.scrollToBottom(true); // Forzar scroll al fondo al cargar mensajes iniciales
+          }, 100);
         });
       },
       error: () => {
@@ -481,7 +481,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     this.activeTab = tab;
     if (tab === 'chat') {
       // Scroll to bottom when switching to chat tab
-      this.scrollToBottom();
+      this.scrollToBottom(true); // Forzar scroll al cambiar a la pestaña de chat
     }
     this.cdr.detectChanges();
   }
