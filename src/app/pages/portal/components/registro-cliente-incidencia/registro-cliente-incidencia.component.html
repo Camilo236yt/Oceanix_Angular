@@ -864,7 +864,7 @@
   <!-- Request Reopen Modal -->
   @if (isReopenModalOpen && selectedIncidenciaForReopen) {
   <app-request-reopen-modal
-    [incidenciaId]="selectedIncidenciaForReopen.id"
+    [incidenciaId]="selectedIncidenciaForReopen.id.toString()"
     [incidenciaNombre]="selectedIncidenciaForReopen.name"
     (closeModal)="closeReopenModal()"
     (requestSubmitted)="onReopenRequestSubmitted()">
