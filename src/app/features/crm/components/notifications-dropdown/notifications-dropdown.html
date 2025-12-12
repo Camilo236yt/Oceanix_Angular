@@ -1,121 +1,127 @@
 <div class="relative">
   <!-- Notification Bell Button -->
-  <button
-    (click)="toggleDropdown()"
+  <button (click)="toggleDropdown()"
     class="relative p-2 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/20">
     <svg class="w-5 h-5 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
     </svg>
 
     <!-- Unread Badge -->
     @if (unreadCount > 0) {
-      <span class="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full border-2 border-[var(--bg-primary)]">
-        {{ unreadCount > 99 ? '99+' : unreadCount }}
-      </span>
+    <span
+      class="absolute top-1 right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-semibold text-white bg-red-500 rounded-full border-2 border-[var(--bg-primary)]">
+      {{ unreadCount > 99 ? '99+' : unreadCount }}
+    </span>
     }
   </button>
 
   <!-- Dropdown Panel -->
   @if (isOpen) {
-    <div class="absolute right-[-0.5rem] mt-2 w-[min(22rem,calc(100vw-2rem))] bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 overflow-hidden animate-fade-in">
-      <!-- Header -->
-      <div class="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-200 bg-white">
-        <div class="flex items-center justify-between gap-2">
-          <div class="min-w-0">
-            <h3 class="text-sm sm:text-base font-semibold text-gray-900">Notificaciones</h3>
-            @if (unreadCount > 0) {
-              <p class="text-[10px] sm:text-xs text-gray-500 mt-0.5">{{ unreadCount }} sin leer</p>
-            }
-          </div>
-
-          @if (hasNotifications && unreadCount > 0) {
-            <button
-              (click)="onMarkAllAsRead()"
-              class="text-[10px] sm:text-xs font-medium text-purple-600 hover:text-purple-700 transition-colors px-1.5 sm:px-2 py-1 rounded-md hover:bg-purple-50 flex-shrink-0 whitespace-nowrap">
-              Marcar leídas
-            </button>
+  <div
+    class="absolute right-[-0.5rem] mt-2 w-[min(22rem,calc(100vw-2rem))] bg-[var(--card-bg)] rounded-2xl shadow-2xl border border-[var(--border-primary)] z-50 overflow-hidden animate-fade-in">
+    <!-- Header -->
+    <div class="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-[var(--border-primary)] bg-[var(--card-bg)]">
+      <div class="flex items-center justify-between gap-2">
+        <div class="min-w-0">
+          <h3 class="text-sm sm:text-base font-semibold text-[var(--text-primary)]">Notificaciones</h3>
+          @if (unreadCount > 0) {
+          <p class="text-[10px] sm:text-xs text-[var(--text-tertiary)] mt-0.5">{{ unreadCount }} sin leer</p>
           }
         </div>
-      </div>
 
-      <!-- Notifications List -->
-      <div class="max-h-[min(28rem,60vh)] overflow-y-auto custom-scrollbar">
-        @if (hasNotifications) {
-          <div class="divide-y divide-gray-100">
-            @for (notification of notifications; track notification.id) {
-              <div
-                (click)="onNotificationClick(notification)"
-                class="px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 transition-colors cursor-pointer group relative"
-                [class.bg-purple-50/50]="!notification.isRead">
-
-                <!-- Unread Indicator -->
-                @if (!notification.isRead) {
-                  <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 sm:h-8 bg-purple-500 rounded-r-full"></div>
-                }
-
-                <div class="flex gap-2 sm:gap-3">
-                  <!-- Icon -->
-                  <div class="flex-shrink-0 mt-0.5">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center"
-                         [class]="getNotificationColor(notification.type)">
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getNotificationIcon(notification.type)"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  <!-- Content -->
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-1.5 mb-1">
-                      <h4 class="text-xs sm:text-sm font-semibold text-gray-900 line-clamp-1" [class.font-bold]="!notification.isRead">
-                        {{ notification.title }}
-                      </h4>
-
-                      <!-- Priority Badge (only for HIGH and URGENT) -->
-                      @if (notification.priority === 'HIGH' || notification.priority === 'URGENT') {
-                        <span class="flex-shrink-0 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-medium rounded-md"
-                              [class]="getPriorityBadgeColor(notification.priority)">
-                          {{ notification.priority === 'URGENT' ? 'Urgente' : 'Alta' }}
-                        </span>
-                      }
-                    </div>
-
-                    <p class="text-[11px] sm:text-xs text-gray-600 line-clamp-2 mb-1.5 sm:mb-2">
-                      {{ notification.message }}
-                    </p>
-
-                    <div class="flex items-center justify-between">
-                      <span class="text-[10px] sm:text-xs text-gray-500">
-                        {{ getTimeAgo(notification.createdAt) }}
-                      </span>
-
-                      <!-- Delete Button -->
-                      <button
-                        (click)="onDeleteNotification($event, notification.id)"
-                        class="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all rounded-md hover:bg-red-50">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        } @else {
-          <!-- Empty State -->
-          <div class="px-3 sm:px-4 py-12 sm:py-16 text-center">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-              </svg>
-            </div>
-            <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-1">No hay notificaciones</h4>
-            <p class="text-[10px] sm:text-xs text-gray-500">Estás al día con todo</p>
-          </div>
+        @if (hasNotifications && unreadCount > 0) {
+        <button (click)="onMarkAllAsRead()"
+          class="text-[10px] sm:text-xs font-medium text-purple-600 hover:text-purple-700 transition-colors px-1.5 sm:px-2 py-1 rounded-md hover:bg-purple-50 flex-shrink-0 whitespace-nowrap">
+          Marcar leídas
+        </button>
         }
       </div>
     </div>
+
+    <!-- Notifications List -->
+    <div class="max-h-[min(28rem,60vh)] overflow-y-auto custom-scrollbar">
+      @if (hasNotifications) {
+      <div class="divide-y divide-[var(--border-primary)]">
+        @for (notification of notifications; track notification.id) {
+        <div (click)="onNotificationClick(notification)"
+          class="px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer group relative"
+          [class.bg-purple-50/50]="!notification.isRead">
+
+          <!-- Unread Indicator -->
+          @if (!notification.isRead) {
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 sm:h-8 bg-purple-500 rounded-r-full"></div>
+          }
+
+          <div class="flex gap-2 sm:gap-3">
+            <!-- Icon -->
+            <div class="flex-shrink-0 mt-0.5">
+              <div
+                class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] flex items-center justify-center"
+                [class]="getNotificationColor(notification.type)">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    [attr.d]="getNotificationIcon(notification.type)" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-1.5 mb-1">
+                <h4 class="text-xs sm:text-sm font-semibold text-[var(--text-primary)] line-clamp-1"
+                  [class.font-bold]="!notification.isRead">
+                  {{ notification.title }}
+                </h4>
+
+                <!-- Priority Badge (only for HIGH and URGENT) -->
+                @if (notification.priority === 'HIGH' || notification.priority === 'URGENT') {
+                <span class="flex-shrink-0 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-medium rounded-md"
+                  [class]="getPriorityBadgeColor(notification.priority)">
+                  {{ notification.priority === 'URGENT' ? 'Urgente' : 'Alta' }}
+                </span>
+                }
+              </div>
+
+              <p class="text-[11px] sm:text-xs text-[var(--text-secondary)] line-clamp-2 mb-1.5 sm:mb-2">
+                {{ notification.message }}
+              </p>
+
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] sm:text-xs text-[var(--text-tertiary)]">
+                  {{ getTimeAgo(notification.createdAt) }}
+                </span>
+
+                <!-- Delete Button -->
+                <button (click)="onDeleteNotification($event, notification.id)"
+                  class="opacity-0 group-hover:opacity-100 p-1 text-[var(--text-muted)] hover:text-red-500 transition-all rounded-md hover:bg-red-50">
+                  <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <!-- Empty State -->
+      <div class="px-3 sm:px-4 py-12 sm:py-16 text-center">
+        <div
+          class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8 text-[var(--text-muted)]" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        </div>
+        <h4 class="text-xs sm:text-sm font-semibold text-[var(--text-primary)] mb-1">No hay notificaciones</h4>
+        <p class="text-[10px] sm:text-xs text-[var(--text-tertiary)]">Estás al día con todo</p>
+      </div>
+      }
+    </div>
+  </div>
   }
 </div>

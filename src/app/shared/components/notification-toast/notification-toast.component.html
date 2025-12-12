@@ -1,33 +1,34 @@
 <div class="animate-slide-in-down">
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-xl transition-shadow"
-       (click)="navigateToIncident()">
+  <div
+    class="bg-[var(--card-bg)] rounded-lg shadow-lg border border-[var(--border-primary)] p-4 cursor-pointer hover:shadow-xl transition-shadow"
+    (click)="navigateToIncident()">
     <div class="flex items-start gap-3">
       <!-- Icon -->
       <div class="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
         </svg>
       </div>
 
       <!-- Content -->
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-900 dark:text-white">
+        <p class="text-sm font-medium text-[var(--text-primary)]">
           Nuevo mensaje
         </p>
-        <p class="text-sm text-gray-700 dark:text-gray-300 font-semibold truncate">
+        <p class="text-sm text-[var(--text-secondary)] font-semibold truncate">
           {{ notification.incidenciaName }}
         </p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+        <p class="text-xs text-[var(--text-tertiary)] mt-1 line-clamp-2">
           {{ notification.message.content }}
         </p>
       </div>
 
       <!-- Close button -->
       <button (click)="dismiss($event)"
-              class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+        class="flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>

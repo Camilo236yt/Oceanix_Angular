@@ -1,29 +1,23 @@
 <!-- Modal Backdrop -->
-<div
-  *ngIf="isOpen && notification"
+<div *ngIf="isOpen && notification"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
   (click)="handleBackdropClick($event)">
 
   <!-- Modal Container -->
   <div
-    class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all"
+    class="relative bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all"
     style="animation: modalSlideIn 0.3s ease-out;">
 
     <!-- Header -->
-    <div class="relative bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
+    <div
+      class="relative bg-gradient-to-r from-[var(--bg-tertiary)] to-[var(--bg-hover)] px-6 py-5 border-b border-[var(--border-primary)]">
       <div class="flex items-start gap-4">
         <!-- Icon -->
         <div class="flex-shrink-0">
-          <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
-            <svg
-              class="w-6 h-6 {{ getIconColor(notification.type) }}"
-              fill="none"
-              stroke="currentColor"
+          <div class="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center shadow-sm">
+            <svg class="w-6 h-6 {{ getIconColor(notification.type) }}" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 [attr.d]="getNotificationIcon(notification.type)">
               </path>
             </svg>
@@ -32,19 +26,18 @@
 
         <!-- Title and Type -->
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-gray-900 mb-1">
+          <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-1">
             {{ notification.title }}
           </h3>
-          <span class="inline-block text-xs font-medium text-gray-600 bg-white px-2.5 py-1 rounded-full">
+          <span
+            class="inline-block text-xs font-medium text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2.5 py-1 rounded-full">
             {{ getTypeLabel(notification.type) }}
           </span>
         </div>
 
         <!-- Close Button -->
-        <button
-          type="button"
-          (click)="closeModal()"
-          class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-white">
+        <button type="button" (click)="closeModal()"
+          class="flex-shrink-0 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors rounded-lg p-1 hover:bg-[var(--bg-secondary)]">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -56,42 +49,46 @@
     <div class="px-6 py-5">
       <!-- Message -->
       <div class="mb-6">
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+        <label class="block text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
           Mensaje
         </label>
-        <p class="text-sm text-gray-700 leading-relaxed">
+        <p class="text-sm text-[var(--text-secondary)] leading-relaxed">
           {{ notification.message }}
         </p>
       </div>
 
       <!-- Priority -->
       <div class="mb-6">
-        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+        <label class="block text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
           Prioridad
         </label>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ getPriorityColor(notification.priority) }}">
+        <span
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ getPriorityColor(notification.priority) }}">
           <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>
           {{ getPriorityLabel(notification.priority) }}
         </span>
       </div>
 
       <!-- Dates -->
-      <div class="space-y-3 pt-4 border-t border-gray-200">
+      <div class="space-y-3 pt-4 border-t border-[var(--border-primary)]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-gray-500">Fecha de creación</span>
-          <span class="text-xs text-gray-700 font-medium">{{ formatDateTime(notification.createdAt) }}</span>
+          <span class="text-xs font-medium text-[var(--text-tertiary)]">Fecha de creación</span>
+          <span class="text-xs text-[var(--text-secondary)] font-medium">{{ formatDateTime(notification.createdAt)
+            }}</span>
         </div>
         <div class="flex items-center justify-between" *ngIf="notification.readAt">
-          <span class="text-xs font-medium text-gray-500">Fecha de lectura</span>
-          <span class="text-xs text-gray-700 font-medium">{{ notification.readAt }}</span>
+          <span class="text-xs font-medium text-[var(--text-tertiary)]">Fecha de lectura</span>
+          <span class="text-xs text-[var(--text-secondary)] font-medium">{{ notification.readAt }}</span>
         </div>
       </div>
 
       <!-- Ticket ID if exists -->
-      <div class="mt-4 pt-4 border-t border-gray-200" *ngIf="notification.metadata && notification.metadata.ticketId">
+      <div class="mt-4 pt-4 border-t border-[var(--border-primary)]"
+        *ngIf="notification.metadata && notification.metadata.ticketId">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-gray-500">ID de Incidencia</span>
-          <span class="text-xs text-gray-700 font-mono font-medium bg-gray-100 px-2.5 py-1 rounded">
+          <span class="text-xs font-medium text-[var(--text-tertiary)]">ID de Incidencia</span>
+          <span
+            class="text-xs text-[var(--text-secondary)] font-mono font-medium bg-[var(--bg-tertiary)] px-2.5 py-1 rounded">
             #{{ notification.metadata?.ticketId }}
           </span>
         </div>
