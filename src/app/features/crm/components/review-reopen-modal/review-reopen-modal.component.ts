@@ -24,9 +24,11 @@ export class ReviewReopenModalComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private incidenciasService: IncidenciasService) {}
+  constructor(private incidenciasService: IncidenciasService) { }
 
   ngOnInit(): void {
+    console.log('🟢 ReviewReopenModalComponent inicializado');
+    console.log('  - requestId:', this.requestId);
     this.loadRequestDetails();
   }
 
