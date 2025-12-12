@@ -45,7 +45,7 @@ export class Incidencias implements OnInit {
   canViewAllIncidents = false;
 
   constructor(
-    private incidenciasService: IncidenciasService,
+    public incidenciasService: IncidenciasService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute

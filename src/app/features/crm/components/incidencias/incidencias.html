@@ -33,6 +33,6 @@
 
 <!-- Attend Incident Modal -->
 <app-attend-incident-modal [isOpen]="isAttendModalOpen" [incidentData]="attendingIncidentData"
-  [incidenciasService]="incidenciasService" (onClose)="onCloseAttendModal()"
+  [incidenciasService]="incidenciasService" (onClose)="closeAttendModal()"
   (onStatusChange)="handleStatusChange($event)">
 </app-attend-incident-modal>
