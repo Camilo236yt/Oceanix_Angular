@@ -38,6 +38,12 @@ export interface ReopenRequest {
     lastName: string;
     email: string;
   };
+  requestedBy?: {
+    id: string;
+    name: string;
+    lastName: string;
+    email: string;
+  };
   reviewedByUser?: {
     id: string;
     name: string;
