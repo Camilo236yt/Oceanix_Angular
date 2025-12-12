@@ -26,7 +26,8 @@ export class Documentation {
     {
       title: 'Comenzando',
       items: [
-        { id: 'introduccion', label: 'Introducción', iconPath: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' }
+        { id: 'introduccion', label: 'Introducción', iconPath: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+        { id: 'dominios', label: 'Dominios', iconPath: 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418' }
       ]
     },
     {
@@ -73,6 +74,32 @@ export class Documentation {
           {
             heading: 'Beneficios',
             content: 'Reduce tiempos de respuesta, mejora la satisfacción del cliente, automatiza procesos repetitivos, proporciona visibilidad completa del estado de las incidencias, y facilita la toma de decisiones basada en datos.'
+          }
+        ]
+      },
+      dominios: {
+        title: 'Sistema de Dominios',
+        description: 'Oceanix utiliza un sistema de acceso personalizado mediante dominios únicos para cada empresa. Esto garantiza que cada organización tenga su propio espacio privado y seguro dentro de la plataforma.',
+        sections: [
+          {
+            heading: '¿Qué es un Dominio en Oceanix?',
+            content: 'Un dominio es como la "dirección web exclusiva" de tu empresa dentro de Oceanix. Piensa en ello como tener tu propia puerta de entrada privada a la plataforma, completamente independiente de otras empresas.\n\nCuando tu empresa se registra en Oceanix, se crea automáticamente un dominio único para ti. Por ejemplo, si tu empresa se llama "Acme Logística", tu dominio podría ser:\n\nacme.oceanix.space\n\nEste será el enlace que tú y tu equipo usarán para acceder al sistema.'
+          },
+          {
+            heading: '¿Cómo Funciona?',
+            content: 'Cuando creas tu cuenta en Oceanix, el sistema te asigna un "subdominio" único basado en el nombre de tu empresa. Este subdominio es la parte que va antes de ".oceanix.space".\n\nPor ejemplo:\n• Tu empresa: "Transportes Rápidos"\n• Tu subdominio: transportesrapidos\n• Tu dominio completo: transportesrapidos.oceanix.space\n\nCada vez que tú o alguien de tu equipo quiera entrar al sistema, solo necesitan ir a ese enlace personalizado. Es como tener tu propia versión privada de Oceanix.'
+          },
+          {
+            heading: 'Beneficios de este Sistema',
+            content: 'Seguridad Total: Tu información está completamente separada de otras empresas. Cada empresa solo puede ver sus propios datos, incidencias y clientes.\n\nAcceso Directo: No necesitas buscar tu empresa en una lista ni recordar códigos. Simplemente entras a tu dominio personalizado y listo.\n\nOrganización Clara: Cada empleado de tu empresa accede desde el mismo dominio, lo que facilita la gestión y evita confusiones.\n\nPrivacidad Garantizada: Otras empresas que usan Oceanix no pueden ver ni acceder a tu información, ya que cada una tiene su propio dominio separado.\n\nProfesionalismo: Tu equipo y clientes verán un enlace personalizado con el nombre de tu empresa, lo que proyecta una imagen más profesional.'
+          },
+          {
+            heading: 'Ejemplo Práctico',
+            content: 'Imagina que tienes una empresa de logística llamada "EnvíosExpress":\n\n1. Al registrarte en Oceanix, el sistema crea el dominio: enviosexpress.oceanix.space\n\n2. Tú y tu equipo pueden guardar este enlace en favoritos o como acceso directo\n\n3. Cuando tus empleados quieran revisar incidencias, solo ingresan a enviosexpress.oceanix.space\n\n4. Tus clientes también tendrán acceso al mismo dominio para ver el estado de sus reportes\n\n5. Aunque otras empresas de logística también usen Oceanix (como "LogísticaPro" con logisticapro.oceanix.space), nunca verán tu información ni tú la de ellos. Cada empresa trabaja en su propio espacio privado.'
+          },
+          {
+            heading: 'Resumen',
+            content: 'El sistema de dominios de Oceanix es como tener tu propia oficina virtual privada. Cada empresa tiene su propia "puerta de entrada" (dominio) que lleva a su espacio exclusivo y seguro, donde solo tú y tu equipo pueden acceder a sus datos e incidencias.\n\nNo necesitas preocuparte por la configuración técnica, Oceanix se encarga de todo automáticamente cuando creas tu cuenta.'
           }
         ]
       },
