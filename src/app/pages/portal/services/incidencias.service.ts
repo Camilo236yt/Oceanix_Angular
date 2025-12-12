@@ -177,4 +177,18 @@ export class IncidenciasService {
       map(response => response.data || response)
     );
   }
+
+  /**
+   * Solicitar reapertura de una incidencia (CLIENTE)
+   * Endpoint: POST /incidencias/client/me/:id/request-reopen
+   */
+  requestReopen(incidenciaId: string, clientReason: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/incidencias/client/me/${incidenciaId}/request-reopen`,
+      { clientReason },
+      { withCredentials: true }
+    ).pipe(
+      map(response => response.data || response)
+    );
+  }
 }

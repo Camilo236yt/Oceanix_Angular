@@ -1,0 +1,114 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Solicitudes de Reapertura</h2>
+    <p class="text-sm text-gray-600 mt-1">Gestiona las solicitudes de reapertura de incidencias</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+    {{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && requests.length === 0" class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No hay solicitudes pendientes</h3>
+    <p class="mt-1 text-sm text-gray-500">Todas las solicitudes han sido revisadas</p>
+  </div>
+
+  <!-- Requests List -->
+  <div *ngIf="!isLoading && !error && requests.length > 0" class="space-y-4">
+    <div *ngFor="let request of requests" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Request Info -->
+        <div class="flex-1">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 mt-1">
+              <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-semibold text-gray-900 truncate">
+                {{ request.incidencia?.name || 'Incidencia #' + request.incidenciaId }}
+              </h3>
+              <p class="text-sm text-gray-600 mt-1">
+                <span class="font-medium">Cliente:</span>
+                {{ request.requestedByUser?.name }} {{ request.requestedByUser?.lastName }}
+              </p>
+              <p class="text-sm text-gray-700 mt-2 line-clamp-2">
+                <span class="font-medium">Motivo:</span> {{ request.clientReason }}
+              </p>
+              <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {{ formatDate(request.createdAt) }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Hace {{ getDaysSince(request.createdAt) }} día(s)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex-shrink-0">
+          <button
+            (click)="openReviewModal(request.id)"
+            class="w-full md:w-auto px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            Revisar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="flex items-center justify-between border-t border-gray-200 pt-4 mt-6">
+      <div class="text-sm text-gray-700">
+        Página <span class="font-medium">{{ currentPage }}</span> de <span class="font-medium">{{ totalPages }}</span>
+        <span class="ml-2 text-gray-500">({{ totalItems }} total)</span>
+      </div>
+      <div class="flex gap-2">
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Anterior
+        </button>
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<app-review-reopen-modal
+  *ngIf="isReviewModalOpen && selectedRequestId"
+  [requestId]="selectedRequestId"
+  (closeModal)="closeReviewModal()"
+  (reviewSubmitted)="onReviewSubmitted()">
+</app-review-reopen-modal>

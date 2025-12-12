@@ -169,4 +169,48 @@ export class IncidenciasService {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   }
+
+  // ===============================================
+  // MÉTODOS PARA REAPERTURA DE INCIDENCIAS
+  // ===============================================
+
+  /**
+   * Obtener solicitudes de reapertura pendientes (EMPLEADO)
+   * Endpoint: GET /incidencias/reopen-requests/pending
+   */
+  getPendingReopenRequests(page: number = 1, limit: number = 10): Observable<any> {
+    let httpParams = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    return this.http.get<any>(`${this.apiUrl}/reopen-requests/pending`, {
+      params: httpParams,
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Obtener detalle de una solicitud de reapertura (EMPLEADO)
+   * Endpoint: GET /incidencias/reopen-requests/:requestId
+   */
+  getReopenRequestById(requestId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/reopen-requests/${requestId}`, {
+      withCredentials: true
+    });
+  }
+
+  /**
+   * Revisar (aprobar/rechazar) una solicitud de reapertura (EMPLEADO)
+   * Endpoint: PATCH /incidencias/reopen-requests/:requestId/review
+   */
+  reviewReopenRequest(requestId: string, decision: 'APPROVED' | 'REJECTED', reviewNotes?: string): Observable<any> {
+    const body: any = { decision };
+    if (reviewNotes) {
+      body.reviewNotes = reviewNotes;
+    }
+
+    return this.http.patch<any>(`${this.apiUrl}/reopen-requests/${requestId}/review`, body, {
+      withCredentials: true
+    });
+  }
 }

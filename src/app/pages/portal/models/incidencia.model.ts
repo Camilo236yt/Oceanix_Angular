@@ -22,6 +22,7 @@ export interface Incidencia {
   createdByUserId?: number;
   isActive?: boolean;
   images?: IncidenciaImage[];
+  hasPendingReopenRequest?: boolean;
 }
 
 export interface CrearIncidenciaRequest {

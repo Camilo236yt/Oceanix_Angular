@@ -827,6 +827,23 @@
           class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors">
           Cerrar
         </button>
+        @if (selectedIncidencia && canRequestReopen(selectedIncidencia) && !selectedIncidencia.hasPendingReopenRequest) {
+        <button (click)="openReopenModal(selectedIncidencia)"
+          class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Solicitar Reapertura
+        </button>
+        }
+        @if (selectedIncidencia && selectedIncidencia.hasPendingReopenRequest) {
+        <div class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Solicitud de reapertura pendiente
+        </div>
+        }
         @if (selectedIncidencia && selectedIncidencia.status !== 'RESOLVED' && selectedIncidencia.status !== 'CLOSED') {
         <button (click)="cancelarIncidencia()"
           class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition-colors">
@@ -851,6 +868,16 @@
     [isOpen]="isNotificationDetailModalOpen"
     (close)="closeNotificationDetailModal()">
   </app-notification-detail-modal>
+
+  <!-- Request Reopen Modal -->
+  @if (isReopenModalOpen && selectedIncidenciaForReopen) {
+  <app-request-reopen-modal
+    [incidenciaId]="selectedIncidenciaForReopen.id.toString()"
+    [incidenciaNombre]="selectedIncidenciaForReopen.name"
+    (closeModal)="closeReopenModal()"
+    (requestSubmitted)="onReopenRequestSubmitted()">
+  </app-request-reopen-modal>
+  }
 
   <!-- Loading Spinner para logout -->
   @if (isLoggingOut) {

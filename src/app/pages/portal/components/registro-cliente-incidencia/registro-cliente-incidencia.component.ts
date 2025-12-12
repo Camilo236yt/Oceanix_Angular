@@ -14,12 +14,13 @@ import { ClientNotificationsService } from '../../services/client-notifications.
 import { CRMNotification } from '../../../../features/crm/models/notification.model';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner/loading-spinner';
 import { NotificationDetailModal } from '../../../../shared/components/notification-detail-modal/notification-detail-modal';
+import { RequestReopenModalComponent } from '../request-reopen-modal/request-reopen-modal.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro-cliente-incidencia',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, UserProfileModal, LoadingSpinner, NotificationDetailModal],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SecureImagePipe, NotificationsDropdown, UserProfileModal, LoadingSpinner, NotificationDetailModal, RequestReopenModalComponent],
   templateUrl: './registro-cliente-incidencia.component.html',
   styleUrl: './registro-cliente-incidencia.component.scss'
 })
@@ -93,6 +94,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
 
   // Loading para envío de incidencia
   isSubmittingIncidencia = false;
+
+  // Modal de solicitud de reapertura
+  isReopenModalOpen = false;
+  selectedIncidenciaForReopen: Incidencia | null = null;
 
   constructor(
     private incidenciasService: IncidenciasService,
@@ -1258,5 +1263,56 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
         console.error('Error al cargar datos del usuario:', error);
       }
     });
+  }
+
+  // ============================================
+  // MÉTODOS PARA SOLICITUD DE REAPERTURA
+  // ============================================
+
+  /**
+   * Verificar si una incidencia puede ser reabierta
+   */
+  canRequestReopen(incidencia: Incidencia): boolean {
+    const reopenableStatuses = ['CLOSED', 'CANCELLED', 'RESOLVED'];
+    return reopenableStatuses.includes(incidencia.status);
+  }
+
+  /**
+   * Abrir modal de solicitud de reapertura
+   */
+  openReopenModal(incidencia: Incidencia): void {
+    this.selectedIncidenciaForReopen = incidencia;
+    this.isReopenModalOpen = true;
+  }
+
+  /**
+   * Cerrar modal de solicitud de reapertura
+   */
+  closeReopenModal(): void {
+    this.isReopenModalOpen = false;
+    this.selectedIncidenciaForReopen = null;
+  }
+
+  /**
+   * Callback cuando se envía la solicitud de reapertura
+   */
+  onReopenRequestSubmitted(): void {
+    this.closeReopenModal();
+
+    // Cerrar el modal de detalles primero
+    this.closeModal();
+
+    // Recargar lista de incidencias
+    this.cargarIncidencias();
+
+    // Mostrar mensaje de éxito después de un pequeño delay para que se cierre el modal
+    setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitud enviada',
+        text: 'Tu solicitud de reapertura ha sido enviada. Recibirás una notificación cuando sea revisada.',
+        confirmButtonColor: '#7c3aed'
+      });
+    }, 200);
   }
 }

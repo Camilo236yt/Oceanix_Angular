@@ -415,7 +415,18 @@ export class CrmLayout implements OnInit, OnDestroy {
     // Forzar detección de cambios para cerrar el dropdown
     this.cdr.detectChanges();
 
-    // Abrir modal de detalles con un pequeño delay
+    // Si es una notificación de reapertura (tiene actionUrl con /incidencias/{id}), navegar directamente
+    if (notification.actionUrl && notification.actionUrl.startsWith('/incidencias/')) {
+      const incidenciaId = notification.actionUrl.split('/').pop();
+      if (incidenciaId) {
+        this.router.navigate(['/crm/incidencias'], {
+          queryParams: { openIncidencia: incidenciaId }
+        });
+        return;
+      }
+    }
+
+    // Para otras notificaciones, abrir modal de detalles con un pequeño delay
     setTimeout(() => {
       this.selectedNotification = notification;
       this.isNotificationDetailModalOpen = true;
