@@ -101,6 +101,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   // Review Reopen Modal
   isReviewReopenModalOpen = false;
   pendingReopenRequestId: string | null = null;
+  @Input() incidenciasService: any; // Servicio de incidencias para buscar solicitudes
 
   constructor(
     private http: HttpClient,
@@ -511,12 +512,40 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
       return;
     }
 
-    // Si el backend ya incluye la solicitud pendiente
+    // Opción 1: Si el backend ya incluye la solicitud pendiente en incidentData
     if (this.incidentData.pendingReopenRequest) {
       this.pendingReopenRequestId = this.incidentData.pendingReopenRequest.id;
       this.cdr.detectChanges();
+      return;
+    }
+
+    // Opción 2: Buscar activamente en la lista de solicitudes pendientes
+    // Verificamos si incidenciasService está disponible (solo en contexto CRM)
+    if (this.incidenciasService && typeof this.incidenciasService.getPendingReopenRequests === 'function') {
+      this.incidenciasService.getPendingReopenRequests(1, 100).subscribe({
+        next: (response: any) => {
+          const requests = response.data || response;
+          const request = requests.find((r: any) => r.incidenciaId === this.incidentData!.id);
+
+          if (request) {
+            // Guardar el ID y agregar el objeto completo a incidentData para el template
+            this.pendingReopenRequestId = request.id;
+            if (this.incidentData) {
+              this.incidentData.pendingReopenRequest = request;
+            }
+            console.log('✅ Solicitud de reapertura encontrada:', request);
+          } else {
+            this.pendingReopenRequestId = null;
+          }
+          this.cdr.detectChanges();
+        },
+        error: (error: any) => {
+          console.error('❌ Error al buscar solicitudes de reapertura:', error);
+          this.pendingReopenRequestId = null;
+        }
+      });
     } else {
-      // Si no, resetear
+      // Si no hay servicio disponible, resetear
       this.pendingReopenRequestId = null;
     }
   }

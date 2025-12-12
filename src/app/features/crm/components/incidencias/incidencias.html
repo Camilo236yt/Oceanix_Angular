@@ -9,44 +9,30 @@
 
   <!-- Barra de búsqueda y filtros -->
   <div class="mb-4 md:mb-6">
-    <app-search-filters
-      searchPlaceholder="Buscar incidencias..."
-      [filters]="filterConfigs"
-      [initialFilters]="initialFilterValues"
-      (onFilterChange)="onFilterChange($event)">
+    <app-search-filters searchPlaceholder="Buscar incidencias..." [filters]="filterConfigs"
+      [initialFilters]="initialFilterValues" (onFilterChange)="onFilterChange($event)">
     </app-search-filters>
   </div>
 
   <!-- Tabla de incidencias -->
   @if (isLoading) {
-    <app-skeleton-loader type="table" [rows]="5" [columns]="6"></app-skeleton-loader>
+  <app-skeleton-loader type="table" [rows]="5" [columns]="6"></app-skeleton-loader>
   } @else {
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="incidents"
-      [actions]="tableActions"
-      [showPagination]="true"
-      [currentPage]="currentPage"
-      [totalItems]="totalItems"
-      [itemsPerPage]="itemsPerPage"
-      (onActionClick)="handleTableAction($event)"
-      (pageChange)="onPageChange($event)"
-      (pageSizeChange)="onPageSizeChange($event)">
-    </app-data-table>
+  <app-data-table [columns]="tableColumns" [data]="incidents" [actions]="tableActions" [showPagination]="true"
+    [currentPage]="currentPage" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage"
+    (onActionClick)="handleTableAction($event)" (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)">
+  </app-data-table>
   }
 </div>
 
 <!-- View Incident Modal -->
-<app-view-incident-modal
-  [isOpen]="isViewIncidentModalOpen"
-  [incidentData]="viewingIncidentData"
+<app-view-incident-modal [isOpen]="isViewIncidentModalOpen" [incidentData]="viewingIncidentData"
   (onClose)="closeViewIncidentModal()">
 </app-view-incident-modal>
 
 <!-- Attend Incident Modal -->
-<app-attend-incident-modal
-  [isOpen]="isAttendModalOpen"
-  [incidentData]="attendingIncidentData"
-  (onClose)="closeAttendModal()"
+<app-attend-incident-modal [isOpen]="isAttendModalOpen" [incidentData]="attendingIncidentData"
+  [incidenciasService]="incidenciasService" (onClose)="onCloseAttendModal()"
   (onStatusChange)="handleStatusChange($event)">
 </app-attend-incident-modal>
