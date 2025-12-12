@@ -406,7 +406,9 @@ export class CrmLayout implements OnInit, OnDestroy {
   onNotificationClick(notification: CRMNotification): void {
     // Marcar como leída si no está leída
     if (!notification.isRead) {
-      this.crmNotificationsService.markAsRead(notification.id);
+      this.crmNotificationsService.markAsRead(notification.id).subscribe({
+        error: (error) => console.error('Error al marcar notificación como leída:', error)
+      });
     }
 
     // Cerrar dropdown primero
@@ -453,13 +455,19 @@ export class CrmLayout implements OnInit, OnDestroy {
    * Marcar todas las notificaciones CRM como leídas
    */
   onMarkAllNotificationsAsRead(): void {
-    this.crmNotificationsService.markAllAsRead();
+    this.crmNotificationsService.markAllAsRead().subscribe({
+      next: (response) => console.log(response.message),
+      error: (error) => console.error('Error al marcar todas como leídas:', error)
+    });
   }
 
   /**
    * Eliminar notificación CRM
    */
   onDeleteNotification(notificationId: string): void {
-    this.crmNotificationsService.deleteNotification(notificationId);
+    this.crmNotificationsService.deleteNotification(notificationId).subscribe({
+      next: () => console.log('Notificación eliminada correctamente'),
+      error: (error) => console.error('Error al eliminar notificación:', error)
+    });
   }
 }

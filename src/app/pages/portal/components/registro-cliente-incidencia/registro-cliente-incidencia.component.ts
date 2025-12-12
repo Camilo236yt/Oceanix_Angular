@@ -1089,7 +1089,9 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   onNotificationClick(notification: CRMNotification): void {
     // Marcar como leída si no está leída
     if (!notification.isRead) {
-      this.clientNotificationsService.markAsRead(notification.id);
+      this.clientNotificationsService.markAsRead(notification.id).subscribe({
+        error: (error) => console.error('Error al marcar notificación como leída:', error)
+      });
     }
 
     // Abrir modal de detalles
@@ -1110,21 +1112,29 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
    * Marcar notificación como leída
    */
   onMarkNotificationAsRead(notificationId: string): void {
-    this.clientNotificationsService.markAsRead(notificationId);
+    this.clientNotificationsService.markAsRead(notificationId).subscribe({
+      error: (error) => console.error('Error al marcar notificación como leída:', error)
+    });
   }
 
   /**
    * Marcar todas las notificaciones como leídas
    */
   onMarkAllNotificationsAsRead(): void {
-    this.clientNotificationsService.markAllAsRead();
+    this.clientNotificationsService.markAllAsRead().subscribe({
+      next: (response) => console.log(response.message),
+      error: (error) => console.error('Error al marcar todas como leídas:', error)
+    });
   }
 
   /**
    * Eliminar notificación
    */
   onDeleteNotification(notificationId: string): void {
-    this.clientNotificationsService.deleteNotification(notificationId);
+    this.clientNotificationsService.deleteNotification(notificationId).subscribe({
+      next: () => console.log('Notificación eliminada correctamente'),
+      error: (error) => console.error('Error al eliminar notificación:', error)
+    });
   }
 
   /**

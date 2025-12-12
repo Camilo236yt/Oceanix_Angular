@@ -122,32 +122,47 @@ export class CrmNotificationsService {
   /**
    * Marcar notificación como leída (actualiza localmente y en backend)
    */
-  markAsRead(notificationId: string): void {
-    // TODO: Implementar llamada al backend para marcar como leída
-    // Por ahora solo actualiza localmente
-    this.notificationsSignal.update(notifs =>
-      notifs.map(n => n.id === notificationId ? { ...n, isRead: true, readAt: new Date().toISOString() } : n)
+  markAsRead(notificationId: string): Observable<BackendNotification> {
+    return this.http.patch<BackendApiResponse<BackendNotification>>(`${this.apiUrl}/${notificationId}/read`, {}).pipe(
+      map(apiResponse => apiResponse.data),
+      tap((updatedNotification) => {
+        // Actualizar estado local con la respuesta del backend
+        this.notificationsSignal.update(notifs =>
+          notifs.map(n => n.id === notificationId ? this.mapBackendNotification(updatedNotification) : n)
+        );
+      })
     );
   }
 
   /**
    * Marcar todas las notificaciones como leídas
    */
-  markAllAsRead(): void {
-    // TODO: Implementar llamada al backend para marcar todas como leídas
-    const now = new Date().toISOString();
-    this.notificationsSignal.update(notifs =>
-      notifs.map(n => ({ ...n, isRead: true, readAt: now }))
+  markAllAsRead(): Observable<{ message: string; affected: number }> {
+    return this.http.patch<BackendApiResponse<{ message: string; affected: number }>>(`${this.apiUrl}/read-all`, {}).pipe(
+      map(apiResponse => apiResponse.data),
+      tap((response) => {
+        console.log(`${response.affected} notificaciones marcadas como leídas`);
+        // Actualizar estado local
+        const now = new Date().toISOString();
+        this.notificationsSignal.update(notifs =>
+          notifs.map(n => ({ ...n, isRead: true, readAt: now }))
+        );
+      })
     );
   }
 
   /**
    * Eliminar una notificación
    */
-  deleteNotification(notificationId: string): void {
-    // TODO: Implementar llamada al backend para eliminar
-    this.notificationsSignal.update(notifs =>
-      notifs.filter(n => n.id !== notificationId)
+  deleteNotification(notificationId: string): Observable<{ message: string }> {
+    return this.http.delete<BackendApiResponse<{ message: string }>>(`${this.apiUrl}/${notificationId}`).pipe(
+      map(apiResponse => apiResponse.data),
+      tap(() => {
+        // Actualizar estado local solo si el backend confirma el borrado
+        this.notificationsSignal.update(notifs =>
+          notifs.filter(n => n.id !== notificationId)
+        );
+      })
     );
   }
 
