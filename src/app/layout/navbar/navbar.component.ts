@@ -15,7 +15,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { label: 'Inicio', active: true, anchor: '' },
     { label: 'Características', active: false, anchor: 'caracteristicas' },
     { label: 'Empresas', active: false, anchor: 'empresas' },
-    { label: 'Contacto', active: false, anchor: 'contacto' }
+    { label: 'Contacto', active: false, anchor: 'contacto' },
+    { label: 'Documentación', active: false, anchor: 'documentacion', isExternal: true }
   ];
 
   private isScrollingProgrammatically = false;
@@ -91,6 +92,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
   scrollToSection(anchor: string): void {
     // Cerrar el menú móvil si está abierto
     this.isMobileMenuOpen = false;
+
+    // Verificar si es la opción de documentación (abrir en nueva pestaña)
+    if (anchor === 'documentacion') {
+      const url = window.location.origin + '/documentacion';
+      window.open(url, '_blank');
+      return;
+    }
 
     // Marcar que estamos haciendo scroll programático
     this.isScrollingProgrammatically = true;

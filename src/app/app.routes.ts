@@ -3,6 +3,7 @@ import { LandingComponent } from './pages/landing/landing.component';
 import { Login } from './auth/login/login';
 import { Register } from './auth/register/register';
 import { ActivateAccount } from './auth/activate-account/activate-account';
+import { Documentation } from './pages/documentation/documentation';
 import { mainDomainGuard } from './core/guards/main-domain.guard';
 import { authRedirectGuard } from './core/guards/auth-redirect.guard';
 import { loginAccessGuard } from './core/guards/login-access.guard';
@@ -31,6 +32,10 @@ export const routes: Routes = [
   {
     path: 'auth/activate',
     component: ActivateAccount
+  },
+  {
+    path: 'documentacion',
+    component: Documentation
   },
   {
     path: 'crm',
