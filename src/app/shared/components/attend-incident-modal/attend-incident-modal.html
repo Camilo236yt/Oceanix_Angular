@@ -637,7 +637,6 @@
   </div>
 </div>
 
-<!-- Review Reopen Modal DENTRO del @if(isOpen) -->
 @if (isReviewReopenModalOpen && pendingReopenRequestId) {
 <app-review-reopen-modal [requestId]="pendingReopenRequestId" (closeModal)="closeReviewReopenModal()"
   (reviewSubmitted)="onReopenReviewSubmitted()">
