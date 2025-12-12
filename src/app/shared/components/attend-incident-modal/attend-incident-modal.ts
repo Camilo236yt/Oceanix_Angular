@@ -571,8 +571,14 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
    * Abre el modal para revisar la solicitud de reapertura
    */
   openReviewReopenModal(): void {
+    console.log('🔵 openReviewReopenModal llamado');
+    console.log('  - pendingReopenRequestId:', this.pendingReopenRequestId);
+    console.log('  - isReviewReopenModalOpen actual:', this.isReviewReopenModalOpen);
+
     this.isReviewReopenModalOpen = true;
     this.cdr.detectChanges();
+
+    console.log('  - isReviewReopenModalOpen después:', this.isReviewReopenModalOpen);
   }
 
   /**
