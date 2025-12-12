@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IncidenciasService } from '../../services/incidencias.service';
@@ -24,7 +24,10 @@ export class ReviewReopenModalComponent implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private incidenciasService: IncidenciasService) { }
+  constructor(
+    private incidenciasService: IncidenciasService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     console.log('🟢 ReviewReopenModalComponent inicializado');
@@ -44,6 +47,8 @@ export class ReviewReopenModalComponent implements OnInit {
           this.request = response.data || response;
           console.log('  - request asignado:', this.request);
           this.isLoading = false;
+          this.cdr.detectChanges();
+          console.log('  - isLoading después:', this.isLoading);
         },
         error: (error) => {
           console.error('❌ Error al cargar solicitud:', error);
