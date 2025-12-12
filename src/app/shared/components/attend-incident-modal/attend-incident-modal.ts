@@ -22,6 +22,7 @@ interface Message {
     name: string;
     lastName: string;
     email?: string;
+    profilePicture?: string;
   };
   attachments?: string[];
 }
@@ -93,6 +94,9 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
   private apiUrl = `${environment.apiUrl}/incidencias`;
 
+  // Empleado actual
+  currentEmployeePhoto: string | null = null;
+
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
@@ -102,6 +106,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   ) { }
 
   ngOnInit() {
+    // Obtener foto del empleado actual
+    this.authService.meUser$.subscribe(user => {
+      this.currentEmployeePhoto = user?.profilePicture || null;
+    });
+
     if (this.incidentData) {
       this.selectedStatus = this.incidentData.status;
     }

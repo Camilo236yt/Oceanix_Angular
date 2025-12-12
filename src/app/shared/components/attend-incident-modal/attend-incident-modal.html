@@ -336,11 +336,16 @@
             [class]="isEmployeeMsg ? 'flex justify-end items-end gap-1.5 md:gap-3' : 'flex justify-start items-end gap-1.5 md:gap-3'">
             <!-- Avatar for CLIENT messages (solo para mensajes de clientes reales) -->
             @if (!isEmployeeMsg && message.senderType === 'CLIENT') {
+            @if (message.sender?.profilePicture) {
+            <img [src]="message.sender!.profilePicture" [alt]="message.sender?.name"
+              class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border border-purple-200 flex-shrink-0">
+            } @else {
             <div
               class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-[10px] md:text-xs font-semibold flex-shrink-0">
               {{ message.sender ? (message.sender.name.charAt(0) + message.sender.lastName.charAt(0)).toUpperCase() :
               'C' }}
             </div>
+            }
             }
 
             <div class="flex flex-col" [class.items-end]="isEmployeeMsg" [class.items-start]="!isEmployeeMsg">
@@ -396,10 +401,15 @@
 
             <!-- Avatar for EMPLOYEE messages (incluye REQUEST_IMAGES y SYSTEM) -->
             @if (isEmployeeMsg) {
+            @if (currentEmployeePhoto) {
+            <img [src]="currentEmployeePhoto" alt="Tú"
+              class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border border-purple-200 flex-shrink-0">
+            } @else {
             <div
               class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-white text-[10px] md:text-xs font-semibold flex-shrink-0">
               TÚ
             </div>
+            }
             }
           </div>
           }
