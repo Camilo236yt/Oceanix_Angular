@@ -827,7 +827,7 @@
           class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors">
           Cerrar
         </button>
-        @if (selectedIncidencia && canRequestReopen(selectedIncidencia)) {
+        @if (selectedIncidencia && canRequestReopen(selectedIncidencia) && !selectedIncidencia.hasPendingReopenRequest) {
         <button (click)="openReopenModal(selectedIncidencia)"
           class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white transition-colors flex items-center justify-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -835,6 +835,14 @@
           </svg>
           Solicitar Reapertura
         </button>
+        }
+        @if (selectedIncidencia && selectedIncidencia.hasPendingReopenRequest) {
+        <div class="w-full sm:w-auto px-6 py-2 rounded-md text-sm font-medium bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Solicitud de reapertura pendiente
+        </div>
         }
         @if (selectedIncidencia && selectedIncidencia.status !== 'RESOLVED' && selectedIncidencia.status !== 'CLOSED') {
         <button (click)="cancelarIncidencia()"
