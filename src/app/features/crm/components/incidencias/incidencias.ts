@@ -49,7 +49,7 @@ export class Incidencias implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   // Configuración de filtros (se inicializa dinámicamente en ngOnInit)
   filterConfigs: FilterConfig[] = [];
@@ -152,11 +152,18 @@ export class Incidencias implements OnInit {
 
     // Detectar queryParam para abrir incidencia automáticamente (desde notificaciones)
     this.route.queryParams.subscribe(params => {
-      const incidenciaId = params['openIncidencia'];
-      if (incidenciaId) {
+      const viewIncidenciaId = params['openIncidencia'];
+      const editIncidenciaId = params['editIncidencia'];
+
+      if (viewIncidenciaId) {
         // Esperar un momento para que se carguen las incidencias
         setTimeout(() => {
-          this.openIncidenciaById(incidenciaId);
+          this.openIncidenciaById(viewIncidenciaId);
+        }, 500);
+      } else if (editIncidenciaId) {
+        // Abrir modal de edición directamente (para notificaciones de reapertura)
+        setTimeout(() => {
+          this.openEditIncidenciaById(editIncidenciaId);
         }, 500);
       }
     });
@@ -320,6 +327,49 @@ export class Incidencias implements OnInit {
         // Set incident data and open modal
         this.viewingIncidentData = incidentData;
         this.isViewIncidentModalOpen = true;
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar incidencia:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al abrir la incidencia',
+          text: 'No se pudo cargar la información de la incidencia',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
+  }
+
+  /**
+   * Abrir incidencia en modo edición por ID (usado desde notificaciones de reapertura)
+   */
+  openEditIncidenciaById(incidenciaId: string) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Abriendo incidencia...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get full incident data from backend
+    this.incidenciasService.getIncidenciaById(incidenciaId).subscribe({
+      next: (incidentData) => {
+        Swal.close();
+
+        // Set incident data and open EDIT modal (attend modal)
+        this.attendingIncidentData = incidentData;
+        this.isAttendModalOpen = true;
         this.cdr.markForCheck();
         this.cdr.detectChanges();
       },

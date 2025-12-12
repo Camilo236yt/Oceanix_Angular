@@ -424,7 +424,7 @@ export class CrmLayout implements OnInit, OnDestroy {
 
     if (incidenciaId) {
       this.router.navigate(['/crm/incidencias'], {
-        queryParams: { openIncidencia: incidenciaId }
+        queryParams: { editIncidencia: incidenciaId } // Cambiado a editIncidencia para abrir modal de edición
       });
       return;
     }
