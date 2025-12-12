@@ -46,7 +46,7 @@
         @for (notification of notifications; track notification.id) {
         <div (click)="onNotificationClick(notification)"
           class="px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-[var(--bg-hover)] transition-colors cursor-pointer group relative"
-          [class.bg-purple-50/50]="!notification.isRead">
+          [class.notification-unread]="!notification.isRead">
 
           <!-- Unread Indicator -->
           @if (!notification.isRead) {
