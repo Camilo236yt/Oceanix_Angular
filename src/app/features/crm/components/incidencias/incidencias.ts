@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { DataTable } from '../../../../shared/components/data-table/data-table';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { SearchFiltersComponent } from '../../../../shared/components/search-filters/search-filters.component';
@@ -46,7 +47,8 @@ export class Incidencias implements OnInit {
   constructor(
     private incidenciasService: IncidenciasService,
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   // Configuración de filtros (se inicializa dinámicamente en ngOnInit)
@@ -147,6 +149,17 @@ export class Incidencias implements OnInit {
 
     // Cargar incidencias
     this.loadIncidencias();
+
+    // Detectar queryParam para abrir incidencia automáticamente (desde notificaciones)
+    this.route.queryParams.subscribe(params => {
+      const incidenciaId = params['openIncidencia'];
+      if (incidenciaId) {
+        // Esperar un momento para que se carguen las incidencias
+        setTimeout(() => {
+          this.openIncidenciaById(incidenciaId);
+        }, 500);
+      }
+    });
   }
 
   setupFilters(): void {
@@ -281,6 +294,49 @@ export class Incidencias implements OnInit {
   closeViewIncidentModal() {
     this.isViewIncidentModalOpen = false;
     this.viewingIncidentData = null;
+  }
+
+  /**
+   * Abrir incidencia por ID (usado desde notificaciones)
+   */
+  openIncidenciaById(incidenciaId: string) {
+    // Show loading
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Abriendo incidencia...',
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Get full incident data from backend
+    this.incidenciasService.getIncidenciaById(incidenciaId).subscribe({
+      next: (incidentData) => {
+        Swal.close();
+
+        // Set incident data and open modal
+        this.viewingIncidentData = incidentData;
+        this.isViewIncidentModalOpen = true;
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar incidencia:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Error al abrir la incidencia',
+          text: 'No se pudo cargar la información de la incidencia',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    });
   }
 
   editIncident(incident: Incident) {
