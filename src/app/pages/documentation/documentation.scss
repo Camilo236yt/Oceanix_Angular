@@ -2,6 +2,39 @@
   display: flex;
   min-height: 100vh;
   background-color: #fafafa;
+  position: relative;
+}
+
+// ============= MOBILE MENU TOGGLE =============
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background-color: #7c3aed;
+  border: none;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #6d28d9;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .menu-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
 
 // ============= SIDEBAR =============
@@ -245,30 +278,107 @@
 }
 
 @media (max-width: 768px) {
-  .documentation-container {
-    flex-direction: column;
+  // Mostrar botón hamburguesa
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
+  // Sidebar móvil
   .sidebar {
-    width: 100%;
-    position: static;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+
+    &.mobile-open {
+      left: 0;
+    }
   }
 
+  // Contenido principal
   .main-content {
     margin-left: 0;
-    padding: 2rem 1.5rem;
+    padding: 5rem 1.5rem 2rem;
+    width: 100%;
+  }
+
+  .content-wrapper {
+    max-width: 100%;
   }
 
   .content-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    margin-top: 1rem;
+  }
+
+  .content-description {
+    font-size: 1rem;
   }
 
   .content-section {
     .section-heading {
       font-size: 1.25rem;
+    }
+
+    .section-text {
+      font-size: 0.9375rem;
+    }
+
+    .section-image-small {
+      width: 80%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-menu-toggle {
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+
+    .menu-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .sidebar {
+    width: 85%;
+    max-width: 280px;
+  }
+
+  .main-content {
+    padding: 4.5rem 1rem 1.5rem;
+  }
+
+  .content-title {
+    font-size: 1.5rem;
+  }
+
+  .content-description {
+    font-size: 0.9375rem;
+  }
+
+  .content-section {
+    margin-bottom: 2rem;
+
+    .section-heading {
+      font-size: 1.125rem;
+    }
+
+    .section-text {
+      font-size: 0.875rem;
+    }
+
+    .section-image-wrapper {
+      margin: 1rem 0;
     }
   }
 }

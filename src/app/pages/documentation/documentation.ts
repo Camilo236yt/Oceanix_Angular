@@ -21,6 +21,7 @@ interface MenuSection {
 })
 export class Documentation {
   selectedItem: string = 'introduccion';
+  isMobileMenuOpen: boolean = false;
 
   menuSections: MenuSection[] = [
     {
@@ -53,6 +54,11 @@ export class Documentation {
 
   selectItem(itemId: string): void {
     this.selectedItem = itemId;
+    this.isMobileMenuOpen = false; // Cerrar menú en móvil al seleccionar
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   getContent(): any {
