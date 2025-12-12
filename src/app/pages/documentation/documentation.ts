@@ -55,6 +55,9 @@ export class Documentation {
   selectItem(itemId: string): void {
     this.selectedItem = itemId;
     this.isMobileMenuOpen = false; // Cerrar menú en móvil al seleccionar
+
+    // Hacer scroll hacia arriba cuando se cambia de sección
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   toggleMobileMenu(): void {
