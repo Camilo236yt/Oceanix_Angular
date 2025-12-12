@@ -548,7 +548,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
             }
             console.log('✅ Solicitud de reapertura encontrada:', request);
             console.log('  - pendingReopenRequestId:', this.pendingReopenRequestId);
-            console.log('  - incidentData.pendingReopenRequest:', this.incidentData.pendingReopenRequest);
+            console.log('  - incidentData.pendingReopenRequest:', this.incidentData?.pendingReopenRequest);
           } else {
             console.log('⚠️ No se encontró solicitud para esta incidencia');
             this.pendingReopenRequestId = null;
