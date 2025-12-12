@@ -33,8 +33,9 @@ export class Documentation {
     {
       title: 'Autenticación',
       items: [
-        { id: 'login', label: 'Login', iconPath: 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z' },
-        { id: 'registro', label: 'Registro', iconPath: 'M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z' }
+        { id: 'login', label: 'Login', iconPath: 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1221.75 8.25z' },
+        { id: 'registro', label: 'Registro', iconPath: 'M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z' },
+        { id: 'verificacion', label: 'Verificación', iconPath: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z' }
       ]
     },
     {
@@ -151,6 +152,48 @@ export class Documentation {
           {
             heading: 'Acceso Inmediato al CRM',
             content: 'Una vez que completes el registro y hagas clic en "Registrarse", serás redirigido automáticamente al sistema CRM de Oceanix. ¡Puedes empezar a usar la plataforma de inmediato!'
+          }
+        ]
+      },
+      verificacion: {
+        title: 'Verificación de Cuenta',
+        description: 'La verificación de cuenta es un paso importante que valida la información de tu empresa y te permite acceder a todas las funcionalidades de Oceanix de forma segura.',
+        sections: [
+          {
+            heading: '¿Por qué verificar tu cuenta?',
+            content: 'Después de registrarte e iniciar sesión, Oceanix te pedirá completar la verificación de tu cuenta. Este proceso es obligatorio y garantiza:\n\n• La autenticidad de tu empresa\n• La seguridad de tus datos y operaciones\n• El acceso completo a todas las funcionalidades del sistema\n• La confianza entre todas las empresas que usan la plataforma\n\nNo te preocupes, el proceso es sencillo y solo debes hacerlo una vez.'
+          },
+          {
+            heading: 'Aviso de Verificación Pendiente',
+            content: 'Una vez que inicies sesión por primera vez, verás un aviso en la parte superior de la pantalla que dice:\n\n"Tu cuenta aún no ha sido verificada. Por favor, completa el proceso de verificación para acceder a todas las funcionalidades."\n\nEste mensaje aparecerá en todas las pantallas del sistema hasta que completes la verificación. Para comenzar, solo haz clic en el enlace del mensaje o en el botón "Verificar Ahora".',
+            image: 'assets/documentacion-imagenes/40. verificacion .png'
+          },
+          {
+            heading: 'Asistente de Verificación',
+            content: 'Al hacer clic en el aviso, se abrirá un asistente que te guiará paso a paso. La verificación se divide en dos partes simples:\n\n• Paso 1: Subir documentos legales de tu empresa\n• Paso 2: Verificar tu correo electrónico corporativo\n\nEl sistema te indica claramente en qué paso estás y cuánto falta para completar el proceso.'
+          },
+          {
+            heading: 'Paso 1: Documentos Legales',
+            content: 'En este primer paso, debes subir los documentos oficiales que acreditan que tu empresa es legítima.\n\nLos documentos que necesitas son:\n\n1. RUT / NIT / CUIT (Registro fiscal de tu empresa)\n2. Cámara de Comercio (Certificado de registro mercantil)\n3. Cédula del Representante Legal (Documento de identidad del responsable)\n\nCada documento se puede subir de dos formas:\n• Arrastrando el archivo directamente a la zona indicada\n• Haciendo clic en el botón para seleccionar el archivo desde tu computador\n\nFormatos aceptados: PDF, JPG o PNG (máximo 10 MB por archivo)\n\nUna vez que hayas subido los tres documentos, haz clic en "Siguiente" para continuar.',
+            image: 'assets/documentacion-imagenes/41. verificacion 2.png'
+          },
+          {
+            heading: 'Paso 2: Verificación de Correo',
+            content: 'En el segundo paso, el sistema te muestra el correo electrónico con el que te registraste y te pide confirmarlo.\n\nImportante: Asegúrate de que el correo electrónico sea correcto, ya que no podrás cambiarlo después de este punto. Este será el correo oficial de tu empresa en Oceanix.\n\nPara verificar tu correo:\n\n1. Revisa que el correo mostrado sea el correcto\n2. Haz clic en el botón "Enviar código"\n3. Revisa tu bandeja de entrada (y spam si no lo ves)\n4. Busca el correo de Oceanix con el código de verificación',
+            image: 'assets/documentacion-imagenes/42. verificacion 3.png'
+          },
+          {
+            heading: 'Ingresar el Código de Verificación',
+            content: 'Una vez que hayas solicitado el código, aparecerá un campo nuevo en la pantalla.\n\nPasos:\n\n1. Revisa tu correo electrónico\n2. Copia el código de 6 dígitos que recibiste\n3. Pégalo o escríbelo en el campo "Código de verificación"\n4. Haz clic en "Verificar código"\n\nSi el código es correcto, se habilitará el botón "Finalizar".\n\nSi no recibes el código:\n• Revisa tu carpeta de spam o correo no deseado\n• Espera unos minutos (a veces puede tardar)\n• Puedes solicitar un nuevo código haciendo clic en "Reenviar código"',
+            image: 'assets/documentacion-imagenes/43. verificacion 3.png'
+          },
+          {
+            heading: 'Finalizar Verificación',
+            content: 'Una vez que hayas completado ambos pasos:\n\n1. Haz clic en el botón "Finalizar"\n2. El sistema procesará tu verificación\n3. Recibirás un mensaje de confirmación\n4. El aviso de verificación pendiente desaparecerá\n5. ¡Tu cuenta estará completamente activa!\n\nAhora podrás acceder a todas las funcionalidades de Oceanix sin restricciones. Podrás crear incidencias, gestionar usuarios, generar reportes y utilizar todas las herramientas disponibles.'
+          },
+          {
+            heading: 'Consejos Importantes',
+            content: '• Asegúrate de tener los documentos legales de tu empresa listos antes de comenzar\n• Verifica que tu correo electrónico esté escrito correctamente desde el registro\n• Los documentos deben ser legibles y estar vigentes\n• Si tienes problemas para subir un archivo, verifica que no supere los 10 MB\n• El código de verificación tiene una validez limitada, ingrésalo pronto después de recibirlo\n• Una vez verificada tu cuenta, no necesitarás repetir este proceso\n\nSi tienes algún problema durante la verificación, contacta al equipo de soporte de Oceanix para recibir ayuda.'
           }
         ]
       },
