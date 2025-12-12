@@ -114,13 +114,22 @@ export class ReviewReopenModalComponent implements OnInit {
     });
   }
 
-  getDaysSince(date: Date | string | null): number {
-    if (!date) return 0;
+  getTimeElapsed(date: Date | string | null): string {
+    if (!date) return 'N/A';
     const now = new Date();
     const then = new Date(date);
-    const diffTime = Math.abs(now.getTime() - then.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    const diffMs = now.getTime() - then.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return `${diffMinutes} minuto(s)`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hora(s)`;
+    } else {
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return `${diffDays} día(s)`;
+    }
   }
 
   onClose(): void {
