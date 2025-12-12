@@ -33,6 +33,7 @@ export interface User {
   isLegalRepresentative: boolean;
   createdAt: string;
   updatedAt: string;
+  profilePicture?: string;
 }
 
 export interface IncidentData {

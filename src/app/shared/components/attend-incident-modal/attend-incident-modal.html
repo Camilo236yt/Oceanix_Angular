@@ -336,8 +336,8 @@
             [class]="isEmployeeMsg ? 'flex justify-end items-end gap-1.5 md:gap-3' : 'flex justify-start items-end gap-1.5 md:gap-3'">
             <!-- Avatar for CLIENT messages (solo para mensajes de clientes reales) -->
             @if (!isEmployeeMsg && message.senderType === 'CLIENT') {
-            @if (message.sender?.profilePicture) {
-            <img [src]="message.sender!.profilePicture" [alt]="message.sender?.name"
+            @if (getClientProfilePicture(message); as profilePic) {
+            <img [src]="profilePic" [alt]="message.sender?.name"
               class="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover border border-purple-200 flex-shrink-0">
             } @else {
             <div

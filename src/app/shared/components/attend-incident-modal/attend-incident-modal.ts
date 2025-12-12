@@ -482,6 +482,20 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     return 'Sin asignar';
   }
 
+  getClientProfilePicture(message: Message): string | undefined {
+    // 1. Intentar obtener del sender del mensaje
+    if (message.sender?.profilePicture) {
+      return message.sender.profilePicture;
+    }
+
+    // 2. Si no, intentar hacer match con el creador de la incidencia
+    if (this.incidentData?.createdBy && message.sender?.id === this.incidentData.createdBy.id) {
+      return this.incidentData.createdBy.profilePicture;
+    }
+
+    return undefined;
+  }
+
   get isChatDisabled(): boolean {
     return this.incidentData?.status === 'RESOLVED';
   }
