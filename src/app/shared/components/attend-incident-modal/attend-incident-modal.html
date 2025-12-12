@@ -100,7 +100,7 @@
         </div>
 
         <!-- Reopen Request Alert -->
-        @if (incidentData.pendingReopenRequest && pendingReopenRequestId) {
+        @if (pendingReopenRequestId && incidentData.pendingReopenRequest) {
         <div class="pb-6 border-b border-[var(--border-primary)]">
           <div class="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded-xl p-4">
             <div class="flex items-start gap-3">
@@ -115,7 +115,7 @@
                   🔄 Solicitud de Reapertura Pendiente
                 </h4>
                 <p class="text-xs text-amber-800 dark:text-amber-400 mb-2">
-                  El cliente <strong>{{ incidentData.pendingReopenRequest.requestedByUser?.name || 'desconocido'
+                  El cliente <strong>{{ incidentData.pendingReopenRequest.requestedBy?.name || 'desconocido'
                     }}</strong> ha solicitado reabrir esta incidencia.
                 </p>
                 <p

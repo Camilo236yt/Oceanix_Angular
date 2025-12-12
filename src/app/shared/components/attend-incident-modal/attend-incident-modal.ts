@@ -507,25 +507,38 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
    * Verifica si hay una solicitud de reapertura pendiente para esta incidencia
    */
   private checkPendingReopenRequest(): void {
+    console.log(' Checking pending reopen request...');
+    console.log('  - incidentData:', this.incidentData);
+    console.log('  - incidenciasService:', this.incidenciasService);
+
     if (!this.incidentData) {
+      console.log('⚠️ No hay incidentData, abortando...');
       this.pendingReopenRequestId = null;
       return;
     }
 
     // Opción 1: Si el backend ya incluye la solicitud pendiente en incidentData
     if (this.incidentData.pendingReopenRequest) {
+      console.log('✅ Backend incluyó pendingReopenRequest:', this.incidentData.pendingReopenRequest);
       this.pendingReopenRequestId = this.incidentData.pendingReopenRequest.id;
       this.cdr.detectChanges();
       return;
     }
 
+    console.log('ℹ️ Backend NO incluyó pendingReopenRequest, buscando activamente...');
+
     // Opción 2: Buscar activamente en la lista de solicitudes pendientes
     // Verificamos si incidenciasService está disponible (solo en contexto CRM)
     if (this.incidenciasService && typeof this.incidenciasService.getPendingReopenRequests === 'function') {
+      console.log('📡 Haciendo petición a getPendingReopenRequests...');
       this.incidenciasService.getPendingReopenRequests(1, 100).subscribe({
         next: (response: any) => {
-          const requests = response.data || response;
-          const request = requests.find((r: any) => r.incidenciaId === this.incidentData!.id);
+          console.log('📦 Respuesta recibida:', response);
+          const requests = response.data?.data || response.data || response;
+          console.log('  - Total solicitudes pendientes:', requests?.length || 0);
+          console.log('  - Buscando incidenciaId:', this.incidentData!.id);
+
+          const request = requests?.find((r: any) => r.incidenciaId === this.incidentData!.id);
 
           if (request) {
             // Guardar el ID y agregar el objeto completo a incidentData para el template
@@ -534,7 +547,10 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
               this.incidentData.pendingReopenRequest = request;
             }
             console.log('✅ Solicitud de reapertura encontrada:', request);
+            console.log('  - pendingReopenRequestId:', this.pendingReopenRequestId);
+            console.log('  - incidentData.pendingReopenRequest:', this.incidentData.pendingReopenRequest);
           } else {
+            console.log('⚠️ No se encontró solicitud para esta incidencia');
             this.pendingReopenRequestId = null;
           }
           this.cdr.detectChanges();
@@ -545,6 +561,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
         }
       });
     } else {
+      console.log('⚠️ incidenciasService no disponible o no tiene getPendingReopenRequests');
       // Si no hay servicio disponible, resetear
       this.pendingReopenRequestId = null;
     }
