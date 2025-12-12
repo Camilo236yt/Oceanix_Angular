@@ -69,8 +69,8 @@ export class Documentation {
             content: 'Sistema inteligente de tickets con asignación automática, semáforo de tiempos basado en SLA, notificaciones en tiempo real, portal para clientes, gestión completa de usuarios y roles, y reportes detallados de incidencias.'
           },
           {
-            heading: 'Tecnología',
-            content: 'Desarrollado con Angular 19, utilizando componentes standalone, TypeScript, y una arquitectura moderna y escalable. Implementa las mejores prácticas de desarrollo frontend con un diseño responsivo y profesional.'
+            heading: 'Fácil de Usar',
+            content: 'Oceanix está diseñado para ser intuitivo y fácil de usar. No necesitas conocimientos técnicos para manejarlo. La interfaz es clara y moderna, funciona perfectamente en computadores, tablets y celulares, y se adapta a cualquier tamaño de pantalla para que puedas trabajar desde donde estés.'
           },
           {
             heading: 'Beneficios',
