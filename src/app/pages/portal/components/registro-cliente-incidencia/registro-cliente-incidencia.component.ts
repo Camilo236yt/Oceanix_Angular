@@ -1299,15 +1299,20 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
   onReopenRequestSubmitted(): void {
     this.closeReopenModal();
 
+    // Cerrar el modal de detalles primero
+    this.closeModal();
+
     // Recargar lista de incidencias
     this.cargarIncidencias();
 
-    // Mostrar mensaje de éxito
-    Swal.fire({
-      icon: 'success',
-      title: 'Solicitud enviada',
-      text: 'Tu solicitud de reapertura ha sido enviada. Recibirás una notificación cuando sea revisada.',
-      confirmButtonColor: '#7c3aed'
-    });
+    // Mostrar mensaje de éxito después de un pequeño delay para que se cierre el modal
+    setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitud enviada',
+        text: 'Tu solicitud de reapertura ha sido enviada. Recibirás una notificación cuando sea revisada.',
+        confirmButtonColor: '#7c3aed'
+      });
+    }, 200);
   }
 }
