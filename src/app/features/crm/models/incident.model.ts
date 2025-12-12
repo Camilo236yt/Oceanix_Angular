@@ -57,6 +57,7 @@ export interface IncidentData {
   imagesUploadAllowedUntil?: string | null;
   imageUploadRequestedBy?: string | null;
   images?: IncidentImage[];
+  pendingReopenRequest?: any; // ReopenRequest from shared models
 }
 
 // Interface para el DataTable

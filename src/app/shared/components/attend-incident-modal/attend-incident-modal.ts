@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 import { IncidenciaChatService, ChatMessage, AlertLevelChange } from '../../services/incidencia-chat.service';
 import { AuthService } from '../../../services/auth.service';
 import { SecureImagePipe } from '../../pipes/secure-image.pipe';
+import { ReviewReopenModalComponent } from '../../../features/crm/components/review-reopen-modal/review-reopen-modal.component';
 
 interface Message {
   id: string;
@@ -38,7 +39,7 @@ interface MessagesResponse {
 @Component({
   selector: 'app-attend-incident-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent, SecureImagePipe],
+  imports: [CommonModule, FormsModule, IconComponent, SecureImagePipe, ReviewReopenModalComponent],
   templateUrl: './attend-incident-modal.html',
   styleUrls: ['./attend-incident-modal.scss']
 })
@@ -96,6 +97,10 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
 
   // Empleado actual
   currentEmployeePhoto: string | null = null;
+
+  // Review Reopen Modal
+  isReviewReopenModalOpen = false;
+  pendingReopenRequestId: string | null = null;
 
   constructor(
     private http: HttpClient,
@@ -275,6 +280,7 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
       this.preloadImages(); // Precargar imágenes
       this.loadMessages();
       this.connectToChat();
+      this.checkPendingReopenRequest(); // Verificar si hay solicitud de reapertura
     }
   }
 
@@ -494,6 +500,56 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     }
 
     return undefined;
+  }
+
+  /**
+   * Verifica si hay una solicitud de reapertura pendiente para esta incidencia
+   */
+  private checkPendingReopenRequest(): void {
+    if (!this.incidentData) {
+      this.pendingReopenRequestId = null;
+      return;
+    }
+
+    // Si el backend ya incluye la solicitud pendiente
+    if (this.incidentData.pendingReopenRequest) {
+      this.pendingReopenRequestId = this.incidentData.pendingReopenRequest.id;
+      this.cdr.detectChanges();
+    } else {
+      // Si no, resetear
+      this.pendingReopenRequestId = null;
+    }
+  }
+
+  /**
+   * Abre el modal para revisar la solicitud de reapertura
+   */
+  openReviewReopenModal(): void {
+    this.isReviewReopenModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Cierra el modal de revisión
+   */
+  closeReviewReopenModal(): void {
+    this.isReviewReopenModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Se ejecuta cuando se completa la revisión de la solicitud
+   */
+  onReopenReviewSubmitted(): void {
+    // Cerrar el modal de revisión
+    this.closeReviewReopenModal();
+
+    // Resetear la solicitud pendiente (ya fue procesada)
+    this.pendingReopenRequestId = null;
+
+    // Recargar datos de la incidencia si es necesario
+    // Por ahora el WebSocket debería actualizar el estado automáticamente
+    this.cdr.detectChanges();
   }
 
   get isChatDisabled(): boolean {
