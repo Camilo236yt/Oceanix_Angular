@@ -34,6 +34,6 @@ export class LandingComponent implements OnInit {
    * Redirigir al registro
    */
   goToRegister(): void {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/register']);
   }
 }
