@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { LoadingSpinner } from '../../../shared/components/loading-spinner/loading-spinner';
 
 interface Step {
   number: number;
@@ -11,11 +13,13 @@ interface Step {
 @Component({
   selector: 'app-steps',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSpinner],
   templateUrl: './steps.component.html',
   styleUrl: './steps.component.scss'
 })
 export class StepsComponent {
+  isLoading = false;
+
   steps: Step[] = [
     {
       number: 1,
@@ -36,4 +40,19 @@ export class StepsComponent {
       description: 'La empresa gestiona el caso y el cliente recibe actualizaciones.'
     }
   ];
+
+  constructor(private router: Router) {}
+
+  /**
+   * Redirigir al registro con animación de carga
+   */
+  goToRegister(): void {
+    this.isLoading = true;
+
+    // Mostrar loading durante 800ms (duración estándar)
+    setTimeout(() => {
+      this.router.navigate(['/register']);
+      this.isLoading = false;
+    }, 800);
+  }
 }
