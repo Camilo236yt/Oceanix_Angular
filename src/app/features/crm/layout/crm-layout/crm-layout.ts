@@ -11,6 +11,7 @@ import { NotificationsDropdown } from '../../components/notifications-dropdown/n
 import { CrmNotificationsService } from '../../services/crm-notifications';
 import { CRMNotification } from '../../models/notification.model';
 import { NotificationDetailModal } from '../../../../shared/components/notification-detail-modal/notification-detail-modal';
+import { UserProfileModal, UserProfileData } from '../../../../shared/components/user-profile-modal/user-profile-modal';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
@@ -26,7 +27,7 @@ type MobileViewMode = 'icons-only' | 'icons-with-names';
 
 @Component({
   selector: 'app-crm-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown, NotificationDetailModal],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, VerificationBannerComponent, LoadingSpinner, NotificationToastComponent, NotificationsDropdown, NotificationDetailModal, UserProfileModal],
   templateUrl: './crm-layout.html',
   styleUrl: './crm-layout.scss',
 })
@@ -51,6 +52,10 @@ export class CrmLayout implements OnInit, OnDestroy {
   // Modal de detalles de notificación
   isNotificationDetailModalOpen = false;
   selectedNotification: CRMNotification | null = null;
+
+  // Modal de perfil de usuario
+  isUserProfileModalOpen = false;
+  userProfileData: UserProfileData | null = null;
 
   // Enterprise logo and name
   logoUrl: string | null = null;
@@ -280,6 +285,45 @@ export class CrmLayout implements OnInit, OnDestroy {
 
   closeUserMenu() {
     this.isUserMenuOpen = false;
+  }
+
+  /**
+   * Abrir modal de perfil de usuario
+   */
+  openUserProfileModal(): void {
+    // Obtener datos del usuario desde authService (usando los observables)
+    this.authService.meUser$.subscribe(user => {
+      if (!user) return;
+
+      this.authService.meEnterprise$.subscribe(enterprise => {
+        if (!enterprise) return;
+
+        this.authService.roles$.subscribe(roles => {
+          this.userProfileData = {
+            id: user.id,
+            name: user.name,
+            lastName: user.lastName,
+            email: user.email,
+            profilePicture: user.profilePicture,
+            roles: roles || [],
+            enterprise: {
+              id: enterprise.id,
+              name: enterprise.name
+            },
+            createdAt: new Date().toISOString() // Usamos la fecha actual como placeholder
+          };
+          this.isUserProfileModalOpen = true;
+        }).unsubscribe();
+      }).unsubscribe();
+    }).unsubscribe();
+  }
+
+  /**
+   * Cerrar modal de perfil de usuario
+   */
+  closeUserProfileModal(): void {
+    this.isUserProfileModalOpen = false;
+    this.userProfileData = null;
   }
 
   selectMobileViewMode(mode: MobileViewMode) {
