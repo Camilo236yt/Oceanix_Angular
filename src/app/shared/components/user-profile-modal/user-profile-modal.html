@@ -1,14 +1,14 @@
 <!-- Modal Backdrop -->
 @if (isOpen && userData) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+  <div class="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-3 md:p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
        (click)="handleBackdropClick($event)">
-    <!-- Modal Container - MÁS ANCHO -->
-    <div class="bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-[var(--border-primary)] animate-scale-in">
+    <!-- Modal Container - RESPONSIVE -->
+    <div class="bg-[var(--card-bg)] rounded-none sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full sm:h-auto sm:max-h-[90vh] overflow-hidden border-0 sm:border border-[var(--border-primary)] animate-scale-in flex flex-col safe-top">
 
       <!-- Modal Header con Avatar grande -->
-      <div class="relative px-8 py-12 bg-gradient-to-br from-purple-600 via-purple-500 to-purple-600 overflow-hidden">
-        <!-- Burbujas decorativas de fondo -->
-        <div class="absolute inset-0 opacity-20">
+      <div class="relative px-4 pt-16 pb-6 sm:pt-8 sm:pb-8 sm:px-6 md:px-8 md:py-12 bg-gradient-to-br from-purple-600 via-purple-500 to-purple-600 overflow-hidden flex-shrink-0">
+        <!-- Burbujas decorativas de fondo (ocultas en mobile) -->
+        <div class="absolute inset-0 opacity-20 hidden sm:block">
           <div class="absolute top-4 right-12 w-24 h-24 bg-white rounded-full animate-float"></div>
           <div class="absolute bottom-8 left-16 w-16 h-16 bg-white rounded-full animate-float" style="animation-delay: 1s;"></div>
           <div class="absolute top-1/2 left-1/4 w-12 h-12 bg-white rounded-full animate-float" style="animation-delay: 0.5s;"></div>
@@ -16,8 +16,8 @@
 
         <!-- Botón cerrar -->
         <button (click)="closeModal()"
-                class="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-xl transition-all text-white z-10">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 hover:bg-white/10 rounded-xl transition-all text-white z-10">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
@@ -25,39 +25,39 @@
         <!-- Avatar y nombre -->
         <div class="relative flex flex-col items-center text-center z-10">
           @if (userData.profilePicture) {
-            <div class="w-32 h-32 rounded-full border-4 border-white shadow-2xl overflow-hidden mb-4">
+            <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-3 sm:border-4 border-white shadow-2xl overflow-hidden mb-3 sm:mb-4">
               <img [src]="userData.profilePicture" [alt]="userData.name" class="w-full h-full object-cover">
             </div>
           } @else {
-            <div class="w-32 h-32 rounded-full border-4 border-white shadow-2xl bg-white flex items-center justify-center mb-4">
-              <span class="text-5xl font-bold text-purple-600">{{ getInitials(userData.name, userData.lastName) }}</span>
+            <div class="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-3 sm:border-4 border-white shadow-2xl bg-white flex items-center justify-center mb-3 sm:mb-4">
+              <span class="text-3xl sm:text-4xl md:text-5xl font-bold text-purple-600">{{ getInitials(userData.name, userData.lastName) }}</span>
             </div>
           }
-          <h2 class="text-3xl font-bold text-white mb-1">{{ userData.name }} {{ userData.lastName }}</h2>
-          <p class="text-purple-100 text-base">{{ userData.email }}</p>
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 px-4">{{ userData.name }} {{ userData.lastName }}</h2>
+          <p class="text-purple-100 text-sm sm:text-base px-4 truncate max-w-full">{{ userData.email }}</p>
         </div>
       </div>
 
-      <!-- Modal Body - SIN SCROLL INNECESARIO -->
-      <div class="bg-[var(--card-bg)] px-8 py-8">
+      <!-- Modal Body - SCROLLABLE -->
+      <div class="bg-[var(--card-bg)] px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8 overflow-y-auto flex-1">
 
         <!-- Información de la Cuenta -->
-        <div class="mb-8">
-          <div class="flex items-center gap-3 mb-6">
+        <div class="mb-6 sm:mb-8">
+          <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
             <div class="h-px flex-1 bg-gradient-to-r from-purple-600 to-transparent"></div>
-            <h3 class="text-sm font-bold text-purple-600 uppercase tracking-wider">Información de la Cuenta</h3>
+            <h3 class="text-xs sm:text-sm font-bold text-purple-600 uppercase tracking-wider whitespace-nowrap">Información de la Cuenta</h3>
             <div class="h-px flex-1 bg-gradient-to-l from-purple-600 to-transparent"></div>
           </div>
 
-          <div class="grid grid-cols-2 gap-x-16 gap-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-x-8 md:gap-x-16 sm:gap-y-6">
             <!-- Empresa -->
             <div>
               <label class="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">Empresa</label>
               <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                <p class="text-base text-[var(--text-primary)] font-medium">{{ userData.enterprise.name }}</p>
+                <p class="text-sm sm:text-base text-[var(--text-primary)] font-medium truncate">{{ userData.enterprise.name }}</p>
               </div>
             </div>
 
@@ -65,10 +65,10 @@
             <div>
               <label class="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">Miembro desde</label>
               <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p class="text-base text-[var(--text-primary)] font-medium">{{ formatDate(userData.createdAt) }}</p>
+                <p class="text-sm sm:text-base text-[var(--text-primary)] font-medium">{{ formatDate(userData.createdAt) }}</p>
               </div>
             </div>
           </div>
@@ -77,28 +77,26 @@
         <!-- Roles Asignados -->
         @if (userData.roles && userData.roles.length > 0) {
           <div>
-            <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <div class="h-px flex-1 bg-gradient-to-r from-purple-600 to-transparent"></div>
-              <h3 class="text-sm font-bold text-purple-600 uppercase tracking-wider">Roles Asignados ({{ userData.roles.length }})</h3>
+              <h3 class="text-xs sm:text-sm font-bold text-purple-600 uppercase tracking-wider whitespace-nowrap">Roles Asignados ({{ userData.roles.length }})</h3>
               <div class="h-px flex-1 bg-gradient-to-l from-purple-600 to-transparent"></div>
             </div>
 
-            <!-- Contenedor con scroll vertical si hay muchos roles -->
-            <div class="max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
-              <div class="grid grid-cols-3 gap-4">
-                @for (role of userData.roles; track role.id) {
-                  <div class="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl border border-purple-200 dark:border-purple-700">
-                    <div class="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0 shadow-md">
-                      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-semibold text-[var(--text-primary)] truncate">{{ role.name }}</p>
-                    </div>
+            <!-- Grid de roles SIN scroll limitado en mobile -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              @for (role of userData.roles; track role.id) {
+                <div class="flex items-center gap-2.5 sm:gap-3 py-3 px-3 sm:py-3 sm:px-4 bg-gradient-to-r from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl border border-purple-200 dark:border-purple-700">
+                  <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0 shadow-md">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
                   </div>
-                }
-              </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm sm:text-sm font-semibold text-[var(--text-primary)] break-words">{{ role.name }}</p>
+                  </div>
+                </div>
+              }
             </div>
           </div>
         }
