@@ -4,16 +4,18 @@ import { Router } from '@angular/router';
 import { FeatureComponent } from './feature/feature.component';
 import { StepsComponent } from './steps/steps.component';
 import { CompaniesComponent } from './companies/companies.component';
+import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
 import AOS from 'aos';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, FeatureComponent, StepsComponent, CompaniesComponent],
+  imports: [CommonModule, FeatureComponent, StepsComponent, CompaniesComponent, LoadingSpinner],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
 export class LandingComponent implements OnInit {
+  isLoading = false;
 
   constructor(private router: Router) {}
 
@@ -31,9 +33,15 @@ export class LandingComponent implements OnInit {
   }
 
   /**
-   * Redirigir al registro
+   * Redirigir al registro con animación de carga
    */
   goToRegister(): void {
-    this.router.navigate(['/register']);
+    this.isLoading = true;
+
+    // Mostrar loading durante 800ms (duración estándar)
+    setTimeout(() => {
+      this.router.navigate(['/register']);
+      this.isLoading = false;
+    }, 800);
   }
 }
