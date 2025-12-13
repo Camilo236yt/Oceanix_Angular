@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FeatureComponent } from './feature/feature.component';
 import { StepsComponent } from './steps/steps.component';
 import { CompaniesComponent } from './companies/companies.component';
@@ -14,6 +15,8 @@ import AOS from 'aos';
 })
 export class LandingComponent implements OnInit {
 
+  constructor(private router: Router) {}
+
   ngOnInit(): void {
     AOS.init({
       duration: 700,
@@ -25,5 +28,12 @@ export class LandingComponent implements OnInit {
       disable: false,
       mirror: false,
     });
+  }
+
+  /**
+   * Redirigir al registro
+   */
+  goToRegister(): void {
+    this.router.navigate(['/auth/register']);
   }
 }
