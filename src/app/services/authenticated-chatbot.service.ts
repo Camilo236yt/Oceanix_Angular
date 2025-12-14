@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
 export interface ChatMessage {
@@ -52,10 +53,12 @@ export class AuthenticatedChatbotService {
      * Envía un mensaje al chatbot autenticado
      */
     chat(messages: ChatMessage[], conversationId?: string): Observable<AuthenticatedChatResponse> {
-        return this.http.post<AuthenticatedChatResponse>(`${this.apiUrl}/chat`, {
+        return this.http.post<{ success: boolean; data: AuthenticatedChatResponse; statusCode: number }>(`${this.apiUrl}/chat`, {
             messages,
             conversationId
-        });
+        }).pipe(
+            map(response => response.data)
+        );
     }
 
     /**
