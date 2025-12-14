@@ -152,42 +152,50 @@ export class CrmChatbotComponent implements OnInit, AfterViewChecked {
     }
 
     /**
-     * Renderiza una tabla desde structured data
+     * Renderiza una tabla desde structured data (estilo DataTable)
      */
     renderTable(data: any): string {
         if (!data || !data.headers || !data.rows) {
             return '';
         }
 
-        let html = '<div class="chat-table-container"><table class="chat-table">';
+        let html = '<div class="chat-table-wrapper rounded-lg overflow-hidden border border-[var(--card-border)] bg-[var(--card-bg)] my-3">';
+        html += '<div class="overflow-x-auto">';
+        html += '<table class="w-full">';
 
         // Headers
-        html += '<thead><tr>';
+        html += '<thead>';
+        html += '<tr class="border-b border-[var(--border-primary)] bg-[var(--bg-tertiary)]">';
         data.headers.forEach((header: string) => {
-            html += `<th>${header}</th>`;
+            html += `<th class="px-4 py-3 text-left text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider whitespace-nowrap">${header}</th>`;
         });
         html += '</tr></thead>';
 
         // Rows
-        html += '<tbody>';
+        html += '<tbody class="bg-[var(--card-bg)] divide-y divide-[var(--border-primary)]">';
         data.rows.forEach((row: any[]) => {
             html += '<tr>';
             row.forEach((cell: any) => {
-                html += `<td>${cell}</td>`;
+                html += `<td class="px-4 py-4 text-sm text-[var(--text-primary)] whitespace-nowrap">${cell}</td>`;
             });
             html += '</tr>';
         });
         html += '</tbody>';
 
-        html += '</table></div>';
+        html += '</table>';
+        html += '</div>'; // close overflow-x-auto
 
         // Pagination info
         if (data.pagination) {
-            html += `<div class="table-pagination">
-        Página ${data.pagination.currentPage} de ${data.pagination.totalPages} 
-        (${data.pagination.total} registros totales)
+            html += `<div class="px-4 py-3 border-t border-[var(--border-primary)] bg-[var(--bg-tertiary)]">
+        <p class="text-xs text-[var(--text-muted)] text-center">
+          Página ${data.pagination.currentPage} de ${data.pagination.totalPages} 
+          (${data.pagination.total} registros totales)
+        </p>
       </div>`;
         }
+
+        html += '</div>'; // close wrapper
 
         return html;
     }
