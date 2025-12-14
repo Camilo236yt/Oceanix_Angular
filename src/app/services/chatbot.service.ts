@@ -66,4 +66,22 @@ export class ChatbotService {
     localStorage.setItem('oceanix_chatbot_session_id', newId);
     return newId;
   }
+
+  /**
+   * Obtiene preguntas sugeridas para el usuario
+   */
+  getSuggestedQuestions(): string[] {
+    return [
+      '¿Qué es Oceanix?',
+      '¿Cómo funciona el sistema de incidencias?',
+      '¿Qué roles y permisos están disponibles?',
+      '¿Cómo pueden mis clientes usar el portal?',
+      '¿Qué es el sistema de alertas por semáforo?',
+      '¿Cómo funciona el chat en tiempo real?',
+      '¿Qué tipos de notificaciones envía el sistema?',
+      '¿Cómo empiezo a usar Oceanix?',
+      '¿Qué tecnologías usa Oceanix?',
+      '¿Cómo funciona el multi-tenancy?'
+    ];
+  }
 }

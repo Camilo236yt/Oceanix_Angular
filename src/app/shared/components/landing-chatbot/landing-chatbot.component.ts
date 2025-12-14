@@ -20,6 +20,8 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
   questionCount = 0;
   remainingQuestions = 100;
   sessionId = '';
+  suggestedQuestions: string[] = [];
+  showSuggestions = true;
   private shouldScrollToBottom = false;
 
   constructor(private chatbotService: ChatbotService) {}
@@ -27,6 +29,9 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     // Generar o recuperar session ID
     this.sessionId = this.chatbotService.generateSessionId();
+
+    // Cargar preguntas sugeridas
+    this.suggestedQuestions = this.chatbotService.getSuggestedQuestions();
 
     // Cargar historial desde localStorage
     this.loadChatHistory();
@@ -41,6 +46,9 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
         content: '¡Hola! 👋 Soy el asistente virtual de Oceanix. Estoy aquí para ayudarte con cualquier pregunta sobre nuestro sistema de gestión de incidencias. ¿En qué puedo ayudarte hoy?'
       });
       this.saveChatHistory();
+    } else {
+      // Si ya hay mensajes, ocultar sugerencias
+      this.showSuggestions = false;
     }
   }
 
@@ -64,6 +72,9 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
     const userMessage = this.userInput.trim();
     this.userInput = '';
 
+    // Ocultar sugerencias después del primer mensaje
+    this.showSuggestions = false;
+
     // Agregar mensaje del usuario
     this.messages.push({
       role: 'user',
@@ -75,8 +86,13 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
     this.saveChatHistory();
 
     try {
+      // Filtrar mensajes válidos (no vacíos) antes de enviar
+      const validMessages = this.messages.filter(msg =>
+        msg.content && msg.content.trim().length > 0
+      );
+
       // Enviar a la API del chatbot
-      this.chatbotService.chat(this.messages, this.sessionId).subscribe({
+      this.chatbotService.chat(validMessages, this.sessionId).subscribe({
         next: (response) => {
           // Agregar respuesta del asistente
           this.messages.push({
@@ -117,8 +133,17 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
       role: 'assistant',
       content: '¡Hola! 👋 Soy el asistente virtual de Oceanix. Estoy aquí para ayudarte con cualquier pregunta sobre nuestro sistema de gestión de incidencias. ¿En qué puedo ayudarte hoy?'
     }];
+    this.showSuggestions = true;
     this.saveChatHistory();
     this.shouldScrollToBottom = true;
+  }
+
+  /**
+   * Envía una pregunta sugerida
+   */
+  sendSuggestedQuestion(question: string): void {
+    this.userInput = question;
+    this.sendMessage();
   }
 
   private loadSessionInfo(): void {
