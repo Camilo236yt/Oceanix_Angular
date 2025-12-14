@@ -16,7 +16,6 @@ import { UsuarioData } from '../../../../interface/usuarios-api.interface';
 import { HasPermissionDirective } from '../../../../directives/has-permission.directive';
 import Swal from 'sweetalert2';
 import { switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 @Component({
   selector: 'app-usuarios',
@@ -681,19 +680,9 @@ export class Usuarios implements OnInit {
 
     console.log('Actualizar usuario con datos:', request);
 
-    // Extract roleIds from request
-    const { roleIds, ...userUpdateData } = request;
-
-    // First update user data, then update roles
-    this.usuariosService.updateUser(this.editingUserId, userUpdateData).pipe(
-      switchMap(() => {
-        // Now assign roles to the user
-        if (roleIds && roleIds.length > 0) {
-          return this.usuariosService.assignRolesToUser(this.editingUserId!, roleIds);
-        }
-        return of(null);
-      })
-    ).subscribe({
+    // Now we send roleIds directly in the update request
+    // The backend will replace all roles with the new ones
+    this.usuariosService.updateUser(this.editingUserId, request).subscribe({
       next: () => {
         console.log('Usuario y roles actualizados exitosamente');
         this.closeCreateUserModal();
