@@ -515,4 +515,61 @@ export class CrmLayout implements OnInit, OnDestroy {
       error: (error) => console.error('Error al eliminar notificación:', error)
     });
   }
+
+  /**
+   * Compartir link del portal de clientes
+   */
+  sharePortalLink(): void {
+    const portalUrl = `${window.location.origin}/portal/login`;
+
+    // Intentar copiar al portapapeles
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(portalUrl).then(() => {
+        Swal.fire({
+          title: '¡Link copiado!',
+          html: `El link del portal ha sido copiado al portapapeles:<br><br><code style="background-color: rgba(156, 163, 175, 0.2); padding: 8px 12px; border-radius: 6px; font-size: 14px;">${portalUrl}</code>`,
+          icon: 'success',
+          confirmButtonColor: '#9333ea',
+          confirmButtonText: 'Entendido',
+          customClass: {
+            popup: 'rounded-2xl',
+            title: 'text-gray-900',
+            htmlContainer: 'text-gray-600'
+          }
+        });
+      }).catch(() => {
+        this.showPortalLinkFallback(portalUrl);
+      });
+    } else {
+      this.showPortalLinkFallback(portalUrl);
+    }
+  }
+
+  /**
+   * Mostrar fallback para compartir link cuando no se puede copiar al portapapeles
+   */
+  private showPortalLinkFallback(portalUrl: string): void {
+    Swal.fire({
+      title: 'Link del portal',
+      html: `
+        <p style="margin-bottom: 16px;">Comparte este link con tus clientes:</p>
+        <input
+          type="text"
+          value="${portalUrl}"
+          readonly
+          onclick="this.select()"
+          style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; text-align: center; background-color: rgba(156, 163, 175, 0.1);"
+        />
+        <p style="margin-top: 12px; font-size: 13px; color: #6b7280;">Haz clic en el campo para seleccionar el link</p>
+      `,
+      icon: 'info',
+      confirmButtonColor: '#9333ea',
+      confirmButtonText: 'Cerrar',
+      customClass: {
+        popup: 'rounded-2xl',
+        title: 'text-gray-900',
+        htmlContainer: 'text-gray-600'
+      }
+    });
+  }
 }
