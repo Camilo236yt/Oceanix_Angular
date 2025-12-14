@@ -41,12 +41,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.5);
+    background: var(--border-secondary);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.7);
+    background: var(--text-muted);
 }
 
 // Estilos para contenido markdown
@@ -72,39 +72,45 @@
         }
 
         code {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: var(--bg-hover);
             padding: 0.125rem 0.25rem;
             border-radius: 0.25rem;
             font-size: 0.875em;
+            color: var(--text-primary);
         }
     }
 }
 
 // Tablas usan las variables CSS del tema directamente en el HTML
 
+// Placeholder del input
+input::placeholder {
+    color: var(--input-placeholder);
+}
+
 // Estilos para cards
 ::ng-deep .chat-card {
     margin: 0.75rem 0;
     padding: 0.75rem;
-    background: rgba(59, 130, 246, 0.03);
-    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: rgba(124, 58, 237, 0.03);
+    border: 1px solid rgba(124, 58, 237, 0.2);
     border-radius: 0.5rem;
 
     .dark & {
-        background: rgba(59, 130, 246, 0.1);
-        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(124, 58, 237, 0.1);
+        border-color: rgba(124, 58, 237, 0.3);
     }
 
     .chat-card-title {
         font-size: 0.875rem;
         font-weight: 600;
-        color: rgb(30, 64, 175);
+        color: rgb(109, 40, 217);
         margin-bottom: 0.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        border-bottom: 1px solid rgba(124, 58, 237, 0.2);
 
         .dark & {
-            color: rgb(147, 197, 253);
+            color: rgb(167, 139, 250);
         }
     }
 
@@ -153,24 +159,24 @@
 
     .stat-item {
         padding: 0.75rem;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
-        border: 1px solid rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(109, 40, 217, 0.05));
+        border: 1px solid rgba(124, 58, 237, 0.2);
         border-radius: 0.5rem;
         text-align: center;
 
         .dark & {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
-            border-color: rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(109, 40, 217, 0.1));
+            border-color: rgba(124, 58, 237, 0.3);
         }
 
         .stat-value {
             font-size: 1.25rem;
             font-weight: 700;
-            color: rgb(30, 64, 175);
+            color: rgb(109, 40, 217);
             margin-bottom: 0.25rem;
 
             .dark & {
-                color: rgb(147, 197, 253);
+                color: rgb(167, 139, 250);
             }
         }
 
@@ -207,11 +213,11 @@
             }
 
             strong {
-                color: rgb(30, 64, 175);
+                color: rgb(109, 40, 217);
                 font-weight: 600;
 
                 .dark & {
-                    color: rgb(147, 197, 253);
+                    color: rgb(167, 139, 250);
                 }
             }
         }
