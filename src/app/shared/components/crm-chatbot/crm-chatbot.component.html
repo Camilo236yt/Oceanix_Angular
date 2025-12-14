@@ -1,0 +1,126 @@
+<!-- Botón flotante -->
+<button (click)="toggleChat()"
+    class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full p-3 sm:p-4 shadow-2xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300"
+    [class.hidden]="isOpen" aria-label="Abrir asistente IA">
+    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+    <!-- Badge de IA -->
+    <span
+        class="absolute -top-1 -right-1 bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+        AI
+    </span>
+</button>
+
+<!-- Ventana del chat -->
+<div *ngIf="isOpen"
+    class="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[28rem] h-screen sm:h-[650px] sm:max-h-[90vh] bg-white dark:bg-gray-900 sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slideInRight">
+
+    <!-- Header -->
+    <div
+        class="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 p-3 sm:p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-white font-semibold text-base sm:text-lg">Asistente IA</h3>
+                <p class="text-blue-100 text-xs">CRM • Powered by AI</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button (click)="clearChat()" class="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                title="Nueva conversación">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
+            <button (click)="toggleChat()" class="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Cerrar chat">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    <div #messagesContainer
+        class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-800">
+
+        <div *ngFor="let message of messages" class="flex" [class.justify-end]="message.role === 'user'"
+            [class.justify-start]="message.role === 'assistant'">
+
+            <div class="max-w-[85%] sm:max-w-[80%]" [class.bg-blue-600]="message.role === 'user'"
+                [class.bg-white]="message.role === 'assistant'" [class.dark:bg-gray-700]="message.role === 'assistant'"
+                [class.text-white]="message.role === 'user'" [class.text-gray-800]="message.role === 'assistant'"
+                [class.dark:text-gray-100]="message.role === 'assistant'"
+                class="rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
+
+                <!-- Loading indicator -->
+                <div *ngIf="message.isLoading" class="flex gap-1">
+                    <div class="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                        style="animation-delay: 0ms"></div>
+                    <div class="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                        style="animation-delay: 150ms"></div>
+                    <div class="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"
+                        style="animation-delay: 300ms"></div>
+                </div>
+
+                <!-- Mensaje de texto regular -->
+                <div *ngIf="!message.isLoading && !message.structuredData"
+                    class="text-sm whitespace-pre-wrap break-words markdown-content"
+                    [innerHTML]="message.content | markdown">
+                </div>
+
+                <!-- Datos estructurados -->
+                <div *ngIf="!message.isLoading && message.structuredData">
+                    <!-- Primero el mensaje de texto si existe -->
+                    <div *ngIf="message.content" class="text-sm whitespace-pre-wrap break-words markdown-content mb-3"
+                        [innerHTML]="message.content | markdown">
+                    </div>
+
+                    <!-- Luego los datos estructurados -->
+                    <div [ngSwitch]="message.structuredData.type">
+                        <!-- Tabla -->
+                        <div *ngSwitchCase="'table'" [innerHTML]="renderTable(message.structuredData.data)"></div>
+
+                        <!-- Card/Tarjeta -->
+                        <div *ngSwitchCase="'card'" [innerHTML]="renderCard(message.structuredData.data)"></div>
+
+                        <!-- Stats -->
+                        <div *ngSwitchCase="'stat'" [innerHTML]="renderStats(message.structuredData.data)"></div>
+
+                        <!-- Lista -->
+                        <div *ngSwitchCase="'list'" [innerHTML]="renderList(message.structuredData.data)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <div class="p-3 sm:p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <form (submit)="sendMessage(); $event.preventDefault()" class="flex gap-2">
+            <input type="text" [(ngModel)]="userInput" name="userInput" [disabled]="isLoading"
+                placeholder="Pregunta algo... (ej: últimas incidencias)"
+                class="flex-1 px-3 py-2 sm:px-4 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                autocomplete="off">
+            <button type="submit" [disabled]="!userInput.trim() || isLoading"
+                class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+            </button>
+        </form>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+            💡 Puedo consultar incidencias, usuarios, roles y más
+        </p>
+    </div>
+</div>
