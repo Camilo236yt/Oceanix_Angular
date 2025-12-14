@@ -3,14 +3,33 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
 .animate-slideInRight {
   animation: slideInRight 0.3s ease-out;
+
+  // En móviles, usa slideInUp en lugar de slideInRight
+  @media (max-width: 640px) {
+    animation: slideInUp 0.3s ease-out;
+  }
 }
 
 // Scrollbar personalizado para el área de mensajes
@@ -42,7 +61,8 @@
       font-style: italic;
     }
 
-    ul, ol {
+    ul,
+    ol {
       margin-left: 1.25rem;
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
