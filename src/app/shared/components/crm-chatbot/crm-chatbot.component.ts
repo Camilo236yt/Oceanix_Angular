@@ -83,12 +83,13 @@ export class CrmChatbotComponent implements OnInit, AfterViewChecked {
         });
 
         try {
-            // Preparar mensajes para enviar (solo user y assistant, sin isLoading)
+            // Preparar mensajes para enviar (solo user y assistant, sin isLoading, con content válido)
             const messagesToSend: ChatMessage[] = this.messages
-                .filter(msg => !msg.isLoading)
+                .filter(msg => !msg.isLoading && msg.content && msg.content.trim() !== '')
+                .slice(1) // Excluir el mensaje de bienvenida inicial
                 .map(msg => ({
                     role: msg.role,
-                    content: msg.content
+                    content: msg.content.trim()
                 }));
 
             // Enviar a la API del chatbot
