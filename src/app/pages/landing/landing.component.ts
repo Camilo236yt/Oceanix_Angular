@@ -5,12 +5,13 @@ import { FeatureComponent } from './feature/feature.component';
 import { StepsComponent } from './steps/steps.component';
 import { CompaniesComponent } from './companies/companies.component';
 import { LoadingSpinner } from '../../shared/components/loading-spinner/loading-spinner';
+import { LandingChatbotComponent } from '../../shared/components/landing-chatbot/landing-chatbot.component';
 import AOS from 'aos';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, FeatureComponent, StepsComponent, CompaniesComponent, LoadingSpinner],
+  imports: [CommonModule, FeatureComponent, StepsComponent, CompaniesComponent, LoadingSpinner, LandingChatbotComponent],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })

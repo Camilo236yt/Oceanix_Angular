@@ -1,0 +1,126 @@
+<!-- Botón flotante -->
+<button
+  (click)="toggleChat()"
+  class="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-full p-4 shadow-2xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-purple-300"
+  [class.hidden]="isOpen"
+  aria-label="Abrir chat">
+  <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+  </svg>
+  <!-- Badge de notificación (opcional) -->
+  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">
+    AI
+  </span>
+</button>
+
+<!-- Ventana del chat -->
+<div
+  *ngIf="isOpen"
+  class="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slideInRight">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-purple-700 p-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold text-lg">Asistente Oceanix</h3>
+        <p class="text-purple-100 text-xs">En línea • IA Powered</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        (click)="clearChat()"
+        class="p-2 hover:bg-white/20 rounded-lg transition-colors"
+        title="Limpiar chat">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+      <button
+        (click)="toggleChat()"
+        class="p-2 hover:bg-white/20 rounded-lg transition-colors"
+        aria-label="Cerrar chat">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Question counter (advertencia) -->
+  <div *ngIf="showWarning" class="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 px-4 py-2">
+    <p class="text-yellow-800 dark:text-yellow-200 text-xs flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      Te quedan <strong>{{ remainingQuestions }}</strong> pregunta(s)
+    </p>
+  </div>
+
+  <!-- Mensajes -->
+  <div
+    #messagesContainer
+    class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
+
+    <div *ngFor="let message of messages" class="flex"
+      [class.justify-end]="message.role === 'user'"
+      [class.justify-start]="message.role === 'assistant'">
+
+      <div class="max-w-[80%]"
+        [class.bg-purple-600]="message.role === 'user'"
+        [class.bg-white]="message.role === 'assistant'"
+        [class.dark:bg-gray-800]="message.role === 'assistant'"
+        [class.text-white]="message.role === 'user'"
+        [class.text-gray-800]="message.role === 'assistant'"
+        [class.dark:text-gray-200]="message.role === 'assistant'"
+        class="rounded-2xl px-4 py-3 shadow-sm">
+        <p class="text-sm whitespace-pre-wrap break-words">{{ message.content }}</p>
+      </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="flex justify-start">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 shadow-sm">
+        <div class="flex gap-1">
+          <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+          <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+          <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+    <form (submit)="sendMessage(); $event.preventDefault()" class="flex gap-2">
+      <input
+        type="text"
+        [(ngModel)]="userInput"
+        name="userInput"
+        [disabled]="isLoading || isLimitReached"
+        placeholder="{{ isLimitReached ? 'Límite alcanzado' : 'Escribe tu pregunta...' }}"
+        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600 dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        autocomplete="off">
+      <button
+        type="submit"
+        [disabled]="!userInput.trim() || isLoading || isLimitReached"
+        class="bg-purple-600 hover:bg-purple-700 text-white rounded-full p-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      </button>
+    </form>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+      {{ questionCount }}/100 preguntas usadas
+    </p>
+  </div>
+</div>
