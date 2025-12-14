@@ -15,8 +15,9 @@ export class MarkdownPipe implements PipeTransform {
     let html = value
       // Negritas: **texto** -> <strong>texto</strong>
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      // Itálicas: *texto* -> <em>texto</em>
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // Listas: * texto al inicio de línea -> bullet point
+      .replace(/^\* (.+)$/gm, '• $1')
+      .replace(/\n\* (.+)/g, '\n• $1')
       // Saltos de línea
       .replace(/\n/g, '<br>');
 
