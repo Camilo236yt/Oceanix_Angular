@@ -30,3 +30,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.7);
 }
+
+// Estilos para contenido markdown
+.markdown-content {
+  ::ng-deep {
+    strong {
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    ul, ol {
+      margin-left: 1.25rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+  }
+}

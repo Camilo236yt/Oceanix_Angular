@@ -1,12 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService, ChatMessage } from '../../../services/chatbot.service';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 @Component({
   selector: 'app-landing-chatbot',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownPipe],
   templateUrl: './landing-chatbot.component.html',
   styleUrl: './landing-chatbot.component.scss'
 })
@@ -24,7 +25,10 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
   showSuggestions = true;
   private shouldScrollToBottom = false;
 
-  constructor(private chatbotService: ChatbotService) {}
+  constructor(
+    private chatbotService: ChatbotService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     // Generar o recuperar session ID
@@ -46,9 +50,11 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
         content: '¡Hola! 👋 Soy el asistente virtual de Oceanix. Estoy aquí para ayudarte con cualquier pregunta sobre nuestro sistema de gestión de incidencias. ¿En qué puedo ayudarte hoy?'
       });
       this.saveChatHistory();
+      this.showSuggestions = true;
     } else {
-      // Si ya hay mensajes, ocultar sugerencias
-      this.showSuggestions = false;
+      // Mostrar sugerencias solo si hay exactamente 1 mensaje (bienvenida) y no hay mensajes de usuario
+      const hasUserMessages = this.messages.some(msg => msg.role === 'user');
+      this.showSuggestions = !hasUserMessages && this.messages.length === 1;
     }
   }
 
@@ -105,8 +111,11 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
           this.remainingQuestions = response.remainingQuestions;
 
           this.shouldScrollToBottom = true;
-          this.saveChatHistory();
           this.isLoading = false;
+          this.saveChatHistory();
+
+          // Forzar detección de cambios
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error al comunicarse con el chatbot:', error);
@@ -118,8 +127,11 @@ export class LandingChatbotComponent implements OnInit, AfterViewChecked {
           });
 
           this.shouldScrollToBottom = true;
-          this.saveChatHistory();
           this.isLoading = false;
+          this.saveChatHistory();
+
+          // Forzar detección de cambios
+          this.cdr.detectChanges();
         }
       });
     } catch (error) {
