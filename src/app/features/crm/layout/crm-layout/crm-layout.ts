@@ -521,50 +521,88 @@ export class CrmLayout implements OnInit, OnDestroy {
    */
   sharePortalLink(): void {
     const portalUrl = `${window.location.origin}/portal/login`;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Intentar copiar al portapapeles
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(portalUrl).then(() => {
-        Swal.fire({
-          title: '¡Link copiado!',
-          html: `El link del portal ha sido copiado al portapapeles:<br><br><code style="background-color: rgba(156, 163, 175, 0.2); padding: 8px 12px; border-radius: 6px; font-size: 14px;">${portalUrl}</code>`,
-          icon: 'success',
-          confirmButtonColor: '#9333ea',
-          confirmButtonText: 'Entendido',
-          customClass: {
-            popup: 'rounded-2xl',
-            title: 'text-gray-900',
-            htmlContainer: 'text-gray-600'
-          }
-        });
-      }).catch(() => {
-        this.showPortalLinkFallback(portalUrl);
+    // En móvil, intentar usar la API nativa de compartir (WhatsApp, etc.)
+    if (isMobile && navigator.share) {
+      navigator.share({
+        title: 'Portal de Clientes',
+        text: 'Accede al portal de clientes desde este link:',
+        url: portalUrl
+      }).then(() => {
+        console.log('Link compartido exitosamente');
+      }).catch((error) => {
+        // Si el usuario cancela o hay error, mostrar el modal con el link
+        if (error.name !== 'AbortError') {
+          this.showPortalLinkModal(portalUrl);
+        }
       });
     } else {
-      this.showPortalLinkFallback(portalUrl);
+      // En desktop o si no hay soporte de share API, copiar al portapapeles y mostrar modal
+      this.copyToClipboardAndShowModal(portalUrl);
     }
   }
 
   /**
-   * Mostrar fallback para compartir link cuando no se puede copiar al portapapeles
+   * Copiar al portapapeles y mostrar modal con el link
    */
-  private showPortalLinkFallback(portalUrl: string): void {
+  private copyToClipboardAndShowModal(portalUrl: string): void {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(portalUrl).then(() => {
+        this.showPortalLinkModal(portalUrl, true);
+      }).catch(() => {
+        this.showPortalLinkModal(portalUrl, false);
+      });
+    } else {
+      this.showPortalLinkModal(portalUrl, false);
+    }
+  }
+
+  /**
+   * Mostrar modal con el link del portal
+   */
+  private showPortalLinkModal(portalUrl: string, copied: boolean = false): void {
     Swal.fire({
-      title: 'Link del portal',
+      title: 'Comparte este link con tus clientes',
       html: `
-        <p style="margin-bottom: 16px;">Comparte este link con tus clientes:</p>
-        <input
-          type="text"
-          value="${portalUrl}"
-          readonly
-          onclick="this.select()"
-          style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; text-align: center; background-color: rgba(156, 163, 175, 0.1);"
-        />
-        <p style="margin-top: 12px; font-size: 13px; color: #6b7280;">Haz clic en el campo para seleccionar el link</p>
+        ${copied ? '<p style="margin-bottom: 12px; color: #059669; font-weight: 500;">✓ Link copiado al portapapeles</p>' : ''}
+        <p style="margin-bottom: 16px; color: #6b7280; font-size: 14px;">Tus clientes podrán acceder al portal desde aquí:</p>
+        <div style="position: relative;">
+          <input
+            id="portal-link-input"
+            type="text"
+            value="${portalUrl}"
+            readonly
+            onclick="this.select()"
+            style="width: 100%; padding: 12px 45px 12px 12px; border: 2px solid #9333ea; border-radius: 8px; font-size: 14px; text-align: center; background-color: rgba(147, 51, 234, 0.05); font-family: monospace;"
+          />
+          <button
+            onclick="
+              const input = document.getElementById('portal-link-input');
+              input.select();
+              document.execCommand('copy');
+              this.innerHTML = '✓';
+              this.style.backgroundColor = '#059669';
+              setTimeout(() => {
+                this.innerHTML = '<svg style=\\'width: 16px; height: 16px; color: white;\\' fill=\\'none\\' stroke=\\'currentColor\\' viewBox=\\'0 0 24 24\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z\\'></path></svg>';
+                this.style.backgroundColor = '#9333ea';
+              }, 2000);
+            "
+            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background-color: #9333ea; color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: all 0.2s;"
+            title="Copiar link"
+          >
+            <svg style="width: 16px; height: 16px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+          </button>
+        </div>
+        <p style="margin-top: 16px; font-size: 13px; color: #6b7280;">Haz clic en el campo para seleccionar todo el link</p>
       `,
       icon: 'info',
+      iconColor: '#9333ea',
       confirmButtonColor: '#9333ea',
       confirmButtonText: 'Cerrar',
+      width: '600px',
       customClass: {
         popup: 'rounded-2xl',
         title: 'text-gray-900',
