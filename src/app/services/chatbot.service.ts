@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 
 export interface ChatMessage {
@@ -33,17 +34,21 @@ export class ChatbotService {
    * Envía un mensaje al chatbot
    */
   chat(messages: ChatMessage[], sessionId: string): Observable<ChatResponse> {
-    return this.http.post<ChatResponse>(`${this.apiUrl}/chat`, {
+    return this.http.post<{ success: boolean; data: ChatResponse }>(`${this.apiUrl}/chat`, {
       messages,
       sessionId
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
    * Obtiene información de la sesión actual
    */
   getSessionInfo(sessionId: string): Observable<SessionInfo> {
-    return this.http.get<SessionInfo>(`${this.apiUrl}/session/${sessionId}`);
+    return this.http.get<{ success: boolean; data: SessionInfo }>(`${this.apiUrl}/session/${sessionId}`).pipe(
+      map(response => response.data)
+    );
   }
 
   /**
