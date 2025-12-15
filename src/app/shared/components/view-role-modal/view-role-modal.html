@@ -1,10 +1,11 @@
 @if (isOpen && roleData) {
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 sm:p-2 md:p-4"
        (click)="onBackdropClick($event)">
-    <div class="bg-[var(--card-bg)] rounded-xl shadow-xl w-full max-w-lg border border-[var(--card-border)]">
+    <div class="bg-[var(--card-bg)] rounded-none sm:rounded-xl shadow-xl w-full max-w-lg h-screen sm:h-auto border-0 sm:border border-[var(--card-border)] flex flex-col">
       <!-- Header -->
-      <div class="flex items-center justify-between p-6 border-b border-[var(--border-primary)]">
-        <h2 class="text-xl font-semibold text-[var(--text-primary)]">{{ roleData.name }}</h2>
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--border-primary)] flex-shrink-0"
+           style="padding-top: max(0.75rem, calc(env(safe-area-inset-top) + 0.75rem));">
+        <h2 class="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">{{ roleData.name }}</h2>
         <button (click)="onClose()"
                 class="p-2 hover:bg-[var(--bg-hover)] rounded-lg transition-colors cursor-pointer">
           <app-icon name="x" class="w-5 h-5 text-[var(--text-tertiary)]"></app-icon>
@@ -12,7 +13,7 @@
       </div>
 
       <!-- Content -->
-      <div class="p-6 space-y-5">
+      <div class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5 flex-1 overflow-y-auto" style="-webkit-overflow-scrolling: touch;">
         <!-- Descripción -->
         <div>
           <h3 class="text-sm font-semibold text-[var(--text-primary)] mb-2">Descripción</h3>
@@ -20,7 +21,7 @@
         </div>
 
         <!-- Estado y Puede Recibir Incidencias -->
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <h3 class="text-sm font-semibold text-[var(--text-primary)] mb-2">Estado</h3>
             <span class="inline-flex items-center">
@@ -45,9 +46,10 @@
       </div>
 
       <!-- Footer -->
-      <div class="flex justify-end p-6 border-t border-[var(--border-primary)]">
+      <div class="flex justify-end px-4 sm:px-6 py-3 sm:py-4 border-t border-[var(--border-primary)] flex-shrink-0"
+           style="padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
         <button (click)="onClose()"
-                class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors cursor-pointer">
+                class="w-full sm:w-auto px-5 py-2.5 sm:py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors cursor-pointer">
           Cerrar
         </button>
       </div>

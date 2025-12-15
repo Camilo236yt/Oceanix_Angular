@@ -1,25 +1,26 @@
 <!-- Modal Backdrop -->
 @if (isOpen) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 md:p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
        (click)="handleBackdropClick($event)">
     <!-- Modal Container -->
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden border border-gray-200 animate-scale-in">
+    <div class="bg-white dark:bg-[var(--card-bg)] rounded-none sm:rounded-2xl shadow-2xl w-full max-w-5xl h-screen sm:h-auto sm:max-h-[90vh] overflow-hidden border-0 sm:border border-gray-200 dark:border-[var(--card-border)] animate-scale-in flex flex-col">
 
       <!-- Modal Header -->
-      <div class="flex items-center justify-between px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-white">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-b border-gray-200 dark:border-[var(--border-primary)] bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/20 dark:to-[var(--card-bg)] flex-shrink-0"
+           style="padding-top: max(1rem, calc(env(safe-area-inset-top) + 1rem));">
+        <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900">Información de la Empresa</h2>
-            <p class="text-sm text-gray-600 mt-0.5">Detalles completos de la organización</p>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-[var(--text-primary)] truncate">Información de la Empresa</h2>
+            <p class="text-xs sm:text-sm text-gray-600 dark:text-[var(--text-tertiary)] mt-0.5 hidden sm:block">Detalles completos de la organización</p>
           </div>
         </div>
         <button (click)="closeModal()"
-                class="p-2.5 hover:bg-white rounded-xl transition-all text-gray-500 hover:text-gray-700 hover:shadow-md">
+                class="p-2 sm:p-2.5 hover:bg-white dark:hover:bg-[var(--bg-hover)] rounded-xl transition-all text-gray-500 dark:text-[var(--text-tertiary)] hover:text-gray-700 dark:hover:text-[var(--text-primary)] hover:shadow-md flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -27,29 +28,29 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="overflow-y-auto max-h-[calc(90vh-180px)]">
+      <div class="flex-1 overflow-y-auto" style="-webkit-overflow-scrolling: touch;">
         @if (companyData) {
-          <div class="px-12 py-8">
+          <div class="px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-6 md:py-8">
 
             <!-- Información General -->
-            <div class="mb-10">
-              <div class="flex items-center gap-3 mb-6">
+            <div class="mb-6 sm:mb-8 md:mb-10">
+              <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                 <div class="h-px flex-1 bg-gradient-to-r from-purple-600 to-transparent"></div>
-                <h3 class="text-sm font-bold text-purple-600 uppercase tracking-wider">Información General</h3>
+                <h3 class="text-xs sm:text-sm font-bold text-purple-600 uppercase tracking-wider">Información General</h3>
                 <div class="h-px flex-1 bg-gradient-to-l from-purple-600 to-transparent"></div>
               </div>
 
-              <div class="grid grid-cols-3 gap-x-16 gap-y-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 sm:gap-x-10 md:gap-x-16 gap-y-4 sm:gap-y-6">
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Nombre</label>
-                  <p class="text-base text-gray-900 font-medium">{{ companyData.name || 'N/A' }}</p>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Nombre</label>
+                  <p class="text-sm sm:text-base text-gray-900 dark:text-[var(--text-primary)] font-medium break-words">{{ companyData.name || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Subdominio</label>
-                  <p class="text-base text-gray-900 font-medium">{{ companyData.subdomain || 'N/A' }}</p>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Subdominio</label>
+                  <p class="text-sm sm:text-base text-gray-900 dark:text-[var(--text-primary)] font-medium break-words">{{ companyData.subdomain || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Estado</label>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Estado</label>
                   @if (companyData.isActive) {
                     <span class="inline-flex items-center gap-2 text-sm text-green-600 font-semibold">
                       <span class="w-2 h-2 rounded-full bg-green-500"></span>
@@ -63,16 +64,16 @@
                   }
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Email</label>
-                  <p class="text-base text-gray-900 font-medium break-all">{{ companyData.email || 'N/A' }}</p>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Email</label>
+                  <p class="text-sm sm:text-base text-gray-900 dark:text-[var(--text-primary)] font-medium break-all">{{ companyData.email || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Teléfono</label>
-                  <p class="text-base text-gray-900 font-medium">{{ companyData.phone || 'N/A' }}</p>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Teléfono</label>
+                  <p class="text-sm sm:text-base text-gray-900 dark:text-[var(--text-primary)] font-medium">{{ companyData.phone || 'N/A' }}</p>
                 </div>
                 <div>
-                  <label class="text-xs font-bold text-gray-400 uppercase tracking-wide block mb-2">Creación</label>
-                  <p class="text-base text-gray-900 font-medium">{{ formatDate(companyData.createdAt) }}</p>
+                  <label class="text-xs font-bold text-gray-400 dark:text-[var(--text-tertiary)] uppercase tracking-wide block mb-1 sm:mb-2">Creación</label>
+                  <p class="text-sm sm:text-base text-gray-900 dark:text-[var(--text-primary)] font-medium">{{ formatDate(companyData.createdAt) }}</p>
                 </div>
               </div>
             </div>
@@ -80,13 +81,13 @@
             <!-- Usuarios -->
             @if (companyData.users && companyData.users.length > 0) {
               <div>
-                <div class="flex items-center gap-3 mb-6">
+                <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                   <div class="h-px flex-1 bg-gradient-to-r from-purple-600 to-transparent"></div>
-                  <h3 class="text-sm font-bold text-purple-600 uppercase tracking-wider">Usuarios ({{ companyData.users.length }})</h3>
+                  <h3 class="text-xs sm:text-sm font-bold text-purple-600 uppercase tracking-wider">Usuarios ({{ companyData.users.length }})</h3>
                   <div class="h-px flex-1 bg-gradient-to-l from-purple-600 to-transparent"></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   @for (user of companyData.users; track user.id) {
                     <div class="flex items-center gap-3 py-2.5 px-3 hover:bg-purple-50 rounded-lg transition-colors">
                       <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
@@ -116,9 +117,10 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-end px-8 py-5 border-t border-gray-200 bg-white">
+      <div class="flex items-center justify-end px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 border-t border-gray-200 dark:border-[var(--border-primary)] bg-white dark:bg-[var(--card-bg)] flex-shrink-0"
+           style="padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
         <button (click)="closeModal()"
-                class="px-8 py-3 rounded-xl font-semibold text-sm bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-md hover:shadow-lg">
+                class="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold text-sm bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-md hover:shadow-lg">
           Cerrar
         </button>
       </div>

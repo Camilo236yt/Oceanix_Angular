@@ -1,21 +1,22 @@
 <!-- Modal Backdrop -->
 <div *ngIf="isOpen && notification"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+  class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 md:p-4 bg-black/30 backdrop-blur-sm"
   (click)="handleBackdropClick($event)">
 
   <!-- Modal Container -->
   <div
-    class="relative bg-[var(--card-bg)] rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform transition-all"
+    class="relative bg-[var(--card-bg)] rounded-none sm:rounded-2xl shadow-2xl w-full max-w-lg h-screen sm:h-auto overflow-hidden transform transition-all flex flex-col border-0 sm:border border-[var(--card-border)]"
     style="animation: modalSlideIn 0.3s ease-out;">
 
     <!-- Header -->
     <div
-      class="relative bg-gradient-to-r from-[var(--bg-tertiary)] to-[var(--bg-hover)] px-6 py-5 border-b border-[var(--border-primary)]">
-      <div class="flex items-start gap-4">
+      class="relative bg-gradient-to-r from-[var(--bg-tertiary)] to-[var(--bg-hover)] px-4 sm:px-6 py-4 sm:py-5 border-b border-[var(--border-primary)] flex-shrink-0"
+      style="padding-top: max(1rem, calc(env(safe-area-inset-top) + 1rem));">
+      <div class="flex items-start gap-3 sm:gap-4">
         <!-- Icon -->
-        <div class="flex-shrink-0">
-          <div class="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center shadow-sm">
-            <svg class="w-6 h-6 {{ getIconColor(notification.type) }}" fill="none" stroke="currentColor"
+        <div class="flex-shrink-0 hidden sm:block">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 {{ getIconColor(notification.type) }}" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 [attr.d]="getNotificationIcon(notification.type)">
@@ -26,7 +27,7 @@
 
         <!-- Title and Type -->
         <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-1">
+          <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-1 break-words">
             {{ notification.title }}
           </h3>
           <span
@@ -46,7 +47,7 @@
     </div>
 
     <!-- Content -->
-    <div class="px-6 py-5">
+    <div class="px-4 sm:px-6 py-4 sm:py-5 flex-1 overflow-y-auto" style="-webkit-overflow-scrolling: touch; padding-bottom: max(1.25rem, calc(env(safe-area-inset-bottom) + 1rem));">
       <!-- Message -->
       <div class="mb-6">
         <label class="block text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
