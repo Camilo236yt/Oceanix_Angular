@@ -1,20 +1,20 @@
 <!-- Modal Backdrop -->
 @if (isOpen) {
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+<div class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-2 md:p-4 bg-black/50 animate-fade-in"
   (click)="handleBackdropClick($event)">
   <!-- Modal Container - Full height and wider -->
   <div
-    class="bg-[var(--card-bg)] rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col animate-scale-in border border-[var(--card-border)]">
+    class="bg-[var(--card-bg)] rounded-none sm:rounded-lg md:rounded-xl shadow-2xl w-full max-w-6xl h-screen sm:h-[95vh] md:h-[90vh] flex flex-col animate-scale-in border-0 sm:border border-[var(--card-border)]">
 
     @if (incidentData) {
     <!-- Header -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-primary)] flex-shrink-0">
-      <div>
-        <h2 class="text-xl font-bold text-[var(--text-primary)]">Atender Incidencia</h2>
-        <p class="text-sm text-[var(--text-tertiary)]">{{ incidentData.name }}</p>
+    <div class="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--border-primary)] flex-shrink-0 bg-[var(--card-bg)]">
+      <div class="flex-1 min-w-0 pr-2">
+        <h2 class="text-lg sm:text-xl font-bold text-[var(--text-primary)] truncate">Atender Incidencia</h2>
+        <p class="text-xs sm:text-sm text-[var(--text-tertiary)] truncate">{{ incidentData.name }}</p>
       </div>
       <button (click)="closeModal()"
-        class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors p-2 hover:bg-[var(--bg-hover)] rounded-lg">
+        class="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors p-2 hover:bg-[var(--bg-hover)] rounded-lg flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
@@ -26,8 +26,8 @@
       <div class="flex">
         <button (click)="switchTab('details')"
           [class]="activeTab === 'details'
-                      ? 'flex-1 px-6 py-4 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
-                      : 'flex-1 px-6 py-4 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
+                      ? 'flex-1 px-4 py-3 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
+                      : 'flex-1 px-4 py-3 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
           <div class="flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -38,8 +38,8 @@
         </button>
         <button (click)="switchTab('chat')"
           [class]="activeTab === 'chat'
-                      ? 'flex-1 px-6 py-4 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
-                      : 'flex-1 px-6 py-4 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
+                      ? 'flex-1 px-4 py-3 text-sm font-semibold text-purple-600 border-b-2 border-purple-600 bg-purple-50/50 transition-all'
+                      : 'flex-1 px-4 py-3 text-sm font-medium text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border-b-2 border-transparent transition-all'">
           <div class="flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -56,31 +56,32 @@
 
       <!-- Left Column - Ticket Details -->
       <div
-        [class]="activeTab === 'details' ? 'w-full md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-6 space-y-6 animate-slide-in-left' : 'hidden md:block md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-6 space-y-6'">
+        [class]="activeTab === 'details' ? 'w-full md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 animate-slide-in-left' : 'hidden md:block md:w-1/2 md:border-r border-[var(--border-primary)] overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6'"
+        style="padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem));">
 
         <!-- Reopen Request Alert - ARRIBA de Ticket Inicial -->
         @if (pendingReopenRequestId && incidentData.pendingReopenRequest) {
-        <div class="mb-6">
+        <div class="mb-4 sm:mb-6">
           <div
-            class="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded-xl p-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded-lg sm:rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500 flex items-center justify-center">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-amber-900 dark:text-amber-300 truncate">
+                <p class="text-xs sm:text-sm font-bold text-amber-900 dark:text-amber-300 break-words">
                   🔄 Solicitud de Reapertura - {{ incidentData.pendingReopenRequest.requestedBy?.name || 'Cliente' }}
                 </p>
-                <p class="text-xs text-amber-700 dark:text-amber-500 italic truncate">
+                <p class="text-xs text-amber-700 dark:text-amber-500 italic break-words mt-0.5">
                   "{{ incidentData.pendingReopenRequest.clientReason }}"
                 </p>
               </div>
             </div>
             <button (click)="openReviewReopenModal()"
-              class="flex-shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+              class="flex-shrink-0 w-full sm:w-auto px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
               Revisar
             </button>
           </div>
@@ -88,10 +89,10 @@
         }
 
         <div>
-          <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-5">Ticket Inicial</h3>
+          <h3 class="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4 sm:mb-5">Ticket Inicial</h3>
 
           <!-- Type and Alert Level -->
-          <div class="flex items-start justify-between gap-4 mb-6 pb-6 border-b border-[var(--border-primary)]">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-[var(--border-primary)]">
             <div>
               <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2">Tipo de
                 Incidencia</label>
@@ -100,8 +101,8 @@
                 {{ tipoLabel }}
               </span>
             </div>
-            <div class="flex flex-col items-end">
-              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide mb-2">Nivel de
+            <div class="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-0">
+              <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide sm:mb-2">Nivel de
                 Alerta</label>
               <div class="flex items-center gap-1.5 border border-gray-400 dark:border-gray-500 rounded-md px-3 py-1.5">
                 <div class="w-3 h-3 rounded-full"
@@ -118,11 +119,11 @@
         </div>
 
         <!-- Status Selector -->
-        <div class="pb-6 border-b border-[var(--border-primary)]">
+        <div class="pb-4 sm:pb-6 border-b border-[var(--border-primary)]">
           <label
-            class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-3">Estado</label>
+            class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2 sm:mb-3">Estado</label>
           <select [(ngModel)]="selectedStatus" (change)="updateStatus()"
-            class="w-full px-4 py-2.5 border border-[var(--card-border)] rounded-lg text-sm bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+            class="w-full px-3 sm:px-4 py-2.5 border border-[var(--card-border)] rounded-lg text-sm bg-[var(--card-bg)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
             <option value="PENDING">Pendiente</option>
             <option value="IN_PROGRESS">En Progreso</option>
             <option value="RESOLVED">Resuelto</option>
@@ -130,20 +131,20 @@
         </div>
 
         <!-- Description -->
-        <div class="pb-6 border-b border-[var(--border-primary)]">
+        <div class="pb-4 sm:pb-6 border-b border-[var(--border-primary)]">
           <label
-            class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-3">Descripción</label>
-          <div class="bg-[var(--bg-tertiary)] rounded-lg p-4 border border-[var(--card-border)]">
-            <p class="text-sm text-[var(--text-secondary)] leading-relaxed">{{ incidentData.description || 'Sin
+            class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-2 sm:mb-3">Descripción</label>
+          <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 sm:p-4 border border-[var(--card-border)]">
+            <p class="text-sm text-[var(--text-secondary)] leading-relaxed break-words">{{ incidentData.description || 'Sin
               descripción' }}</p>
           </div>
         </div>
 
         <!-- Info Grid -->
-        <div class="pb-6 border-b border-[var(--border-primary)]">
-          <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-4">Información
+        <div class="pb-4 sm:pb-6 border-b border-[var(--border-primary)]">
+          <label class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-3 sm:mb-4">Información
             del Ticket</label>
-          <div class="grid grid-cols-2 gap-x-4 gap-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-x-4 sm:gap-y-4">
             <div class="bg-[var(--bg-tertiary)] rounded-lg p-3 border border-[var(--card-border)]">
               <label
                 class="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide block mb-1.5">Referencia</label>
@@ -312,10 +313,10 @@
       <div
         [class]="activeTab === 'chat' ? 'w-full md:w-1/2 flex flex-col animate-slide-in-right' : 'hidden md:flex md:w-1/2 flex-col'">
         <!-- Chat Header - More professional -->
-        <div class="px-4 md:px-8 py-3 md:py-5 border-b border-[var(--border-primary)] bg-[var(--card-bg)]">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-sm md:text-base font-semibold text-[var(--text-primary)] tracking-tight">Conversación con
+        <div class="px-3 sm:px-4 md:px-8 py-3 md:py-5 border-b border-[var(--border-primary)] bg-[var(--card-bg)] flex-shrink-0">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-sm md:text-base font-semibold text-[var(--text-primary)] tracking-tight truncate">Conversación con
                 el Cliente</h3>
               <p class="text-[10px] md:text-xs text-[var(--text-tertiary)] mt-0.5 md:mt-1 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full"></span>
@@ -325,7 +326,7 @@
             <!-- Optional: Connection status indicator -->
             @if (isConnected) {
             <div
-              class="hidden md:flex items-center gap-2 px-3 py-1.5 border border-gray-400 dark:border-gray-500 rounded-lg">
+              class="hidden md:flex items-center gap-2 px-3 py-1.5 border border-gray-400 dark:border-gray-500 rounded-lg flex-shrink-0">
               <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               <span class="text-xs font-medium text-green-700 dark:text-green-400">En línea</span>
             </div>
@@ -335,8 +336,8 @@
 
         <!-- Messages Container - More spacious -->
         <div id="chat-messages"
-          class="flex-1 overflow-y-auto px-3 md:px-8 py-3 md:py-6 space-y-2 md:space-y-4 bg-[var(--bg-tertiary)]"
-          style="padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem));">
+          class="flex-1 overflow-y-auto px-2 sm:px-3 md:px-8 py-3 md:py-6 space-y-2 md:space-y-4 bg-[var(--bg-tertiary)]"
+          style="padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem)); -webkit-overflow-scrolling: touch;">
           @if (isLoadingMessages) {
           <div class="flex items-center justify-center py-12 md:py-20">
             <div class="flex flex-col items-center gap-2 md:gap-3">
@@ -466,7 +467,7 @@
         </div>
 
         <!-- Message Input - Professional design with safe area -->
-        <div class="px-3 md:px-8 py-4 md:py-5 border-t border-[var(--border-primary)] bg-[var(--card-bg)]"
+        <div class="px-2 sm:px-3 md:px-8 py-3 md:py-5 border-t border-[var(--border-primary)] bg-[var(--card-bg)] flex-shrink-0"
           style="padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
           @if (isChatDisabled) {
           <!-- Chat disabled message -->
@@ -488,31 +489,31 @@
           <!-- Request Images Options -->
           @if (showRequestImagesOptions) {
           <div
-            class="mb-3 md:mb-4 p-3 md:p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl md:rounded-2xl shadow-sm">
-            <div class="flex items-center justify-between mb-3 md:mb-4">
-              <div class="flex items-center gap-2 md:gap-3">
+            class="mb-3 md:mb-4 p-3 md:p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg md:rounded-xl shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 md:mb-4">
+              <div class="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
                 <div
-                  class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-100 flex items-center justify-center">
+                  class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                   <svg class="w-4 h-4 md:w-5 md:h-5 text-amber-600" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <div>
+                <div class="flex-1 min-w-0">
                   <h4 class="text-xs md:text-sm font-semibold text-amber-900">Solicitar Evidencia</h4>
-                  <p class="text-[10px] md:text-xs text-amber-700 mt-0.5 hidden md:block">El cliente podrá subir
+                  <p class="text-[10px] md:text-xs text-amber-700 mt-0.5 hidden sm:block">El cliente podrá subir
                     imágenes durante el tiempo especificado</p>
                 </div>
               </div>
               <button (click)="toggleRequestImagesOptions()"
-                class="text-amber-600 hover:text-amber-700 p-1.5 md:p-2 hover:bg-amber-100 rounded-lg transition-all">
+                class="text-amber-600 hover:text-amber-700 p-1.5 md:p-2 hover:bg-amber-100 rounded-lg transition-all self-end sm:self-auto flex-shrink-0">
                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div class="flex items-center gap-2 md:gap-3">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3">
               <div class="flex-1">
                 <label class="text-[10px] md:text-xs font-medium text-amber-800 block mb-1.5 md:mb-2">Tiempo
                   permitido</label>
@@ -525,9 +526,9 @@
                   <option [value]="72">72 horas</option>
                 </select>
               </div>
-              <div class="pt-4 md:pt-6">
+              <div class="sm:pt-4 md:pt-6">
                 <button (click)="requestImages()" [disabled]="isRequestingImages"
-                  class="px-3 md:px-6 py-2 md:py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs md:text-sm font-semibold rounded-lg md:rounded-xl transition-colors flex items-center gap-1.5 md:gap-2 shadow-sm">
+                  class="w-full sm:w-auto px-3 md:px-6 py-2 md:py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs md:text-sm font-semibold rounded-lg md:rounded-xl transition-colors flex items-center justify-center gap-1.5 md:gap-2 shadow-sm">
                   <span>Solicitar</span>
                 </button>
               </div>
@@ -536,34 +537,34 @@
           }
 
           <!-- Message Input Area -->
-          <div class="flex items-end gap-2 md:gap-3">
+          <div class="flex items-end gap-1.5 sm:gap-2 md:gap-3">
             <!-- Request Images Button -->
             <button (click)="toggleRequestImagesOptions()"
               [class]="showRequestImagesOptions ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-700' : 'bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] border-[var(--border-primary)] hover:bg-[var(--bg-hover)]'"
-              class="p-3 md:p-3 rounded-lg md:rounded-xl transition-all border flex-shrink-0"
+              class="p-2.5 sm:p-3 md:p-3 rounded-lg md:rounded-xl transition-all border flex-shrink-0"
               title="Solicitar evidencia fotográfica">
-              <svg class="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </button>
 
             <!-- Message Input -->
-            <div class="flex-1 relative">
+            <div class="flex-1 relative min-w-0">
               <input type="text" [(ngModel)]="newMessage" (input)="onMessageInput($event)" (keyup.enter)="sendMessage()"
                 placeholder="Escribe un mensaje..." [disabled]="isSendingMessage"
-                class="w-full px-3 md:px-5 py-3 md:py-3.5 border border-[var(--input-border)] rounded-xl md:rounded-2xl text-base md:text-sm bg-[var(--input-bg)] text-[var(--input-text)] placeholder-[var(--input-placeholder)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                class="w-full px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 md:py-3.5 border border-[var(--input-border)] rounded-lg sm:rounded-xl md:rounded-2xl text-base md:text-sm bg-[var(--input-bg)] text-[var(--input-text)] placeholder-[var(--input-placeholder)] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                 style="font-size: 16px;">
             </div>
 
             <!-- Send Button -->
             <button (click)="sendMessage()" [disabled]="!newMessage.trim() || isSendingMessage"
-              class="px-4 md:px-6 py-3 md:py-3.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-sm font-semibold rounded-xl md:rounded-2xl transition-all flex items-center gap-1.5 md:gap-2 shadow-sm flex-shrink-0">
-              <svg class="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-3.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg sm:rounded-xl md:rounded-2xl transition-all flex items-center justify-center gap-1.5 md:gap-2 shadow-sm flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              <span class="hidden md:inline">Enviar</span>
+              <span class="hidden sm:inline">Enviar</span>
             </button>
           </div>
           }

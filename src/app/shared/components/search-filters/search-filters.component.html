@@ -1,38 +1,36 @@
 <div class="bg-[var(--card-bg)] rounded-lg md:rounded-xl shadow-sm p-3 md:p-4 border border-[var(--card-border)]">
-  <div class="flex flex-col sm:flex-row gap-3">
-    <!-- Buscador -->
-    @if (showSearch) {
-      <div class="flex-1">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <app-icon name="search" class="w-4 h-4 md:w-5 md:h-5 text-[var(--text-tertiary)]"></app-icon>
-          </div>
-          <input
-            type="text"
-            [placeholder]="searchPlaceholder"
-            [(ngModel)]="searchTerm"
-            (input)="onSearchInput($event)"
-            class="w-full pl-9 md:pl-10 pr-3 py-2 md:py-2.5 border-2 border-[var(--border-primary)] rounded-lg text-sm md:text-base focus:outline-none focus:border-purple-500 transition-all bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
-          />
+  <!-- Buscador -->
+  @if (showSearch) {
+    <div class="mb-3">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <app-icon name="search" class="w-4 h-4 md:w-5 md:h-5 text-[var(--text-tertiary)]"></app-icon>
         </div>
+        <input
+          type="text"
+          [placeholder]="searchPlaceholder"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput($event)"
+          class="w-full pl-9 md:pl-10 pr-3 py-2 md:py-2.5 border-2 border-[var(--border-primary)] rounded-lg text-sm md:text-base focus:outline-none focus:border-purple-500 transition-all bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+        />
       </div>
-    }
+    </div>
+  }
 
-    <!-- Filtros -->
-    @if (filters.length > 0) {
-      <div class="flex gap-2 sm:gap-3">
-        @for (filter of filters; track filter.key) {
-          <select
-            [(ngModel)]="selectedFilters[filter.key]"
-            (change)="onFilterSelect(filter.key, $event)"
-            class="flex-1 sm:flex-initial px-3 py-2 md:py-2.5 border-2 border-[var(--border-primary)] rounded-lg text-sm md:text-base focus:outline-none focus:border-purple-500 transition-all bg-[var(--bg-secondary)] text-[var(--text-primary)]">
-            <option value="">{{ filter.label }}</option>
-            @for (option of filter.options; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-        }
-      </div>
-    }
-  </div>
+  <!-- Filtros -->
+  @if (filters.length > 0) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-3">
+      @for (filter of filters; track filter.key) {
+        <select
+          [(ngModel)]="selectedFilters[filter.key]"
+          (change)="onFilterSelect(filter.key, $event)"
+          class="w-full px-3 py-2 md:py-2.5 border-2 border-[var(--border-primary)] rounded-lg text-sm md:text-base focus:outline-none focus:border-purple-500 transition-all bg-[var(--bg-secondary)] text-[var(--text-primary)] cursor-pointer hover:border-purple-400">
+          <option value="">{{ filter.label }}</option>
+          @for (option of filter.options; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      }
+    </div>
+  }
 </div>
