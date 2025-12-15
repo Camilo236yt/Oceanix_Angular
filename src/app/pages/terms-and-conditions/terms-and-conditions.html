@@ -1,0 +1,380 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center justify-center">
+        <img src="/assets/logo/logo-corto.png" alt="Oceanix" class="h-12 sm:h-14 object-contain">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Title Section -->
+    <div class="text-center mb-8 sm:mb-12">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
+        Términos y Condiciones
+      </h1>
+      <p class="text-base sm:text-lg text-gray-600">
+        Última actualización: {{ lastUpdated }}
+      </p>
+    </div>
+
+    <!-- Content Card -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <!-- Navigation Quick Links -->
+      <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-6">
+        <h2 class="text-white font-semibold text-lg mb-4">Navegación Rápida</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          <button (click)="scrollToSection('acceptance')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            1. Aceptación de Términos
+          </button>
+          <button (click)="scrollToSection('description')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            2. Descripción del Servicio
+          </button>
+          <button (click)="scrollToSection('registration')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            3. Registro y Cuenta
+          </button>
+          <button (click)="scrollToSection('usage')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            4. Uso del Servicio
+          </button>
+          <button (click)="scrollToSection('data')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            5. Protección de Datos
+          </button>
+          <button (click)="scrollToSection('payment')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            6. Pagos y Facturación
+          </button>
+          <button (click)="scrollToSection('intellectual')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            7. Propiedad Intelectual
+          </button>
+          <button (click)="scrollToSection('responsibilities')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            8. Responsabilidades
+          </button>
+          <button (click)="scrollToSection('termination')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
+            9. Terminación
+          </button>
+        </div>
+      </div>
+
+      <!-- Terms Content -->
+      <div class="px-6 sm:px-8 lg:px-12 py-8 sm:py-10 space-y-8">
+
+        <!-- Introduction -->
+        <section class="prose max-w-none">
+          <div class="bg-purple-50 border-l-4 border-purple-600 rounded-r-lg p-6">
+            <p class="text-gray-700 leading-relaxed">
+              Bienvenido a <strong class="text-purple-700">Oceanix</strong>. Estos Términos y Condiciones regulan el uso de nuestra plataforma de gestión empresarial CRM (Customer Relationship Management). Al registrarse y utilizar nuestros servicios, usted acepta estar legalmente vinculado por estos términos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 1 -->
+        <section id="acceptance">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+            Aceptación de los Términos
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Al acceder y utilizar la plataforma Oceanix, usted reconoce que ha leído, entendido y acepta estar legalmente vinculado por estos Términos y Condiciones, así como por nuestra Política de Privacidad.
+            </p>
+            <p>
+              Si no está de acuerdo con alguno de estos términos, le solicitamos que no utilice nuestros servicios. El uso continuado de la plataforma constituye la aceptación de cualquier modificación a estos términos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="description">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+            Descripción del Servicio
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">Oceanix</strong> es una plataforma de gestión empresarial basada en la nube que proporciona herramientas para:
+            </p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>Gestión de relaciones con clientes (CRM)</li>
+              <li>Administración de incidencias y tickets de soporte</li>
+              <li>Gestión de usuarios, roles y permisos</li>
+              <li>Portal de clientes para seguimiento de solicitudes</li>
+              <li>Asistente de inteligencia artificial para consultas</li>
+              <li>Generación de reportes y análisis de datos</li>
+              <li>Personalización mediante subdominios empresariales</li>
+            </ul>
+            <p>
+              Nos reservamos el derecho de modificar, suspender o descontinuar cualquier aspecto del servicio en cualquier momento, con o sin previo aviso.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="registration">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+            Registro y Cuenta de Usuario
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Para utilizar Oceanix, debe registrar una cuenta empresarial proporcionando información veraz, precisa y completa. Usted se compromete a:
+            </p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>Proporcionar datos de registro precisos y actualizados de su empresa</li>
+              <li>Mantener la seguridad y confidencialidad de sus credenciales de acceso</li>
+              <li>Notificar inmediatamente cualquier uso no autorizado de su cuenta</li>
+              <li>Ser responsable de todas las actividades realizadas bajo su cuenta</li>
+              <li>No compartir su cuenta con terceros no autorizados</li>
+              <li>Utilizar un subdominio único que identifique a su organización</li>
+            </ul>
+            <p>
+              Oceanix se reserva el derecho de rechazar o cancelar cualquier registro que considere inapropiado o que viole estos términos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 4 -->
+        <section id="usage">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+            Uso Aceptable del Servicio
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Al utilizar Oceanix, usted acepta <strong class="text-gray-900">NO</strong>:
+            </p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>Violar cualquier ley o regulación aplicable</li>
+              <li>Infringir los derechos de propiedad intelectual de terceros</li>
+              <li>Transmitir contenido ilegal, dañino, amenazante, abusivo u obsceno</li>
+              <li>Intentar acceder sin autorización a otras cuentas o sistemas</li>
+              <li>Interferir con el funcionamiento normal de la plataforma</li>
+              <li>Realizar ingeniería inversa, descompilar o desensamblar el software</li>
+              <li>Utilizar el servicio para enviar spam o comunicaciones no solicitadas</li>
+              <li>Realizar actividades que puedan dañar, sobrecargar o afectar la infraestructura</li>
+              <li>Revender, redistribuir o hacer uso comercial no autorizado del servicio</li>
+            </ul>
+            <p>
+              El incumplimiento de estas normas puede resultar en la suspensión o terminación inmediata de su cuenta.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 5 -->
+        <section id="data">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">5</span>
+            Protección y Tratamiento de Datos
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">5.1. Sus Datos:</strong> Usted conserva todos los derechos sobre los datos que ingresa en la plataforma. Oceanix actúa únicamente como procesador de datos bajo sus instrucciones.
+            </p>
+            <p>
+              <strong class="text-gray-900">5.2. Seguridad:</strong> Implementamos medidas de seguridad técnicas y organizativas para proteger sus datos contra acceso no autorizado, pérdida o alteración. Sin embargo, ningún sistema es completamente seguro.
+            </p>
+            <p>
+              <strong class="text-gray-900">5.3. Cumplimiento Legal:</strong> Procesamos datos personales de acuerdo con las leyes de protección de datos aplicables, incluyendo RGPD, CCPA y legislación local de privacidad.
+            </p>
+            <p>
+              <strong class="text-gray-900">5.4. Respaldos:</strong> Realizamos copias de seguridad periódicas de sus datos. Sin embargo, usted es responsable de mantener sus propias copias de seguridad de información crítica.
+            </p>
+            <p>
+              <strong class="text-gray-900">5.5. Exportación de Datos:</strong> Puede exportar sus datos en cualquier momento a través de las herramientas de la plataforma.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 6 -->
+        <section id="payment">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">6</span>
+            Pagos y Facturación
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">6.1. Planes de Suscripción:</strong> Oceanix ofrece diferentes planes de suscripción. Los precios y características están disponibles en nuestro sitio web y pueden modificarse con previo aviso.
+            </p>
+            <p>
+              <strong class="text-gray-900">6.2. Facturación:</strong> Las suscripciones se facturan de forma anticipada según el período seleccionado (mensual o anual). El pago se procesará automáticamente en cada período de facturación.
+            </p>
+            <p>
+              <strong class="text-gray-900">6.3. Métodos de Pago:</strong> Aceptamos tarjetas de crédito/débito y otros métodos de pago especificados en la plataforma.
+            </p>
+            <p>
+              <strong class="text-gray-900">6.4. Impuestos:</strong> Todos los precios excluyen impuestos aplicables (IVA, impuestos sobre ventas, etc.) que serán añadidos según corresponda.
+            </p>
+            <p>
+              <strong class="text-gray-900">6.5. Reembolsos:</strong> Los pagos son generalmente no reembolsables, excepto cuando lo requiera la ley aplicable o en circunstancias excepcionales determinadas por Oceanix.
+            </p>
+            <p>
+              <strong class="text-gray-900">6.6. Suspensión por Falta de Pago:</strong> El incumplimiento en los pagos puede resultar en la suspensión o terminación del servicio.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 7 -->
+        <section id="intellectual">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">7</span>
+            Propiedad Intelectual
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">7.1. Derechos de Oceanix:</strong> Todos los derechos de propiedad intelectual sobre la plataforma, incluyendo el software, diseño, logotipos, marcas comerciales y contenido, son propiedad exclusiva de Oceanix o sus licenciantes.
+            </p>
+            <p>
+              <strong class="text-gray-900">7.2. Licencia de Uso:</strong> Se le otorga una licencia limitada, no exclusiva, no transferible y revocable para acceder y utilizar la plataforma de acuerdo con estos términos.
+            </p>
+            <p>
+              <strong class="text-gray-900">7.3. Restricciones:</strong> No puede copiar, modificar, distribuir, vender o arrendar ninguna parte de nuestros servicios o software sin autorización expresa por escrito.
+            </p>
+            <p>
+              <strong class="text-gray-900">7.4. Marca Oceanix:</strong> El nombre "Oceanix" y todos los logotipos relacionados son marcas registradas. No puede usar nuestras marcas sin permiso previo por escrito.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 8 -->
+        <section id="responsibilities">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">8</span>
+            Limitación de Responsabilidad
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">8.1. Disponibilidad del Servicio:</strong> Aunque nos esforzamos por mantener una disponibilidad del 99.9%, el servicio se proporciona "tal cual" sin garantías de disponibilidad ininterrumpida.
+            </p>
+            <p>
+              <strong class="text-gray-900">8.2. Exclusión de Garantías:</strong> En la medida permitida por la ley, excluimos todas las garantías expresas o implícitas, incluyendo garantías de comerciabilidad y adecuación para un propósito particular.
+            </p>
+            <p>
+              <strong class="text-gray-900">8.3. Limitación de Daños:</strong> En ningún caso Oceanix será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluida la pérdida de beneficios, datos o uso.
+            </p>
+            <p>
+              <strong class="text-gray-900">8.4. Monto Máximo:</strong> Nuestra responsabilidad total agregada no excederá el monto pagado por usted en los 12 meses anteriores al evento que dio lugar a la reclamación.
+            </p>
+            <p>
+              <strong class="text-gray-900">8.5. Indemnización:</strong> Usted acepta indemnizar y mantener indemne a Oceanix de cualquier reclamación derivada de su uso del servicio o violación de estos términos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Section 9 -->
+        <section id="termination">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">9</span>
+            Terminación y Cancelación
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              <strong class="text-gray-900">9.1. Cancelación por el Usuario:</strong> Puede cancelar su suscripción en cualquier momento desde la configuración de su cuenta. La cancelación será efectiva al final del período de facturación actual.
+            </p>
+            <p>
+              <strong class="text-gray-900">9.2. Terminación por Oceanix:</strong> Nos reservamos el derecho de suspender o terminar su cuenta si:
+            </p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>Viola estos Términos y Condiciones</li>
+              <li>No cumple con los pagos requeridos</li>
+              <li>Su cuenta permanece inactiva por un período prolongado</li>
+              <li>Recibimos una orden legal o regulatoria que lo requiera</li>
+            </ul>
+            <p>
+              <strong class="text-gray-900">9.3. Efectos de la Terminación:</strong> Al terminar su cuenta, perderá acceso a la plataforma y a todos los datos almacenados, a menos que exporte previamente su información.
+            </p>
+            <p>
+              <strong class="text-gray-900">9.4. Retención de Datos:</strong> Podemos retener ciertos datos según lo requiera la ley o para fines legítimos de negocio después de la terminación.
+            </p>
+          </div>
+        </section>
+
+        <!-- Additional Sections -->
+        <section>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">10</span>
+            Modificaciones a los Términos
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Oceanix se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones entrarán en vigencia inmediatamente después de su publicación en la plataforma. Le notificaremos sobre cambios significativos por correo electrónico o mediante un aviso en la plataforma.
+            </p>
+            <p>
+              Su uso continuado del servicio después de dichas modificaciones constituye su aceptación de los términos actualizados.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">11</span>
+            Ley Aplicable y Jurisdicción
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Estos Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes aplicables en la jurisdicción donde opera Oceanix, sin consideración a conflictos de principios legales.
+            </p>
+            <p>
+              Cualquier disputa relacionada con estos términos será resuelta en los tribunales competentes de dicha jurisdicción.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+            <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold">12</span>
+            Contacto
+          </h2>
+          <div class="space-y-4 text-gray-700 leading-relaxed pl-11">
+            <p>
+              Si tiene preguntas sobre estos Términos y Condiciones, puede contactarnos a través de:
+            </p>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-2">
+              <p class="font-semibold text-gray-900">Oceanix - Plataforma de Gestión Empresarial</p>
+              <p><strong>Email:</strong> soporte@oceanix.space</p>
+              <p><strong>Sitio Web:</strong> www.oceanix.space</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Final Notice -->
+        <section class="border-t border-gray-200 pt-8">
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
+            <p class="text-sm text-gray-700 text-center leading-relaxed">
+              Al utilizar la plataforma Oceanix, usted reconoce que ha leído, entendido y acepta estos Términos y Condiciones en su totalidad. Estos términos constituyen un acuerdo legal vinculante entre usted y Oceanix.
+            </p>
+            <p class="text-sm text-purple-700 font-semibold text-center mt-4">
+              Última actualización: {{ lastUpdated }}
+            </p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="mt-8 text-center">
+      <button
+        (click)="scrollToSection('acceptance')"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+        Volver al inicio
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 mt-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="text-center space-y-2">
+        <p class="text-sm text-gray-600">
+          © {{ lastUpdated }} Oceanix. Todos los derechos reservados.
+        </p>
+        <p class="text-xs text-gray-500">
+          Plataforma de Gestión Empresarial CRM
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>

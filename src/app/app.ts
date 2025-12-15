@@ -25,7 +25,7 @@ export class App {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         // Rutas donde NO se debe mostrar el navbar y footer
-        const hiddenLayoutRoutes = ['/admin', '/login', '/register', '/documentacion'];
+        const hiddenLayoutRoutes = ['/admin', '/login', '/register', '/documentacion', '/terminos-y-condiciones'];
         const url = event.urlAfterRedirects;
 
         // Ocultar layout si la ruta está en hiddenLayoutRoutes o empieza con /crm o /portal
@@ -48,6 +48,8 @@ export class App {
       pageTitle = 'Portal Clientes';
     } else if (url.startsWith('/documentacion')) {
       pageTitle = 'Documentación';
+    } else if (url.startsWith('/terminos-y-condiciones')) {
+      pageTitle = 'Términos y Condiciones';
     }
 
     this.titleService.setTitle(pageTitle);

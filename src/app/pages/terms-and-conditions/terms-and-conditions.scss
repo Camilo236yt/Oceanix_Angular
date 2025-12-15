@@ -1,0 +1,58 @@
+// Smooth scrolling behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// Animation for fade in
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Estilos de prosa para el contenido
+.prose {
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+
+  strong {
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+
+    li {
+      margin-bottom: 0.5rem;
+      line-height: 1.75;
+    }
+  }
+}
+
+// Hover effects for navigation buttons
+button {
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Section spacing
+section {
+  scroll-margin-top: 2rem;
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  section {
+    scroll-margin-top: 1rem;
+  }
+}
