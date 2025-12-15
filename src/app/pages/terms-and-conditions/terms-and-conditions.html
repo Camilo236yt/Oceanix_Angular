@@ -22,40 +22,6 @@
 
     <!-- Content Card -->
     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      <!-- Navigation Quick Links -->
-      <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-6">
-        <h2 class="text-white font-semibold text-lg mb-4">Navegación Rápida</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          <button (click)="scrollToSection('acceptance')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            1. Aceptación de Términos
-          </button>
-          <button (click)="scrollToSection('description')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            2. Descripción del Servicio
-          </button>
-          <button (click)="scrollToSection('registration')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            3. Registro y Cuenta
-          </button>
-          <button (click)="scrollToSection('usage')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            4. Uso del Servicio
-          </button>
-          <button (click)="scrollToSection('data')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            5. Protección de Datos
-          </button>
-          <button (click)="scrollToSection('payment')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            6. Pagos y Facturación
-          </button>
-          <button (click)="scrollToSection('intellectual')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            7. Propiedad Intelectual
-          </button>
-          <button (click)="scrollToSection('responsibilities')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            8. Responsabilidades
-          </button>
-          <button (click)="scrollToSection('termination')" class="text-left text-sm text-purple-100 hover:text-white transition-colors">
-            9. Terminación
-          </button>
-        </div>
-      </div>
-
       <!-- Terms Content -->
       <div class="px-6 sm:px-8 lg:px-12 py-8 sm:py-10 space-y-8">
 
@@ -349,18 +315,6 @@
         </section>
 
       </div>
-    </div>
-
-    <!-- Back to Top Button -->
-    <div class="mt-8 text-center">
-      <button
-        (click)="scrollToSection('acceptance')"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-        Volver al inicio
-      </button>
     </div>
   </main>
 
