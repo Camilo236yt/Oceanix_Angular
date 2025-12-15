@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { LandingChatbotComponent } from './shared/components/landing-chatbot/landing-chatbot.component';
 import { CrmChatbotComponent } from './shared/components/crm-chatbot/crm-chatbot.component';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,7 @@ export class App {
   showLayout = true;
   isInCRM = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private titleService: Title) {
     // Escuchar cambios de ruta para mostrar/ocultar navbar y footer
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -32,6 +33,23 @@ export class App {
 
         // Detectar si el usuario está en el CRM
         this.isInCRM = url.startsWith('/crm');
+
+        // Actualizar el título según la ruta
+        this.updateTitle(url);
       });
+  }
+
+  private updateTitle(url: string): void {
+    let pageTitle = 'Oceanix';
+
+    if (url.startsWith('/crm')) {
+      pageTitle = 'CRM';
+    } else if (url.startsWith('/portal')) {
+      pageTitle = 'Portal Clientes';
+    } else if (url.startsWith('/documentacion')) {
+      pageTitle = 'Documentación';
+    }
+
+    this.titleService.setTitle(pageTitle);
   }
 }
