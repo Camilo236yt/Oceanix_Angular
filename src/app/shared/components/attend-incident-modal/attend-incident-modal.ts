@@ -298,25 +298,29 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     console.log('🔌 [EMPLEADO] connectToChat() llamado');
 
     const token = this.authService.getToken();
-    console.log('   🔑 Token obtenido:', token ? `${token.substring(0, 20)}...` : 'NULL/UNDEFINED');
+    console.log('   🔑 Token obtenido:', token ? `${token.substring(0, 20)}...` : 'NULL (usará cookies)');
     console.log('   📋 incidentData:', this.incidentData ? `ID: ${this.incidentData.id}` : 'NULL');
 
-    if (!token || !this.incidentData) {
-      console.error('   ❌ No se puede conectar al chat:');
-      console.error('      - Token presente:', !!token);
-      console.error('      - incidentData presente:', !!this.incidentData);
+    if (!this.incidentData) {
+      console.error('   ❌ No se puede conectar al chat: incidentData es NULL');
       console.log('═══════════════════════════════════════════════════════');
       return;
     }
 
-    console.log('   ✅ Token e incidentData válidos');
+    console.log('   ✅ incidentData válido');
     console.log('   🔍 Verificando estado de conexión...');
     console.log('   📊 chatService.isConnected():', this.chatService.isConnected());
 
     // Conectar si no está conectado
+    // IMPORTANTE: Si no hay token, connect() usará cookies (withCredentials: true)
     if (!this.chatService.isConnected()) {
-      console.log('   🚀 Iniciando conexión WebSocket con token...');
-      this.chatService.connect(token);
+      if (token) {
+        console.log('   🚀 Iniciando conexión WebSocket con TOKEN...');
+        this.chatService.connect(token);
+      } else {
+        console.log('   🚀 Iniciando conexión WebSocket con COOKIES (sin token)...');
+        this.chatService.connect(); // Sin token - usará cookies como el cliente
+      }
     } else {
       console.log('   ℹ️ WebSocket ya está conectado');
     }
@@ -327,7 +331,11 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
     const checkConnection = setInterval(() => {
       attempts++;
       const isConnected = this.chatService.isConnected();
-      console.log(`   ⏳ Intento ${attempts}/${maxAttempts} - Conectado: ${isConnected}`);
+
+      // Solo loguear cada 10 intentos o cuando se conecte
+      if (attempts === 1 || attempts % 10 === 0 || isConnected) {
+        console.log(`   ⏳ Intento ${attempts}/${maxAttempts} - Conectado: ${isConnected}`);
+      }
 
       if (isConnected) {
         clearInterval(checkConnection);
