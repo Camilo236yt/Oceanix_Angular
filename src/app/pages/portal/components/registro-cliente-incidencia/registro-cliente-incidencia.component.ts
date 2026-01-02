@@ -693,7 +693,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const incidenciaId = this.selectedIncidencia.id.toString();
+    console.log('═══════════════════════════════════════════════════════');
     console.log('🔌 [CLIENTE] Conectando al chat para incidencia:', this.selectedIncidencia.id);
+    console.log('   📝 Incidencia ID (original):', this.selectedIncidencia.id);
+    console.log('   📝 Incidencia ID (toString):', incidenciaId);
+    console.log('   📝 Tipo de ID:', typeof this.selectedIncidencia.id);
+    console.log('   🚪 Room name que se unirá:', `incidencia:${incidenciaId}`);
 
     // Conectar sin token - el backend autenticará con cookies
     if (!this.chatService.isConnected()) {
@@ -707,8 +713,10 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
     const checkConnection = setInterval(() => {
       if (this.chatService.isConnected()) {
         clearInterval(checkConnection);
-        console.log('   ✅ Conexión WebSocket establecida, uniéndose a sala:', this.selectedIncidencia!.id.toString());
-        this.chatService.joinRoom(this.selectedIncidencia!.id.toString());
+        console.log('   ✅ Conexión WebSocket establecida, uniéndose a sala:', incidenciaId);
+        console.log('   🚪 Llamando joinRoom con:', incidenciaId);
+        this.chatService.joinRoom(incidenciaId);
+        console.log('═══════════════════════════════════════════════════════');
       }
     }, 100);
 
@@ -716,6 +724,7 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       clearInterval(checkConnection);
       if (!this.chatService.isConnected()) {
         console.error('   ❌ Timeout: No se pudo conectar al WebSocket en 10 segundos');
+        console.log('═══════════════════════════════════════════════════════');
       }
     }, 10000);
   }
@@ -766,9 +775,13 @@ export class RegistroClienteIncidenciaComponent implements OnInit, OnDestroy {
       clearTimeout(this.typingTimeout);
     }
 
+    console.log('═══════════════════════════════════════════════════════');
     console.log('📤 [CLIENTE] Enviando mensaje:', messageContent);
     console.log('   - Conectado al WebSocket:', this.chatService.isConnected());
     console.log('   - Incidencia ID:', this.selectedIncidencia.id);
+    console.log('   - Incidencia ID (toString):', this.selectedIncidencia.id.toString());
+    console.log('   - Room esperado:', `incidencia:${this.selectedIncidencia.id.toString()}`);
+    console.log('═══════════════════════════════════════════════════════');
 
     // Intentar enviar por WebSocket si está conectado
     if (this.chatService.isConnected()) {
