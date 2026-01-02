@@ -294,27 +294,61 @@ export class AttendIncidentModalComponent implements OnChanges, OnInit, OnDestro
   }
 
   private connectToChat(): void {
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('🔌 [EMPLEADO] connectToChat() llamado');
+
     const token = this.authService.getToken();
+    console.log('   🔑 Token obtenido:', token ? `${token.substring(0, 20)}...` : 'NULL/UNDEFINED');
+    console.log('   📋 incidentData:', this.incidentData ? `ID: ${this.incidentData.id}` : 'NULL');
 
     if (!token || !this.incidentData) {
+      console.error('   ❌ No se puede conectar al chat:');
+      console.error('      - Token presente:', !!token);
+      console.error('      - incidentData presente:', !!this.incidentData);
+      console.log('═══════════════════════════════════════════════════════');
       return;
     }
 
+    console.log('   ✅ Token e incidentData válidos');
+    console.log('   🔍 Verificando estado de conexión...');
+    console.log('   📊 chatService.isConnected():', this.chatService.isConnected());
+
     // Conectar si no está conectado
     if (!this.chatService.isConnected()) {
+      console.log('   🚀 Iniciando conexión WebSocket con token...');
       this.chatService.connect(token);
+    } else {
+      console.log('   ℹ️ WebSocket ya está conectado');
     }
 
     // Esperar a que se conecte y unirse a la sala
+    let attempts = 0;
+    const maxAttempts = 50; // 5 segundos / 100ms
     const checkConnection = setInterval(() => {
-      if (this.chatService.isConnected()) {
+      attempts++;
+      const isConnected = this.chatService.isConnected();
+      console.log(`   ⏳ Intento ${attempts}/${maxAttempts} - Conectado: ${isConnected}`);
+
+      if (isConnected) {
         clearInterval(checkConnection);
+        console.log('   ✅ WebSocket conectado exitosamente');
+        console.log('   🚪 Uniéndose a sala:', this.incidentData!.id);
+        console.log('   🚪 Tipo de ID:', typeof this.incidentData!.id);
+        console.log('   🚪 Room name:', `incidencia:${this.incidentData!.id}`);
         this.chatService.joinRoom(this.incidentData!.id);
+        console.log('═══════════════════════════════════════════════════════');
       }
     }, 100);
 
     // Timeout después de 5 segundos
-    setTimeout(() => clearInterval(checkConnection), 5000);
+    setTimeout(() => {
+      clearInterval(checkConnection);
+      if (!this.chatService.isConnected()) {
+        console.error('   ❌ TIMEOUT: No se pudo conectar al WebSocket en 5 segundos');
+        console.error('   📊 Total de intentos:', attempts);
+        console.log('═══════════════════════════════════════════════════════');
+      }
+    }, 5000);
   }
 
   loadMessages() {
